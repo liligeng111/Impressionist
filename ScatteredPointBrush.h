@@ -1,18 +1,18 @@
 //
-// ScatteredCircleBrush.h
+// ScatteredPointBrush.h
 //
-// The header file for Scattered Circle Brush. 
+// The header file for Scattered Point Brush. 
 //
 
-#ifndef SCATTEREDCIRCLEBRUSH_H
-#define SCATTEREDCIRCLEBRUSH_H
+#ifndef SCATTEREDPOINTBRUSH_H
+#define SCATTEREDPOINTBRUSH_H
 
 #include "impbrush.h"
 
-class ScatteredCircleBrush : public ImpBrush
+class ScatteredPointBrush : public ImpBrush
 {
 public:
-	ScatteredCircleBrush( ImpressionistDoc* pDoc = NULL, char* name = NULL );
+	ScatteredPointBrush( ImpressionistDoc* pDoc = NULL, char* name = NULL );
 
 	void BrushBegin( const Point source, const Point target );
 	void BrushMove( const Point source, const Point target );
