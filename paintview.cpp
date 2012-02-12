@@ -37,7 +37,6 @@ PaintView::PaintView(int			x,
 {
 	m_nWindowWidth	= w;
 	m_nWindowHeight	= h;
-
 }
 
 
@@ -99,6 +98,7 @@ void PaintView::draw()
 
 		Point source( coord.x + m_nStartCol, m_nEndRow - coord.y );
 		Point target( coord.x, m_nWindowHeight - coord.y );
+
 		
 		// This is the event handler
 		switch (eventToDo) 
@@ -161,6 +161,8 @@ int PaintView::handle(int event)
 	case FL_DRAG:
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
+		// update the cursor for OriginalView
+		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, m_nWindowHeight-coord.y);
 		if (Fl::event_button()>1)
 			eventToDo=RIGHT_MOUSE_DRAG;
 		else
@@ -181,14 +183,13 @@ int PaintView::handle(int event)
 	case FL_MOVE:
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
+		// update the cursor for OriginalView
+		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, m_nWindowHeight-coord.y);
 		break;
 	default:
 		return 0;
 		break;
-
 	}
-
-
 
 	return 1;
 }

@@ -379,6 +379,10 @@ void ImpressionistUI::show() {
 void ImpressionistUI::resize_windows(int w, int h) {
 	m_paintView->size(w,h);
 	m_origView->size(w,h);
+	wrapper_group_paintview->size(w, h);
+	wrapper_group_origiview->size(w, h);
+	m_paintView->refresh();
+	m_origView->refresh();
 }
 
 //------------------------------------------------ 
@@ -511,7 +515,7 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
 //----------------------------------------------------
 ImpressionistUI::ImpressionistUI() {
 	// Create the main window
-	Fl::scheme("standard");
+	Fl::scheme("gtk+");
 	m_mainWindow = new Fl_Window(600, 300, "Impressionist");
 	m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
 	// using user_data is convention
@@ -525,13 +529,19 @@ ImpressionistUI::ImpressionistUI() {
 		Fl_Group* group = new Fl_Group(0, 25, 600, 275);
 
 			// install paint view window
-			m_paintView = new PaintView(300, 25, 300, 275, "This is the paint view");//0jon
-			m_paintView->box(FL_DOWN_FRAME);
+			wrapper_group_paintview = new Fl_Group(300, 25, 300, 275, "just wrapper");
+				m_paintView = new PaintView(300, 25, 300, 275, "This is the paint view");//0jon
+				m_paintView->box(FL_BORDER_FRAME);
+			wrapper_group_paintview->end();
+			wrapper_group_paintview->resizable(0);
 
 			// install original view window
-			m_origView = new OriginalView(0, 25, 300, 275, "This is the orig view");//300jon
-			m_origView->box(FL_DOWN_FRAME);
-			m_origView->deactivate();
+			wrapper_group_origiview = new Fl_Group(0, 25, 300, 275, "just wrapper");
+				m_origView = new OriginalView(0, 25, 300, 275, "This is the orig view");//300jon
+				m_origView->box(FL_DOWN_FRAME);
+				m_origView->deactivate();
+			wrapper_group_origiview->end();
+			wrapper_group_origiview->resizable(0);
 
 		group->end();
 		Fl_Group::current()->resizable(group);

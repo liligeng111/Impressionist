@@ -28,13 +28,18 @@ public:
 	void draw();
 	void refresh();
 
+	void update_cursor(int x, int y);
+
 	void resizeWindow(int width, int height);
 
 	ImpressionistDoc*	m_pDoc;
 
+
 private:
+	int cursor_x, cursor_y;
 	int	m_nWindowWidth, 
 		m_nWindowHeight;
+	// coord for cursor in PaintView
 
 };
 

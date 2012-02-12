@@ -63,6 +63,8 @@ ImpressionistDoc::ImpressionistDoc()
 void ImpressionistDoc::setUI(ImpressionistUI* ui) 
 {
 	m_pUI	= ui;
+	UIColor = new unsigned char[3];
+	Fl::get_color(ui->m_mainWindow->color(), UIColor[0], UIColor[1], UIColor[2]);
 }
 
 //---------------------------------------------------------
@@ -169,6 +171,7 @@ int ImpressionistDoc::loadImage(const char *iname)
 								height+25);
 								// 25 is for menubar 
 
+	/*
 	// display it on origView
 	m_pUI->m_origView->resizeWindow(width, height);	
 	m_pUI->m_origView->refresh();
@@ -176,7 +179,9 @@ int ImpressionistDoc::loadImage(const char *iname)
 	// refresh paint view as well
 	m_pUI->m_paintView->resizeWindow(width, height);	
 	m_pUI->m_paintView->refresh();
-
+	*/
+	// new way
+	m_pUI->resize_windows(width, height);
 
 	return 1;
 }
@@ -234,6 +239,7 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( int x, int y )
 
 	return (GLubyte*)(m_ucBitmap + 3 * (y*m_nWidth + x));
 	// GLubyte is merely an unsigned char [3].
+
 }
 
 //----------------------------------------------------------------

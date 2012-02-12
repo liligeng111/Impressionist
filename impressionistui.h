@@ -64,8 +64,13 @@ public:
 	float				getAlpha();
 	void				setAlpha(float alpha);
 
+	void set_wrapper_size(int x, int y);
+
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
+
+	Fl_Group * wrapper_group_paintview;
+	Fl_Group * wrapper_group_origiview;
 
 	// All attributes here
 	int		m_nSize;

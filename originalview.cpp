@@ -21,7 +21,19 @@ OriginalView::OriginalView(int			x,
 {
 	m_nWindowWidth	= w;
 	m_nWindowHeight	= h;
+	cursor_x = -1;
+	cursor_y = -1;
+}
 
+void OriginalView::update_cursor(int x, int y) {
+	/*
+	if (y > m_nWindowWidth - this->h() && x < this->w()) {
+	// cannot do, bcs w & h of FL_GL_WINDOW is updated according to resize action
+	}
+	further improvement, restrict the cursor in the image
+	*/
+	cursor_x = x; cursor_y = y;
+	refresh();
 }
 
 void OriginalView::draw()
@@ -38,7 +50,6 @@ void OriginalView::draw()
 		// out paint strokes 
 		glReadBuffer( GL_FRONT );
 		ortho();
-
 	}
 
 	glClear( GL_COLOR_BUFFER_BIT );
@@ -66,7 +77,6 @@ void OriginalView::draw()
 		if ( startrow < 0 ) 
 			startrow = 0;
 
-
 		bitstart = m_pDoc->m_ucBitmap + 3 * ((m_pDoc->m_nWidth * startrow) + scrollpos.x);
 
 		// just copy image to GLwindow conceptually
@@ -76,15 +86,15 @@ void OriginalView::draw()
 		glDrawBuffer( GL_BACK );
 		glDrawPixels( drawWidth, drawHeight, GL_RGB, GL_UNSIGNED_BYTE, bitstart );
 
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glBegin(GL_POLYGON);
+		// to mock mouse cursor
+		glVertex2f(cursor_x, cursor_y); 
+		glVertex2f(cursor_x + 10, cursor_y - 3); 
+		glVertex2f(cursor_x + 5, cursor_y - 8); 
+		glEnd();
 	}
 
-	glFlush();
-	// glClear(GL_COLOR_BUFFER_BIT);
-	glColor3b(255, 0, 0);
-	glBegin(GL_POLYGON);
-		glVertex2f(100, 100); glVertex2f(110, 100); glVertex2f(100, 110);
-	glEnd();
-			
 	glFlush();
 }
 
