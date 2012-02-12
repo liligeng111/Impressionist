@@ -25,7 +25,9 @@ Thumbs.db
 ipch/
 [Dd]ebug*/
 *.sbr
+*.sdf
 obj/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
+

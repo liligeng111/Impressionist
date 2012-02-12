@@ -1,5 +1,6 @@
 #include "images.h"
 #include "bitmap.h"
+#include <FL/Fl_Image.H>
 #include <FL/Fl_RGB_Image.H>
 #include <FL/Fl_bmp_Image.H>
 #include <FL/Fl_png_Image.H>
@@ -14,6 +15,11 @@ void save_image(const char* iname, int width, int height, const unsigned char* d
 	writeBMP(iname, width, height, data);
 }
 
+/*
+unsigned char* load_image(const char* iname, int &width, int& height) {
+	return readBMP(iname, width, height);
+}
+*/
 unsigned char* load_image(const char* iname, int &width, int& height) {
 	unsigned char* data = NULL;
 	Fl_RGB_Image* image = NULL;
@@ -52,8 +58,9 @@ unsigned char* load_image(const char* iname, int &width, int& height) {
 		More details needed
 		*/
 		for (int i = height - 1; i >= 0; i--) {
-			memcpy(data + (height - i) * width * 3, image->array + i * width * 3, width * 3);
+			memcpy(data + (height - i - 1) * width * 3, image->array + i * width * 3, width * 3);
 		}
+		// memcpy(data, image->array, width * height * 3);
 	}
 	delete image;
 	return data;

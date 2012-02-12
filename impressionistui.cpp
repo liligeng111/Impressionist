@@ -216,7 +216,7 @@ void ImpressionistUI::cb_save_image(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-	const char* newfile;
+	const char* newfile = NULL;
 	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
 	chooser->type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);   // let user browse a single file
 	chooser->title("Save image");                        // optional title
