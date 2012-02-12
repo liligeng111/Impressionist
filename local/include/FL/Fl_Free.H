@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Free.H,v 1.5.2.4 2001/01/22 15:13:37 easysw Exp $"
+// "$Id: Fl_Free.H 7903 2010-11-28 21:06:39Z matt $"
 //
 // Forms free header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,8 +20,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Free widget . */
 
 #ifndef Fl_Free_H
 #define Fl_Free_H
@@ -30,35 +35,55 @@
 #include "Fl_Widget.H"
 #endif
 
-#define FL_NORMAL_FREE		1
-#define FL_SLEEPING_FREE	2
-#define FL_INPUT_FREE		3
-#define FL_CONTINUOUS_FREE	4
-#define FL_ALL_FREE		5
+#define FL_NORMAL_FREE		1 /**< normal event handling */
+#define FL_SLEEPING_FREE	2 /**< deactivate event handling */
+#define FL_INPUT_FREE		3 /**< accepts FL_FOCUS events */
+#define FL_CONTINUOUS_FREE	4 /**< repeated timeout handling */
+#define FL_ALL_FREE		5 /**< FL_INPUT_FREE and FL_CONTINOUS_FREE */
 
+/** appropriate signature for handle function */
 typedef int (*FL_HANDLEPTR)(Fl_Widget *, int , float, float, char);
 
-class Fl_Free : public Fl_Widget {
+/**
+  Emulation of the Forms "free" widget.
+  
+  This emulation allows the free demo to run, and appears to be useful for
+  porting programs written in Forms which use the free widget or make
+  subclasses of the Forms widgets.
+
+  There are five types of free, which determine when the handle function
+  is called:
+  
+  \li \c FL_NORMAL_FREE      normal event handling.
+  \li \c FL_SLEEPING_FREE    deactivates event handling (widget is inactive).
+  \li \c FL_INPUT_FREE       accepts FL_FOCUS events.
+  \li \c FL_CONTINUOUS_FREE  sets a timeout callback 100 times a second and
+                             provides an FL_STEP event. This has obvious
+			     detrimental effects on machine performance.
+  \li \c FL_ALL_FREE         same as FL_INPUT_FREE and FL_CONTINUOUS_FREE.
+ 
+*/
+class FL_EXPORT Fl_Free : public Fl_Widget {
     FL_HANDLEPTR hfunc;
-    static FL_EXPORT void step(void *);
+    static void step(void *);
 protected:
-    FL_EXPORT void draw();
+    void draw();
 public:
-    FL_EXPORT int handle(int);
-    FL_EXPORT Fl_Free(uchar t,int x,int y,int w,int h,const char *l,FL_HANDLEPTR hdl);
-    FL_EXPORT ~Fl_Free();
+    int handle(int e);
+  Fl_Free(uchar t,int X,int Y,int W,int H,const char *L,FL_HANDLEPTR hdl);
+  ~Fl_Free();
 };
 
-// old event names for compatability:
-#define FL_MOUSE		FL_DRAG
-#define FL_DRAW			0
-#define FL_STEP			9
-#define FL_FREEMEM		12
-#define FL_FREEZE		FL_UNMAP
-#define FL_THAW			FL_MAP
+// old event names for compatibility:
+#define FL_MOUSE	FL_DRAG /**< for backward compatibility */
+#define FL_DRAW		100     /**< for backward compatibility [UNUSED]*/
+#define FL_STEP		101     /**< for backward compatibility */
+#define FL_FREEMEM	102     /**< for backward compatibility [UNUSED]*/
+#define FL_FREEZE	103     /**< for backward compatibility [UNUSED]*/
+#define FL_THAW		104     /**< for backward compatibility [UNUSED]*/
 
 #endif
 
 //
-// End of "$Id: Fl_Free.H,v 1.5.2.4 2001/01/22 15:13:37 easysw Exp $".
+// End of "$Id: Fl_Free.H 7903 2010-11-28 21:06:39Z matt $".
 //

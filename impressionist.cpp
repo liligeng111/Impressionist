@@ -19,8 +19,7 @@
 ImpressionistUI *impUI;
 ImpressionistDoc *impDoc;
 
-int main(int	argc, 
-		 char**	argv) 
+int main(int argc, char** argv) 
 {
 	impDoc = new ImpressionistDoc();
 
@@ -32,6 +31,7 @@ int main(int	argc,
 	impDoc->setUI(impUI);
 
 	Fl::visual(FL_DOUBLE|FL_INDEX);
+	// double buffered and index mode (?)
 
 	impUI->show();
 

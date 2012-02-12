@@ -33,7 +33,7 @@ public:
 	PaintView*			m_paintView;
 	OriginalView*		m_origView;
 
-// for brush dialog
+	// for brush dialog
 	Fl_Window*			m_brushDialog;
 	Fl_Choice*			m_BrushTypeChoice;
 
@@ -47,8 +47,7 @@ public:
 	void				show();
 	void				resize_windows(int w, int h);
 
-	// Interface to get attribute
-
+	// what's int size ?
 	int					getSize();
 	void				setSize(int size);
 
@@ -56,16 +55,18 @@ private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
 
 	// All attributes here
+
 	int		m_nSize;
+	// brush size
 
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
 	static Fl_Menu_Item		brushTypeMenu[NUM_BRUSH_TYPE+1];
 
 	static ImpressionistUI*	whoami(Fl_Menu_* o);
+	// get UI object from FL_Menu_Bar, Fl_Menu_button, and Fl_Choice
 
-	// All callbacks here.  Callbacks are declared 
-	// static
+	// All callbacks here.  Callbacks are declared static
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);

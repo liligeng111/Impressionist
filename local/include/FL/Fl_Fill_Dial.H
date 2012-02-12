@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Fill_Dial.H,v 1.4.2.3 2001/01/22 15:13:37 easysw Exp $"
+// "$Id: Fl_Fill_Dial.H 8022 2010-12-12 23:21:03Z AlbrechtS $"
 //
 // Filled dial header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,16 +20,23 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Fill_Dial widget . */
 
 #ifndef Fl_Fill_Dial_H
 #define Fl_Fill_Dial_H
 
 #include "Fl_Dial.H"
 
-class Fl_Fill_Dial : public Fl_Dial {
+/** Draws a dial with a filled arc */
+class FL_EXPORT Fl_Fill_Dial : public Fl_Dial {
 public:
+    /** Creates a filled dial, also setting its type to FL_FILL_DIAL. */
     Fl_Fill_Dial(int x,int y,int w,int h, const char *l = 0)
 	: Fl_Dial(x,y,w,h,l) {type(FL_FILL_DIAL);}
 };
@@ -37,5 +44,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Fill_Dial.H,v 1.4.2.3 2001/01/22 15:13:37 easysw Exp $".
+// End of "$Id: Fl_Fill_Dial.H 8022 2010-12-12 23:21:03Z AlbrechtS $".
 //

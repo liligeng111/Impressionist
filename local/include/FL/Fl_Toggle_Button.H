@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Toggle_Button.H,v 1.4.2.3 2001/01/22 15:13:38 easysw Exp $"
+// "$Id: Fl_Toggle_Button.H 8022 2010-12-12 23:21:03Z AlbrechtS $"
 //
 // Toggle button header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,22 +20,41 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Toggle_Button widget . */
 
 #ifndef Fl_Toggle_Button_H
 #define Fl_Toggle_Button_H
 
 #include "Fl_Button.H"
 
-class Fl_Toggle_Button : public Fl_Button {
+/**
+  The toggle button is a push button that needs to be clicked once 
+  to toggle on, and one more time to toggle off.
+  The Fl_Toggle_Button subclass displays the "on" state by
+  drawing a pushed-in button.</P>
+  <P>Buttons generate callbacks when they are clicked by the user.  You
+  control exactly when and how by changing the values for type()
+  and when().
+*/
+class FL_EXPORT Fl_Toggle_Button : public Fl_Button {
 public:
-    Fl_Toggle_Button(int x,int y,int w,int h,const char *l=0)
-	: Fl_Button(x,y,w,h,l) {type(FL_TOGGLE_BUTTON);}
+  /**
+    Creates a new Fl_Toggle_Button widget using the given
+    position, size, and label string.
+    <P>The inherited destructor deletes the toggle button.
+  */
+    Fl_Toggle_Button(int X,int Y,int W,int H,const char *l=0)
+	: Fl_Button(X,Y,W,H,l) {type(FL_TOGGLE_BUTTON);}
 };
 
 #endif
 
 //
-// End of "$Id: Fl_Toggle_Button.H,v 1.4.2.3 2001/01/22 15:13:38 easysw Exp $".
+// End of "$Id: Fl_Toggle_Button.H 8022 2010-12-12 23:21:03Z AlbrechtS $".
 //

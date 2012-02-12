@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Round_Clock.H,v 1.4.2.3 2001/01/22 15:13:38 easysw Exp $"
+// "$Id: Fl_Round_Clock.H 8022 2010-12-12 23:21:03Z AlbrechtS $"
 //
 // Round clock header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,16 +20,23 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Round_Clock widget . */
 
 #ifndef Fl_Round_Clock_H
 #define Fl_Round_Clock_H
 
 #include "Fl_Clock.H"
 
-class Fl_Round_Clock : public Fl_Clock {
+/** A clock widget of type FL_ROUND_CLOCK. Has no box. */
+class FL_EXPORT Fl_Round_Clock : public Fl_Clock {
 public:
+    /** Creates the clock widget, setting his type and box. */
     Fl_Round_Clock(int x,int y,int w,int h, const char *l = 0)
 	: Fl_Clock(x,y,w,h,l) {type(FL_ROUND_CLOCK); box(FL_NO_BOX);}
 };
@@ -37,5 +44,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Round_Clock.H,v 1.4.2.3 2001/01/22 15:13:38 easysw Exp $".
+// End of "$Id: Fl_Round_Clock.H 8022 2010-12-12 23:21:03Z AlbrechtS $".
 //

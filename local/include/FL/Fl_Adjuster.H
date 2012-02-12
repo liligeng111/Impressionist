@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Adjuster.H,v 1.5.2.3 2001/01/22 15:13:37 easysw Exp $"
+// "$Id: Fl_Adjuster.H 7981 2010-12-08 23:53:04Z greg.ercolano $"
 //
 // Adjuster widget header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,8 +20,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Adjuster widget . */
 
 // 3-button "slider", made for Nuke
 
@@ -32,22 +37,46 @@
 #include "Fl_Valuator.H"
 #endif
 
-class Fl_Adjuster : public Fl_Valuator {
+/**
+  The Fl_Adjuster widget was stolen from Prisms, and has proven
+  to be very useful for values that need a large dynamic range.
+  \image html adjuster1.png 
+  \image latex adjuster1.png "Fl_Adjuster" width=4cm
+  <P>When you  press a button and drag to the right the value increases.
+  When you drag  to the left it decreases.  The largest button adjusts by
+  100 *  step(), the next by 10 * step() and that
+  smallest button  by step().  Clicking on the buttons
+  increments by 10 times the  amount dragging by a pixel does. Shift +
+  click decrements by 10 times  the amount.
+*/
+class FL_EXPORT Fl_Adjuster : public Fl_Valuator {
   int drag;
   int ix;
   int soft_;
 protected:
-  FL_EXPORT void draw();
-  FL_EXPORT int handle(int);
-  FL_EXPORT void value_damage();
+  void draw();
+  int handle(int);
+  void value_damage();
 public:
-  FL_EXPORT Fl_Adjuster(int x,int y,int w,int h,const char *l=0);
-  FL_EXPORT void soft(int x) {soft_ = x;}
-  FL_EXPORT int soft() const {return soft_;}
+  Fl_Adjuster(int X,int Y,int W,int H,const char *l=0);
+  /**
+    If "soft" is turned on, the user is allowed to drag the value outside
+    the range.  If they drag the value to one of the ends, let go, then
+    grab again and continue to drag, they can get to any value.  Default is
+    one.
+  */
+  void soft(int s) {soft_ = s;}
+  /**
+    If "soft" is turned on, the user is allowed to drag the value outside
+    the range.  If they drag the value to one of the ends, let go, then
+    grab again and continue to drag, they can get to any value.  Default is
+    one.
+  */
+  int soft() const {return soft_;}
 };
 
 #endif
 
 //
-// End of "$Id: Fl_Adjuster.H,v 1.5.2.3 2001/01/22 15:13:37 easysw Exp $".
+// End of "$Id: Fl_Adjuster.H 7981 2010-12-08 23:53:04Z greg.ercolano $".
 //

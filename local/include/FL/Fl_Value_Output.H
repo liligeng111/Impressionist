@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Value_Output.H,v 1.5.2.3 2001/01/22 15:13:38 easysw Exp $"
+// "$Id: Fl_Value_Output.H 7989 2010-12-09 12:19:03Z greg.ercolano $"
 //
 // Value output header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,8 +20,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Value_Output widget . */
 
 #ifndef Fl_Value_Output_H
 #define Fl_Value_Output_H
@@ -30,26 +35,61 @@
 #include "Fl_Valuator.H"
 #endif
 
-class Fl_Value_Output : public Fl_Valuator {
-  uchar textfont_, textsize_, textcolor_, soft_;
-public:
-  FL_EXPORT int handle(int);
-  FL_EXPORT void draw();
-  FL_EXPORT Fl_Value_Output(int x,int y,int w,int h,const char *l=0);
+/**
+  The Fl_Value_Output widget displays a floating point value.
+  If step() is not zero, the user can adjust the value by
+  dragging the mouse left and right.  The left button moves one step()
+  per pixel, the middle by 10 * step(), and the right button by 
+  100 * step().
+  <P>This is much lighter-weight than 
+  Fl_Value_Input because it contains no text editing code or
+  character buffer. </P>
+  <P ALIGN=CENTER>\image html Fl_Value_Output.png 
+  \image latex  Fl_Value_Output.png "Fl_Value_Output" width=4cm
+*/
+class FL_EXPORT Fl_Value_Output : public Fl_Valuator {
+  Fl_Font textfont_;
+  Fl_Fontsize textsize_;
+  uchar soft_;
+  Fl_Color textcolor_;
 
-  void soft(uchar x) {soft_ = x;}
+protected:
+  void draw();
+
+public:
+  int handle(int);
+  Fl_Value_Output(int x,int y,int w,int h,const char *l=0);
+
+  /**
+    If "soft" is turned on, the user is allowed to drag the value outside
+    the range.  If they drag the value to one of the ends, let go, then
+    grab again and continue to drag, they can get to any value.  Default is
+    one.
+  */
+  void soft(uchar s) {soft_ = s;}
+  /**
+    If "soft" is turned on, the user is allowed to drag the value outside
+    the range.  If they drag the value to one of the ends, let go, then
+    grab again and continue to drag, they can get to any value.  Default is
+    one.
+  */
   uchar soft() const {return soft_;}
 
-  Fl_Font textfont() const {return (Fl_Font)textfont_;}
-  void textfont(uchar s) {textfont_ = s;}
-  uchar textsize() const {return textsize_;}
-  void textsize(uchar s) {textsize_ = s;}
-  Fl_Color textcolor() const {return (Fl_Color)textcolor_;}
-  void textcolor(uchar s) {textcolor_ = s;}
+  /**    Gets the typeface of the text in the value box.  */
+  Fl_Font textfont() const {return textfont_;}
+  /**    Sets the typeface of the text in the value box.  */
+  void textfont(Fl_Font s) {textfont_ = s;}
+  /**    Gets the size of the text in the value box.  */
+  Fl_Fontsize textsize() const {return textsize_;}
+  void textsize(Fl_Fontsize s) {textsize_ = s;}
+  /**    Sets the color of the text in the value box.  */
+  Fl_Color textcolor() const {return textcolor_;}
+  /**    Gets the color of the text in the value box.  */
+  void textcolor(Fl_Color s) {textcolor_ = s;}
 };
 
 #endif
 
 //
-// End of "$Id: Fl_Value_Output.H,v 1.5.2.3 2001/01/22 15:13:38 easysw Exp $".
+// End of "$Id: Fl_Value_Output.H 7989 2010-12-09 12:19:03Z greg.ercolano $".
 //

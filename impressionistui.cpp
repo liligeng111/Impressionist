@@ -6,8 +6,10 @@
 
 
 #include <FL/fl_ask.H>
+#include <FL/Fl_Native_File_Chooser.H>
 
 #include <math.h>
+#include <stdio.h>
 
 #include "impressionistui.h"
 #include "impressionistdoc.h"
@@ -177,11 +179,33 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-	char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName() );
+	const char* newfile;
+	// this will get the file path relative to the application itself
+	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->title("Open an image file");                        // optional title
+	chooser->directory(".");
+	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
+	switch ( chooser->show() ) {
+		case -1:    // ERROR
+			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+			break;
+		case 1:     // CANCEL
+			fprintf(stderr, "*** CANCEL\n");
+			break;
+		default:    // USER PICKED A FILE
+			newfile = chooser->filename();
+			fprintf(stderr, "Filename was '%s'\n", newfile);
+			pDoc->loadImage(newfile);
+			break;
+	}
+	/*
 	if (newfile != NULL) {
 		pDoc->loadImage(newfile);
 	}
+	*/
 }
+
 
 
 //------------------------------------------------------------------
@@ -192,7 +216,26 @@ void ImpressionistUI::cb_save_image(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-	char* newfile = fl_file_chooser("Save File?", "*.bmp", "save.bmp" );
+	const char* newfile;
+	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+	chooser->type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);   // let user browse a single file
+	chooser->title("Save image");                        // optional title
+	chooser->directory(".");
+	chooser->preset_file("untitled.bmp");
+	chooser->filter("RGB Image Files\t*.bmp");                 // optional filter
+	switch ( chooser->show() ) {
+		case -1:    // ERROR
+			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+			break;
+		case 1:     // CANCEL
+			fprintf(stderr, "*** CANCEL\n");
+			break;
+		default:    // USER PICKED A FILE
+			newfile = chooser->filename();
+			fprintf(stderr, "Filename was '%s'\n", newfile);
+			break;
+	}
+
 	if (newfile != NULL) {
 		pDoc->saveImage(newfile);
 	}
@@ -225,8 +268,9 @@ void ImpressionistUI::cb_clear_canvas(Fl_Menu_* o, void* v)
 //------------------------------------------------------------
 void ImpressionistUI::cb_exit(Fl_Menu_* o, void* v) 
 {
-	whoami(o)->m_mainWindow->hide();
 	whoami(o)->m_brushDialog->hide();
+	whoami(o)->m_mainWindow->hide();
+	// remember to add more hide() functions if there are
 
 }
 
@@ -238,7 +282,7 @@ void ImpressionistUI::cb_exit(Fl_Menu_* o, void* v)
 //-----------------------------------------------------------
 void ImpressionistUI::cb_about(Fl_Menu_* o, void* v) 
 {
-	fl_message("Impressionist FLTK version for CS341, Spring 2002");
+	fl_message("Impressionist for COMP4411, HKUST\nBy Heng and Ligeng\nSpring, 2012. Due on May 1");
 }
 
 //------- UI should keep track of the current for all the controls for answering the query from Doc ---------
@@ -341,6 +385,7 @@ void ImpressionistUI::setSize( int size )
 }
 
 // Main menu definition
+/// need to set callback during initialization
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
@@ -377,8 +422,11 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
 //----------------------------------------------------
 ImpressionistUI::ImpressionistUI() {
 	// Create the main window
+	Fl::scheme("standard");
 	m_mainWindow = new Fl_Window(600, 300, "Impressionist");
-		m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
+	m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
+	// using user_data is convention
+
 		// install menu bar
 		m_menubar = new Fl_Menu_Bar(0, 0, 600, 25);
 		m_menubar->menu(menuitems);
@@ -398,6 +446,7 @@ ImpressionistUI::ImpressionistUI() {
 
 		group->end();
 		Fl_Group::current()->resizable(group);
+		// current() should mean the mainwindow
     m_mainWindow->end();
 
 	// init values

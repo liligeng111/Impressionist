@@ -90,14 +90,15 @@ int ImpressionistDoc::getSize()
 // This is called by the UI when the load image button is 
 // pressed.
 //---------------------------------------------------------
-int ImpressionistDoc::loadImage(char *iname) 
+
+int ImpressionistDoc::loadImage(const char *iname) 
 {
 	// try to open the image to read
 	unsigned char*	data;
 	int				width, 
 					height;
 
-	if ( (data=readBMP(iname, width, height))==NULL ) 
+	if ( (data=load_image(iname, width, height))==NULL ) 
 	{
 		fl_alert("Can't load bitmap file");
 		return 0;
@@ -117,12 +118,16 @@ int ImpressionistDoc::loadImage(char *iname)
 
 	// allocate space for draw view
 	m_ucPainting	= new unsigned char [width*height*3];
+	// here we can see how the image is stored
+	// by rows
+
 	memset(m_ucPainting, 0, width*height*3);
 
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
 								width*2, 
 								height+25);
+								// 25 is for menubar 
 
 	// display it on origView
 	m_pUI->m_origView->resizeWindow(width, height);	
@@ -142,11 +147,9 @@ int ImpressionistDoc::loadImage(char *iname)
 // This is called by the UI when the save image menu button is 
 // pressed.
 //----------------------------------------------------------------
-int ImpressionistDoc::saveImage(char *iname) 
+int ImpressionistDoc::saveImage(const char *iname) 
 {
-
-	writeBMP(iname, m_nPaintWidth, m_nPaintHeight, m_ucPainting);
-
+	save_image(iname, m_nPaintWidth, m_nPaintHeight, m_ucPainting);
 	return 1;
 }
 
@@ -190,6 +193,7 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( int x, int y )
 		y = m_nHeight-1;
 
 	return (GLubyte*)(m_ucBitmap + 3 * (y*m_nWidth + x));
+	// GLubyte is merely an unsigned char [3].
 }
 
 //----------------------------------------------------------------

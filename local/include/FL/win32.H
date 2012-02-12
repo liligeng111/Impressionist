@@ -1,9 +1,9 @@
 //
-// "$Id: win32.H,v 1.15.2.3 2001/01/22 15:13:38 easysw Exp $"
+// "$Id: win32.H 8726 2011-05-23 18:32:47Z AlbrechtS $"
 //
 // WIN32 header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2011 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,14 +20,30 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
+//
+//     http://www.fltk.org/str.php
 //
 
 // Do not directly include this file, instead use <FL/x.H>.  It will
 // include this file if WIN32 is defined.  This is to encourage
 // portability of even the system-specific code...
 
+#ifndef FL_DOXYGEN
+#ifndef Fl_X_H
+#  error "Never use <FL/win32.H> directly; include <FL/x.H> instead."
+#endif // !Fl_X_H
+
 #include <windows.h>
+typedef HRGN Fl_Region;
+typedef HWND Window;
+typedef POINT XPoint;
+
+#include <FL/Fl_Window.H>
+
+// this part is included only when compiling the FLTK library or if requested explicitly
+#if defined(FL_LIBRARY) || defined(FL_INTERNALS) 
+
 // In some of the distributions, the gcc header files are missing some stuff:
 #ifndef LPMINMAXINFO
 #define LPMINMAXINFO MINMAXINFO*
@@ -39,16 +55,10 @@
 #endif
 
 // some random X equivalents
-typedef HWND Window;
-typedef POINT XPoint;
 struct XRectangle {int x, y, width, height;};
-typedef HRGN Region;
-FL_EXPORT void fl_clip_region(Region);
-inline Region XRectangleRegion(int x, int y, int w, int h) {
-    return CreateRectRgn(x,y,x+w,y+h);
-}
-inline void XDestroyRegion(Region r) {DeleteObject(r);}
-inline void XClipBox(Region r,XRectangle* rect) {
+extern Fl_Region XRectangleRegion(int x, int y, int w, int h);
+inline void XDestroyRegion(Fl_Region r) {DeleteObject(r);}
+inline void XClipBox(Fl_Region r,XRectangle* rect) {
     RECT win_rect; GetRgnBox(r,&win_rect);
     rect->x=win_rect.left;
     rect->y=win_rect.top;
@@ -59,34 +69,48 @@ inline void XClipBox(Region r,XRectangle* rect) {
 #define XMapWindow(a,b) ShowWindow(b, SW_RESTORE)
 #define XUnmapWindow(a,b) ShowWindow(b, SW_HIDE)
 
-#include "Fl_Window.H"
 // this object contains all win32-specific stuff about a window:
 // Warning: this object is highly subject to change!
-class Fl_X {
+class FL_EXPORT Fl_X {
 public:
+  // member variables - add new variables only at the end of this block
   Window xid;
   HBITMAP other_xid; // for double-buffered windows
   Fl_Window* w;
-  Region region;
+  Fl_Region region;
   Fl_X *next;
   int wait_for_expose;
   HDC private_dc; // used for OpenGL
   HCURSOR cursor;
-  static FL_EXPORT Fl_X* first;
-  static FL_EXPORT Fl_X* i(const Fl_Window* w) {return w->i;}
-  static FL_EXPORT int fake_X_wm(const Fl_Window* w,int &X, int &Y,
+  HDC saved_hdc;  // saves the handle of the DC currently loaded
+  // static variables, static functions and member functions
+  static Fl_X* first;
+  static Fl_X* i(const Fl_Window* w) {return w->i;}
+  static int fake_X_wm(const Fl_Window* w,int &X, int &Y,
 		                 int &bt,int &bx,int &by);
-  FL_EXPORT void setwindow(Fl_Window* wi) {w=wi; wi->i=this;}
-  FL_EXPORT void flush() {w->flush();}
-  FL_EXPORT void set_minmax(LPMINMAXINFO minmax);
-  FL_EXPORT void mapraise();
-  static FL_EXPORT Fl_X* make(Fl_Window*);
+  void setwindow(Fl_Window* wi) {w=wi; wi->i=this;}
+  void flush() {w->flush();}
+  void set_minmax(LPMINMAXINFO minmax);
+  void mapraise();
+  static Fl_X* make(Fl_Window*);
 };
 extern FL_EXPORT HCURSOR fl_default_cursor;
-inline Window fl_xid(const Fl_Window*w) {return Fl_X::i(w)->xid;}
-FL_EXPORT Fl_Window* fl_find(Window xid);
+extern FL_EXPORT UINT fl_wake_msg;
 extern FL_EXPORT char fl_override_redirect; // hack into Fl_Window::make_xid()
 extern FL_EXPORT int fl_background_pixel;  // hack into Fl_Window::make_xid()
+extern FL_EXPORT HPALETTE fl_palette; // non-zero only on 8-bit displays!
+extern FL_EXPORT void fl_release_dc(HWND w, HDC dc);
+extern FL_EXPORT void fl_save_dc( HWND w, HDC dc);
+
+inline Window fl_xid(const Fl_Window* w) { Fl_X *temp = Fl_X::i(w); return temp ? temp->xid : 0; }
+
+#else
+FL_EXPORT Window fl_xid_(const Fl_Window* w);
+#define fl_xid(w) fl_xid_(w)
+#endif // FL_LIBRARY || FL_INTERNALS
+
+FL_EXPORT Fl_Window* fl_find(Window xid);
+void fl_clip_region(Fl_Region);
 
 // most recent fl_color() or fl_rgbcolor() points at one of these:
 extern FL_EXPORT struct Fl_XMap {
@@ -97,29 +121,45 @@ extern FL_EXPORT struct Fl_XMap {
 inline COLORREF fl_RGB() {return fl_current_xmap->rgb;}
 inline HPEN fl_pen() {return fl_current_xmap->pen;}
 FL_EXPORT HBRUSH fl_brush(); // allocates a brush if necessary
+FL_EXPORT HBRUSH fl_brush_action(int); // now does the real work
 
 extern FL_EXPORT HINSTANCE fl_display;
 extern FL_EXPORT Window fl_window;
 extern FL_EXPORT HDC fl_gc;
-extern FL_EXPORT HPALETTE fl_palette; // non-zero only on 8-bit displays!
-extern FL_EXPORT HDC fl_GetDC(Window);
 extern FL_EXPORT MSG fl_msg;
+extern FL_EXPORT HDC fl_GetDC(Window);
+extern FL_EXPORT HDC fl_makeDC(HBITMAP);
 
 // off-screen pixmaps: create, destroy, draw into, copy to window
-#define Fl_Offscreen HBITMAP
-#define fl_create_offscreen(w, h) CreateCompatibleBitmap(fl_gc, w, h)
+typedef HBITMAP Fl_Offscreen;
+#define fl_create_offscreen(w, h) \
+  CreateCompatibleBitmap( (fl_gc ? fl_gc : fl_GetDC(0) ) , w, h)
 
-extern FL_EXPORT HDC fl_makeDC(HBITMAP);
-#define fl_begin_offscreen(b) \
-  HDC _sgc=fl_gc; Window _sw=fl_window; \
-  fl_gc=fl_makeDC(b); fl_window=(HWND)b; fl_push_no_clip()
+# define fl_begin_offscreen(b) \
+   HDC _sgc=fl_gc; Window _sw=fl_window; \
+   Fl_Surface_Device *_ss = Fl_Surface_Device::surface(); Fl_Display_Device::display_device()->set_current(); \
+   fl_gc=fl_makeDC(b); int _savedc = SaveDC(fl_gc); fl_window=(HWND)b; fl_push_no_clip()
 
-#define fl_end_offscreen() \
-  fl_pop_clip(); DeleteDC(fl_gc); fl_window=_sw; fl_gc = _sgc
+# define fl_end_offscreen() \
+   fl_pop_clip(); RestoreDC(fl_gc, _savedc); DeleteDC(fl_gc); _ss->set_current(); fl_window=_sw; fl_gc = _sgc
+
 
 FL_EXPORT void fl_copy_offscreen(int x,int y,int w,int h,HBITMAP pixmap,int srcx,int srcy);
-#define fl_delete_offscreen(bitmap) DeleteObject(bitmap);
+FL_EXPORT void fl_copy_offscreen_with_alpha(int x,int y,int w,int h,HBITMAP pixmap,int srcx,int srcy);
+#define fl_delete_offscreen(bitmap) DeleteObject(bitmap)
 
+// Bitmap masks
+typedef HBITMAP Fl_Bitmask;
+
+extern FL_EXPORT Fl_Bitmask fl_create_bitmask(int w, int h, const uchar *data);
+extern FL_EXPORT Fl_Bitmask fl_create_alphamask(int w, int h, int d, int ld, const uchar *data);
+extern FL_EXPORT void fl_delete_bitmask(Fl_Bitmask bm);
+
+// Dummy function to register a function for opening files via the window manager...
+inline void fl_open_callback(void (*)(const char *)) {}
+
+extern FL_EXPORT int fl_parse_color(const char* p, uchar& r, uchar& g, uchar& b);
+#endif // FL_DOXYGEN
 //
-// End of "$Id: win32.H,v 1.15.2.3 2001/01/22 15:13:38 easysw Exp $".
+// End of "$Id: win32.H 8726 2011-05-23 18:32:47Z AlbrechtS $".
 //

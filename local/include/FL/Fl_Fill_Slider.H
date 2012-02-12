@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Fill_Slider.H,v 1.4.2.3 2001/01/22 15:13:37 easysw Exp $"
+// "$Id: Fl_Fill_Slider.H 8022 2010-12-12 23:21:03Z AlbrechtS $"
 //
 // Filled slider header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,16 +20,22 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Fill_Slider widget . */
 
 #ifndef Fl_Fill_Slider_H
 #define Fl_Fill_Slider_H
 
 #include "Fl_Slider.H"
-
-class Fl_Fill_Slider : public Fl_Slider {
+/** Widget that draws a filled horizontal  slider,  useful as a progress or value meter*/
+class FL_EXPORT Fl_Fill_Slider : public Fl_Slider {
 public:
+    /** Creates the slider from its position,size and optional title. */
     Fl_Fill_Slider(int x,int y,int w,int h,const char *l=0)
 	: Fl_Slider(x,y,w,h,l) {type(FL_VERT_FILL_SLIDER);}
 };
@@ -37,5 +43,5 @@ public:
 #endif
 
 //
-// End of "$Id: Fl_Fill_Slider.H,v 1.4.2.3 2001/01/22 15:13:37 easysw Exp $".
+// End of "$Id: Fl_Fill_Slider.H 8022 2010-12-12 23:21:03Z AlbrechtS $".
 //

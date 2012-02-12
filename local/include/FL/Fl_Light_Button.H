@@ -1,9 +1,9 @@
 //
-// "$Id: Fl_Light_Button.H,v 1.5.2.3 2001/01/22 15:13:37 easysw Exp $"
+// "$Id: Fl_Light_Button.H 8178 2011-01-04 14:09:37Z manolo $"
 //
 // Lighted button header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2010 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,24 +20,40 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
 //
+//     http://www.fltk.org/str.php
+//
+
+/* \file
+   Fl_Light_Button widget . */
 
 #ifndef Fl_Light_Button_H
 #define Fl_Light_Button_H
 
 #include "Fl_Button.H"
 
-class Fl_Light_Button : public Fl_Button {
+/**
+  This subclass displays the "on" state by turning on a light, 
+  rather than drawing pushed in.  The shape of the  "light" 
+  is initially set to FL_DOWN_BOX.  The color of the light when
+  on is controlled with selection_color(), which defaults to FL_YELLOW.
+
+  Buttons generate callbacks when they are clicked by the user.  You
+  control exactly when and how by changing the values for type() and when().
+  <P ALIGN=CENTER>\image html Fl_Light_Button.png</P> 
+  \image latex Fl_Light_Button.png "Fl_Light_Button" width=4cm
+*/
+class FL_EXPORT Fl_Light_Button : public Fl_Button {
 protected:
-    virtual FL_EXPORT void draw();
+    virtual void draw();
 public:
-    virtual FL_EXPORT int handle(int);
-    FL_EXPORT Fl_Light_Button(int x,int y,int w,int h,const char *l = 0);
+    virtual int handle(int);
+    Fl_Light_Button(int x,int y,int w,int h,const char *l = 0);
 };
 
 #endif
 
 //
-// End of "$Id: Fl_Light_Button.H,v 1.5.2.3 2001/01/22 15:13:37 easysw Exp $".
+// End of "$Id: Fl_Light_Button.H 8178 2011-01-04 14:09:37Z manolo $".
 //

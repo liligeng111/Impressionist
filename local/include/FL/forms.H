@@ -1,9 +1,9 @@
 //
-// "$Id: forms.H,v 1.7.2.6 2001/01/22 15:13:38 easysw Exp $"
+// "$Id: forms.H 8623 2011-04-24 17:09:41Z AlbrechtS $"
 //
 // Forms emulation header file for the Fast Light Tool Kit (FLTK).
 //
-// Copyright 1998-2001 by Bill Spitzak and others.
+// Copyright 1998-2011 by Bill Spitzak and others.
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
@@ -20,7 +20,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA.
 //
-// Please report all bugs and problems to "fltk-bugs@fltk.org".
+// Please report all bugs and problems on the following page:
+//
+//     http://www.fltk.org/str.php
 //
 
 #ifndef __FORMS_H__
@@ -56,7 +58,7 @@ typedef Fl_Window FL_FORM;
 #define FL_CANCEL	0
 #define FL_INVALID	0
 #define FL_IGNORE	-1
-#define FL_CLOSE	-2
+//#define FL_CLOSE	-2 // this variable is never used in FLTK Forms. It is removed becaus it conflicts with the window FL_CLOSE event
 
 #define FL_LCOL		FL_BLACK
 #define FL_COL1		FL_GRAY
@@ -206,13 +208,15 @@ inline void fl_reset_focus_object(Fl_Widget* o) {Fl::focus(o);}
 
 inline void fl_set_object_boxtype(Fl_Widget* o, Fl_Boxtype a) {o->box(a);}
 inline void fl_set_object_lsize(Fl_Widget* o,int s) {o->labelsize(s);}
+
+/* forms lib font indexes must be byte sized - extract correct byte from style word */
 inline void fl_set_object_lstyle(Fl_Widget* o,int a) {
-  o->labelfont((uchar)a); o->labeltype((Fl_Labeltype)(a>>8));}
-inline void fl_set_object_lcol(Fl_Widget* o, uchar a) {o->labelcolor(a);}
+  o->labelfont((Fl_Font)(a&0xff)); o->labeltype((Fl_Labeltype)(a>>8));}
+inline void fl_set_object_lcol(Fl_Widget* o, Fl_Color a) {o->labelcolor(a);}
 #define fl_set_object_lcolor  fl_set_object_lcol
 inline void fl_set_object_lalign(Fl_Widget* o, Fl_Align a) {o->align(a);}
 #define fl_set_object_align fl_set_object_lalign
-inline void fl_set_object_color(Fl_Widget* o,uchar a,uchar b) {o->color(a,b);}
+inline void fl_set_object_color(Fl_Widget* o,Fl_Color a,Fl_Color b) {o->color(a,b);}
 inline void fl_set_object_label(Fl_Widget* o, const char* a) {o->label(a); o->redraw();}
 inline void fl_set_object_position(Fl_Widget*o,int x,int y) {o->position(x,y);}
 inline void fl_set_object_size(Fl_Widget* o, int w, int h) {o->size(w,h);}
@@ -235,13 +239,12 @@ inline void fl_redraw_object(Fl_Widget* o) {o->redraw();}
 inline void fl_show_object(Fl_Widget* o) {o->show();}
 inline void fl_hide_object(Fl_Widget* o) {o->hide();}
 inline void fl_free_object(Fl_Widget* x) {delete x;}
-inline void fl_delete_object(Fl_Widget* o) {((Fl_Group*)(o->parent()))->remove(*o);}
+inline void fl_delete_object(Fl_Widget* o) {o->parent()->remove(*o);}
 inline void fl_activate_object(Fl_Widget* o) {o->activate();}
 inline void fl_deactivate_object(Fl_Widget* o) {o->deactivate();}
 
 inline void fl_add_object(Fl_Window* f, Fl_Widget* x) {f->add(x);}
-inline void fl_insert_object(Fl_Widget* o, Fl_Widget* b) {
-    ((Fl_Group*)(b->parent()))->insert(*o,b);}
+inline void fl_insert_object(Fl_Widget* o, Fl_Widget* b) {b->parent()->insert(*o,b);}
 
 inline Fl_Window* FL_ObjWin(Fl_Widget* o) {return o->window();}
 
@@ -372,7 +375,7 @@ inline void fl_set_font_name(Fl_Font n,const char* s) {Fl::set_font(n,s);}
 
 inline void fl_mapcolor(Fl_Color c, uchar r, uchar g, uchar b) {Fl::set_color(c,r,g,b);}
 
-#define fl_set_clipping(x,y,w,h) fl_clip(x,y,w,h)
+#define fl_set_clipping(x,y,w,h) fl_push_clip(x,y,w,h)
 #define fl_unset_clipping() fl_pop_clip()
 
 ////////////////////////////////////////////////////////////////
@@ -502,7 +505,7 @@ inline void fl_set_bitmapbutton_data(Fl_Widget* o,int a,int b,uchar* c) {
   (new Fl_Bitmap(c,a,b))->label(o);}  // does not delete old Fl_Bitmap!
 
 inline Fl_Widget* fl_add_pixmapbutton(int t,int x,int y,int w,int h,const char* l) {Fl_Widget* o = fl_add_button(t,x,y,w,h,l); return o;}
-inline void fl_set_pixmapbutton_data(Fl_Widget* o, char*const* c) {
+inline void fl_set_pixmapbutton_data(Fl_Widget* o, const char*const* c) {
   (new Fl_Pixmap(c))->label(o);}  // does not delete old Fl_Pixmap!
 
 // Fl_Canvas object not yet implemented!
@@ -528,7 +531,7 @@ inline void fl_set_chart_lstyle(Fl_Widget* o, Fl_Font v) {
   ((Fl_Chart*)o)->textfont(v);}
 inline void fl_set_chart_lsize(Fl_Widget* o, int v) {
   ((Fl_Chart*)o)->textsize(v);}
-inline void fl_set_chart_lcolor(Fl_Widget* o, uchar v) {
+inline void fl_set_chart_lcolor(Fl_Widget* o, Fl_Color v) {
   ((Fl_Chart*)o)->textcolor(v);}
 #define fl_set_chart_lcol   fl_set_chart_lcolor
 
@@ -615,7 +618,7 @@ inline void fl_get_dial_bounds(Fl_Widget* o, float* a, float* b) {
 inline void fl_set_dial_return(Fl_Widget* o, int i) {
   ((Fl_Dial*)o)->when((Fl_When)(i|FL_WHEN_RELEASE));}
 inline void fl_set_dial_angles(Fl_Widget* o, int a, int b) {
-  ((Fl_Dial*)o)->angles(a, b);}
+  ((Fl_Dial*)o)->angles((short)a, (short)b);}
 //inline void fl_set_dial_cross(Fl_Widget* o, int);
 // inline void fl_set_dial_direction(Fl_Widget* o, uchar d) {
 //   ((Fl_Dial*)o)->direction(d);}
@@ -645,11 +648,11 @@ fl_add_free(int t,double x,double y,double w,double h,const char* l,
 #include "fl_ask.H"
 #include "fl_show_colormap.H"
 
-inline int fl_show_question(const char* c, int = 0) {return fl_ask(c);}
+inline int fl_show_question(const char* c, int = 0) {return fl_choice("%s",fl_no,fl_yes,0L,c);}
 FL_EXPORT void fl_show_message(const char *,const char *,const char *);
 FL_EXPORT void fl_show_alert(const char *,const char *,const char *,int=0);
 FL_EXPORT int fl_show_question(const char *,const char *,const char *);
-inline const char *fl_show_input(const char *l,const char*d=0) {return fl_input(l,d);}
+inline const char *fl_show_input(const char *l,const char*d=0) {return fl_input("%s",d,l);}
 FL_EXPORT /*const*/ char *fl_show_simple_input(const char *label, const char *deflt = 0);
 FL_EXPORT int fl_show_choice(
     const char *m1,
@@ -660,7 +663,7 @@ FL_EXPORT int fl_show_choice(
     const char *b1,
     const char *b2);
 
-inline void fl_set_goodies_font(uchar a, uchar b) {fl_message_font(a,b);}
+inline void fl_set_goodies_font(Fl_Font a, Fl_Fontsize b) {fl_message_font(a,b);}
 #define fl_show_messages fl_message
 inline int fl_show_choices(const char* c,int n,const char* b1,const char* b2,
 			   const char* b3, int) {
@@ -668,10 +671,10 @@ inline int fl_show_choices(const char* c,int n,const char* b1,const char* b2,
 }
 
 #include "filename.H"
-#include "fl_file_chooser.H"
-inline int do_matching(char* a, const char* b) {return filename_match(a,b);}
+#include "Fl_File_Chooser.H"
+inline int do_matching(char* a, const char* b) {return fl_filename_match(a,b);}
 
-// Forms-compatable file chooser (implementation in fselect.C):
+// Forms-compatible file chooser (implementation in fselect.C):
 FL_EXPORT char* fl_show_file_selector(const char* message,const char* dir,
 			    const char* pat,const char* fname);
 FL_EXPORT char*	fl_get_directory();
@@ -684,7 +687,7 @@ inline void fl_set_input(Fl_Widget* o, const char* v) {
     ((Fl_Input*)o)->value(v);}
 inline void fl_set_input_return(Fl_Widget* o, int x) {
     ((Fl_Input*)o)->when((Fl_When)(x | FL_WHEN_RELEASE));}
-inline void fl_set_input_color(Fl_Widget* o, uchar a, uchar b) {
+inline void fl_set_input_color(Fl_Widget* o, Fl_Color a, Fl_Color b) {
     ((Fl_Input*)o)->textcolor(a);
     ((Fl_Input*)o)->cursor_color(b);
 }
@@ -807,13 +810,13 @@ inline void fl_set_slider_precision(Fl_Widget* o, int i) {
 // filter function!
 
 // The forms text object was the same as an Fl_Box except it inverted the
-// meaning of FL_ALIGN_INSIDE.  Implementation in forms.C
-class Fl_FormsText : public Fl_Widget {
+// meaning of FL_ALIGN_INSIDE.  Implementation in forms.cxx
+class FL_EXPORT Fl_FormsText : public Fl_Widget {
 protected:
-    FL_EXPORT void draw();
+    void draw();
 public:
-    Fl_FormsText(Fl_Boxtype b, int x, int y, int w, int h, const char* l=0)
-	: Fl_Widget(x,y,w,h,l) {box(b); align(FL_ALIGN_LEFT);}
+    Fl_FormsText(Fl_Boxtype b, int X, int Y, int W, int H, const char* l=0)
+	: Fl_Widget(X,Y,W,H,l) {box(b); align(FL_ALIGN_LEFT);}
 };
 #define FL_NORMAL_TEXT FL_NO_BOX
 forms_constructorb(Fl_FormsText, fl_add_text)
@@ -838,5 +841,5 @@ inline void fl_draw() {Fl::flush();}
 #endif	/* define __FORMS_H__ */
 
 //
-// End of "$Id: forms.H,v 1.7.2.6 2001/01/22 15:13:38 easysw Exp $".
+// End of "$Id: forms.H 8623 2011-04-24 17:09:41Z AlbrechtS $".
 //
