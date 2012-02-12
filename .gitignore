@@ -22,6 +22,7 @@ Thumbs.db
 *.ilk
 *.log
 [Bb]in
+ipch/
 [Dd]ebug*/
 *.lib
 *.sbr
