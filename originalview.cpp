@@ -77,6 +77,13 @@ void OriginalView::draw()
 		glDrawPixels( drawWidth, drawHeight, GL_RGB, GL_UNSIGNED_BYTE, bitstart );
 
 	}
+
+	glFlush();
+	// glClear(GL_COLOR_BUFFER_BIT);
+	glColor3b(255, 0, 0);
+	glBegin(GL_POLYGON);
+		glVertex2f(100, 100); glVertex2f(110, 100); glVertex2f(100, 110);
+	glEnd();
 			
 	glFlush();
 }
