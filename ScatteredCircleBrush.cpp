@@ -1,14 +1,13 @@
 //
-// LineBrush.cpp
+// ScatteredCircleBrush.cpp
 //
-// The implementation of Line Brush. It is a kind of ImpBrush. All your brush implementations
+// The implementation of Scattered Circle Brush. It is a kind of ImpBrush. All your brush implementations
 // will look like the file with the different GL primitive calls.
 //
 
 #include "impressionistdoc.h"
 #include "impressionistui.h"
 #include "scatteredcirclebrush.h"
-#include <math.h>
 
 extern float frand();
 

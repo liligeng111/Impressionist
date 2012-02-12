@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "impressionist", "impressionist.vcxproj", "{3DF21B0B-C1A0-9A47-A39D-2A3F25F7C740}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "impressionist", "impressionist.vcxproj", "{5868C188-3FEA-BCDE-003E-E4F704DF70AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{3DF21B0B-C1A0-9A47-A39D-2A3F25F7C740}.Debug|Win32.ActiveCfg = Debug|Win32
-		{3DF21B0B-C1A0-9A47-A39D-2A3F25F7C740}.Debug|Win32.Build.0 = Debug|Win32
-		{3DF21B0B-C1A0-9A47-A39D-2A3F25F7C740}.Release|Win32.ActiveCfg = Release|Win32
-		{3DF21B0B-C1A0-9A47-A39D-2A3F25F7C740}.Release|Win32.Build.0 = Release|Win32
+		{5868C188-3FEA-BCDE-003E-E4F704DF70AA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5868C188-3FEA-BCDE-003E-E4F704DF70AA}.Debug|Win32.Build.0 = Debug|Win32
+		{5868C188-3FEA-BCDE-003E-E4F704DF70AA}.Release|Win32.ActiveCfg = Release|Win32
+		{5868C188-3FEA-BCDE-003E-E4F704DF70AA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
