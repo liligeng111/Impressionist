@@ -26,7 +26,8 @@
 
 static int		eventToDo;
 static int		isAnEvent=0;
-static Point	coord;
+Point PaintView::coord;
+Point PaintView::lastCoord;
 
 PaintView::PaintView(int			x, 
 					 int			y, 
@@ -175,6 +176,7 @@ int PaintView::handle(int event)
 	    redraw();
 		break;
 	case FL_PUSH:
+		lastCoord = coord;
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
 		if (Fl::event_button()>1)
@@ -185,6 +187,7 @@ int PaintView::handle(int event)
 		redraw();
 		break;
 	case FL_DRAG:
+		lastCoord = coord;
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
 		// update the cursor for OriginalView
@@ -197,6 +200,7 @@ int PaintView::handle(int event)
 		redraw();
 		break;
 	case FL_RELEASE:
+		lastCoord = coord;
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
 		if (Fl::event_button()>1)
@@ -207,6 +211,7 @@ int PaintView::handle(int event)
 		redraw();
 		break;
 	case FL_MOVE:
+		lastCoord = coord;
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
 		// update the cursor for OriginalView
@@ -265,4 +270,36 @@ void PaintView::RestoreContent()
 				  m_pPaintBitstart);
 
 //	glDrawBuffer(GL_FRONT);
+}
+
+unsigned char rgb2grayscale(GLubyte* color) {
+	return (unsigned char)(color[0] * 0.3 + color[1] * 0.59 + color[2] * 0.11);
+}
+
+int PaintView::getBrushDirection() {
+	return (int) (atan2((double)(lastCoord.y - coord.y), (double)(lastCoord.x - coord.x)) * 180 / M_PI);
+}
+
+int PaintView::getGradient() {
+	// more general functions should be better
+	// but currently let's just implement one by one
+	static const char gx[][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+	static const char gy[][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+	int gxsum = 0, gysum = 0;
+	// larget convolution size ?
+	unsigned char color[3][3];
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			color[i][j] = rgb2grayscale(this->m_pDoc->GetOriginalPixel(coord.x - 1 + j, coord.y - 1 + i));
+			gxsum += color[i][j] * gx[i][j];
+			gysum += color[i][j] * gy[i][j];
+		}
+	}
+
+	/*
+	char msg[255];
+	sprintf(msg, "color : %uc, x: %d, y: %d\n",color[1][1], gxsum, gysum);
+	OutputDebugString(msg);
+	*/
+	return (int)(atan2((double)gxsum, (double)gysum) * 180 / M_PI);
 }

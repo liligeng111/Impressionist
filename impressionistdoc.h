@@ -67,7 +67,7 @@ public:
 
 
 private:
-	char			m_imageName[256];
+	char	 m_imageName[256];
 	GLubyte* UIColor;
 
 };

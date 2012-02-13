@@ -38,6 +38,8 @@ public:
 	Fl_Window*			m_brushDialog;
 	Fl_Choice*			m_BrushTypeChoice;
 
+	Fl_Choice*			m_LineDirectionChoice;
+
 	Fl_Slider*			m_BrushSizeSlider;
 	Fl_Slider*			m_BrushWidthSlider;
 	Fl_Slider*			m_BrushAngleSlider;
@@ -81,9 +83,15 @@ private:
 	int		m_nAngle;	
 	float 	m_nAlpha;
 
+	static TYPE_LINE_DIRECTION m_pLineDirectionType;
+
 	// Static class members
 	static Fl_Menu_Item		menuitems[];
 	static Fl_Menu_Item		brushTypeMenu[NUM_BRUSH_TYPE+1];
+
+	static Fl_Menu_Item		lineDirectionMenu[NUM_LDIRECTION_TYPE + 1];
+	// 3 types of line direction, 
+	// may be extended in further implementation
 
 	static ImpressionistUI*	whoami(Fl_Menu_* o);
 
@@ -98,6 +106,7 @@ private:
 	static void	cb_exit(Fl_Menu_* o, void* v);
 	static void	cb_about(Fl_Menu_* o, void* v);
 	static void	cb_brushChoice(Fl_Widget* o, void* v);
+	static void	cb_lineDirectionChoice(Fl_Widget* o, void* v);
 	static void	cb_clear_canvas_button(Fl_Widget* o, void* v);
 	static void	cb_sizeSlides(Fl_Widget* o, void* v);
 	static void	cb_widthSlides(Fl_Widget* o, void* v);

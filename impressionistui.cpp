@@ -301,6 +301,12 @@ void ImpressionistUI::cb_brushChoice(Fl_Widget* o, void* v)
 	pDoc->setBrushType(type);
 }
 
+void ImpressionistUI::cb_lineDirectionChoice(Fl_Widget* o, void* v)
+{
+	m_pLineDirectionType = (TYPE_LINE_DIRECTION)(int)v;
+	// ca~~, must convert twice ?
+}
+
 //------------------------------------------------------------
 // Clears the paintview canvas.
 // Called by the UI when the clear canvas button is pushed
@@ -448,7 +454,17 @@ void ImpressionistUI::setWidth( int width )
 //------------------------------------------------
 int ImpressionistUI::getAngle()
 {
-	return m_nAngle;
+	switch (m_pLineDirectionType) {
+	case LDIRECTION_SLIDER_RIGHT_MOUSE:
+		return m_nAngle;
+	case LDIRECTION_GRADIENT:
+		return m_paintView->getGradient();
+	case LDIRECTION_BRUSH_DIRECTION:
+		return m_paintView->getBrushDirection();
+	default:
+		// this is error
+		return 0;
+	}
 }
 
 //-------------------------------------------------
@@ -515,13 +531,22 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
   {0}
 };
 
+Fl_Menu_Item ImpressionistUI::lineDirectionMenu[NUM_LDIRECTION_TYPE + 1] = {
+  {"Slider / Right Mouse",	FL_ALT+'s', (Fl_Callback *)ImpressionistUI::cb_lineDirectionChoice, (void *)LDIRECTION_SLIDER_RIGHT_MOUSE},
+  {"Gradient (perpendicular)",	FL_ALT+'g', (Fl_Callback *)ImpressionistUI::cb_lineDirectionChoice, (void *)LDIRECTION_GRADIENT},
+  {"Brush Direction",	FL_ALT+'b', (Fl_Callback *)ImpressionistUI::cb_lineDirectionChoice, (void *)LDIRECTION_BRUSH_DIRECTION},
+  {0}
+};
+
 
 void ImpressionistUI::activeSaveFunc() {
 	menuitems[2].activate();
 }
 
 // I know this is ugle, but don't have better idea
+// initialize the static member variables here
 double ImpressionistUI::blendColor[3] = {1, 1, 1};
+TYPE_LINE_DIRECTION ImpressionistUI::m_pLineDirectionType = LDIRECTION_SLIDER_RIGHT_MOUSE;
 
 //----------------------------------------------------
 // Constructor.  Creates all of the widgets.
@@ -580,10 +605,17 @@ ImpressionistUI::ImpressionistUI() {
 		m_BrushTypeChoice->menu(brushTypeMenu);
 		m_BrushTypeChoice->callback(cb_brushChoice);
 
+		// clear canvas button
 		m_ClearCanvasButton = new Fl_Button(240,10,150,25,"&Clear Canvas");
 		m_ClearCanvasButton->user_data((void*)(this));
 		m_ClearCanvasButton->callback(cb_clear_canvas_button);
 
+		// line direction choice
+		m_LineDirectionChoice = new Fl_Choice(100, 45, 250, 25, "&Line Direction");
+		m_LineDirectionChoice->user_data((void*)(this));
+		m_LineDirectionChoice->menu(lineDirectionMenu);
+		m_LineDirectionChoice->callback(cb_lineDirectionChoice);
+		m_LineDirectionChoice->deactivate();
 
 		// Add brush size slider to the dialog 
 		m_BrushSizeSlider = new Fl_Value_Slider(10, 80, 300, 20, "Size");

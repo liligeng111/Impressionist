@@ -87,11 +87,13 @@ void ImpressionistDoc::setBrushType(int type)
 	{
 		m_pUI->m_BrushWidthSlider->activate(); // enable
 		m_pUI->m_BrushAngleSlider->activate(); // enable
+		m_pUI->m_LineDirectionChoice->activate();
 	}
 	else
 	{
 		m_pUI->m_BrushWidthSlider->deactivate(); // disable
 		m_pUI->m_BrushAngleSlider->deactivate(); // disable
+		m_pUI->m_LineDirectionChoice->deactivate();
 	}
 }
 

@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 // Each brush type has an associated constant.
-enum
+typedef enum
 {
 	BRUSH_POINTS = 0,
 	BRUSH_LINES,
@@ -19,7 +19,15 @@ enum
 	BRUSH_SCATTERED_LINES,
 	BRUSH_SCATTERED_CIRCLES,
 	NUM_BRUSH_TYPE // Make sure this stays at the end!
-};
+} TYPE_BRUSH_TYPE;
+
+typedef enum
+{
+	LDIRECTION_SLIDER_RIGHT_MOUSE,
+	LDIRECTION_GRADIENT,
+	LDIRECTION_BRUSH_DIRECTION,
+	NUM_LDIRECTION_TYPE
+} TYPE_LINE_DIRECTION;
 
 
 class ImpressionistDoc; // Pre-declaring class

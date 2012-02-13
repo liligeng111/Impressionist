@@ -30,7 +30,14 @@ public:
 
 	void RestoreContent();
 
+	int getGradient();
+	int getBrushDirection();
+
 	ImpressionistDoc *m_pDoc;
+
+	// current or last coord of the mouse cursor
+	static Point coord;
+	static Point lastCoord;
 
 private:
 	GLvoid* m_pPaintBitstart;
@@ -44,7 +51,6 @@ private:
 			m_nWindowHeight;
 
 	Point start;
-
 };
 
 #endif
