@@ -30,7 +30,7 @@ public:
 	int		getWidth();						// get the UI width
 	//void	setWidth(int width);			// set the UI width
 	int		getAngle();						// get the UI angle
-	//void	setAngle(int angle);			// set the UI angle
+	void	setAngle(int angle);			// set the UI angle
 	float	getAlpha();						// get the UI alpha
 	char*	getImageName();					// get the current image name
 	

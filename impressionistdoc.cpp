@@ -102,6 +102,22 @@ int ImpressionistDoc::getSize()
 }
 
 //---------------------------------------------------------
+// Set the size of the brush.
+//---------------------------------------------------------
+void ImpressionistDoc::setSize(int size)
+{
+	return m_pUI->setSize(size);
+}
+
+//---------------------------------------------------------
+// Set the size of the brush.
+//---------------------------------------------------------
+void ImpressionistDoc::setAngle(int angle)
+{
+	return m_pUI->setAngle(angle);
+}
+
+//---------------------------------------------------------
 // Returns the width of the brush.
 //---------------------------------------------------------
 int ImpressionistDoc::getWidth()
