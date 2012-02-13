@@ -180,6 +180,7 @@ int ImpressionistDoc::loadImage(const char *iname)
 	// by rows
 
 	memset(m_ucPainting, 0, width*height*3);
+	m_pUI->m_paintView->SaveCurrentContent();
 
 	// enable save
 	m_pUI->activeSaveFunc();
@@ -240,6 +241,7 @@ int ImpressionistDoc::clearCanvas()
 	
 	return 0;
 }
+
 
 //------------------------------------------------------------------
 // Get the color of the pixel in the original image at coord x and y

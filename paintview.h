@@ -30,6 +30,10 @@ public:
 
 	void RestoreContent();
 
+	void undo();
+
+	void redo();
+
 	ImpressionistDoc *m_pDoc;
 
 private:
@@ -42,6 +46,13 @@ private:
 			m_nEndCol,
 			m_nWindowWidth, 
 			m_nWindowHeight;
+
+	unsigned char** pics;
+	int current_pic; // the current pic
+	int size_pic; //number of pics in the buffer
+	int max_pic; //the max number of picture buffered
+	
+	void savePic();
 
 	Point start;
 

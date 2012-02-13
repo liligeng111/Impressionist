@@ -9,7 +9,7 @@
 #include "impressionistui.h"
 #include "paintview.h"
 #include "impbrush.h"
-#include <cmath>
+#include <math.h>
 
 #define LEFT_MOUSE_DOWN		1
 #define LEFT_MOUSE_DRAG		2
@@ -38,6 +38,11 @@ PaintView::PaintView(int			x,
 	m_nWindowWidth	= w;
 	m_nWindowHeight	= h;
 	start = Point(0 ,0);
+	current_pic = -1;
+	size_pic = 0;
+	max_pic = 50;
+	pics = new unsigned char*[max_pic];
+	//savePic();
 }
 
 
@@ -112,6 +117,13 @@ void PaintView::draw()
 			printf("Unknown event!!\n");		
 			break;
 		case LEFT_MOUSE_DOWN:
+			if (current_pic < size_pic)
+			{				
+				int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
+				m_pDoc->m_ucPainting = new unsigned char[n];
+				for (int i = 0; i < n; i++)	
+					m_pDoc->m_ucPainting[i] = pics[current_pic][i];
+			}	
 			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
 			break;
 		case LEFT_MOUSE_DRAG:
@@ -141,7 +153,7 @@ void PaintView::draw()
 			break;
 		case RIGHT_MOUSE_UP:
 			RestoreContent();
-			int d = std::sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
+			int d = sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
 			if (d > 40) d = 40;
 			m_pDoc->setSize(d);
 
@@ -246,6 +258,7 @@ void PaintView::SaveCurrentContent()
 				  GL_RGB, 
 				  GL_UNSIGNED_BYTE, 
 				  m_pPaintBitstart );
+	savePic();
 }
 
 
@@ -265,4 +278,67 @@ void PaintView::RestoreContent()
 				  m_pPaintBitstart);
 
 //	glDrawBuffer(GL_FRONT);
+}
+
+void PaintView::savePic()
+{	
+	
+	current_pic++;
+	if (current_pic < size_pic)
+	{
+		// happens when do something after several undo
+		for (int i = current_pic; i < size_pic; i++)
+		{
+			delete []pics[i]; //delete the useless pics
+		}
+		size_pic = current_pic;
+	}	
+	size_pic++;
+
+	if (current_pic == max_pic)
+	{
+		// max number of pics stored reached
+		for (int i = 0; i < size_pic - 1; i++)
+		{
+			pics[i] = pics[i + 1];
+		}
+		current_pic--;
+		size_pic--;
+	}
+
+	int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
+	pics[current_pic] = new unsigned char[n];
+	for (int i = 0; i < n; i++)	
+		pics[current_pic][i] = m_pDoc->m_ucPainting[i];
+	
+	
+	OutputDebugString("save: ");
+	for (int i = 0; i < current_pic; i++)
+		OutputDebugString("c");
+	OutputDebugString("\n");
+}
+
+void PaintView::undo()
+{ 
+	if (current_pic <= 0) return; //nothing to undo
+	current_pic--;
+	OutputDebugString("undo: ");
+	for (int i = 0; i < current_pic; i++)
+		OutputDebugString("c");
+	OutputDebugString("\n");
+
+	m_pDoc->m_ucPainting = pics[current_pic];
+	refresh();
+}
+
+void PaintView::redo()
+{
+	if (current_pic >= size_pic - 1) return; //nothing to redo
+	current_pic++;
+	OutputDebugString("redo: ");
+	for (int i = 0; i < current_pic; i++)
+		OutputDebugString("c");
+	OutputDebugString("\n");
+	m_pDoc->m_ucPainting = pics[current_pic];
+	refresh();
 }
