@@ -59,6 +59,7 @@ void PaintView::init()
 	size_pic = 0;
 	pics = new unsigned char*[max_pic];
 	memset(pics, 0, max_pic * sizeof(void *));
+	savePic();
 }
 
 void PaintView::draw()
@@ -221,7 +222,7 @@ int PaintView::handle(int event)
 		coord.y = Fl::event_y();
 		// update the cursor for OriginalView
 		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, m_nWindowHeight-coord.y);
-		if (Fl::event_button()>1)
+		if (Fl::event_button() == 2 || Fl::event_button() == 3)
 			eventToDo=RIGHT_MOUSE_DRAG;
 		else
 			eventToDo=LEFT_MOUSE_DRAG;
@@ -363,24 +364,14 @@ void PaintView::savePic()
 	int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
 	pics[current_pic] = new unsigned char[n];
 	for (int i = 0; i < n; i++)	
-		pics[current_pic][i] = m_pDoc->m_ucPainting[i];
+		pics[current_pic][i] = m_pDoc->m_ucPainting[i];	
 	
-	
-	OutputDebugString("save: ");
-	for (int i = 0; i < current_pic; i++)
-		OutputDebugString("c");
-	OutputDebugString("\n");
 }
 
 void PaintView::undo()
 { 
 	if (current_pic <= 0) return; //nothing to undo
 	current_pic--;
-	OutputDebugString("undo: ");
-	for (int i = 0; i < current_pic; i++)
-		OutputDebugString("c");
-	OutputDebugString("\n");
-
 	m_pDoc->m_ucPainting = pics[current_pic];
 	refresh();
 }
@@ -389,10 +380,6 @@ void PaintView::redo()
 {
 	if (current_pic >= size_pic - 1) return; //nothing to redo
 	current_pic++;
-	OutputDebugString("redo: ");
-	for (int i = 0; i < current_pic; i++)
-		OutputDebugString("c");
-	OutputDebugString("\n");
 	m_pDoc->m_ucPainting = pics[current_pic];
 	refresh();
 }

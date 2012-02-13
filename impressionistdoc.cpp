@@ -204,7 +204,6 @@ int ImpressionistDoc::loadImage(const char *iname)
 	// new way
 	m_pUI->resize_windows(width, height);
 	m_pUI->m_paintView->init();
-	m_pUI->m_paintView->SaveCurrentContent();
 
 	return 1;
 }
