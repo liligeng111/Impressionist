@@ -104,6 +104,22 @@ int ImpressionistDoc::getSize()
 }
 
 //---------------------------------------------------------
+// Set the size of the brush.
+//---------------------------------------------------------
+void ImpressionistDoc::setSize(int size)
+{
+	return m_pUI->setSize(size);
+}
+
+//---------------------------------------------------------
+// Set the size of the brush.
+//---------------------------------------------------------
+void ImpressionistDoc::setAngle(int angle)
+{
+	return m_pUI->setAngle(angle);
+}
+
+//---------------------------------------------------------
 // Returns the width of the brush.
 //---------------------------------------------------------
 int ImpressionistDoc::getWidth()
@@ -164,6 +180,9 @@ int ImpressionistDoc::loadImage(const char *iname)
 	// by rows
 
 	memset(m_ucPainting, 0, width*height*3);
+
+	// enable save
+	m_pUI->activeSaveFunc();
 
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 
@@ -237,14 +256,7 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( int x, int y )
 	else if ( y >= m_nHeight ) 
 		y = m_nHeight-1;
 
-	GLubyte* color = (GLubyte*)(m_ucBitmap + 3 * (y*m_nWidth + x));
-	
-	// blend here
-	for (int i = 0; i < 3; i++) {
-		color[i] = (GLubyte) (color[i] * this->m_pUI->blendColor[i]);
-	}
-	return color;
-	// GLubyte is merely an unsigned char [3].
+	return (GLubyte*)(m_ucBitmap + 3 * (y*m_nWidth + x));
 }
 
 //----------------------------------------------------------------

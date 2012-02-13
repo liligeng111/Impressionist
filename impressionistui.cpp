@@ -458,7 +458,7 @@ void ImpressionistUI::setAngle( int angle )
 {
 	m_nAngle = angle;
 
-	if (angle<=359) {
+	if (angle<=180) {
 		m_BrushAngleSlider->value(m_nAngle);
 	}
 }
@@ -515,6 +515,10 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
   {0}
 };
 
+
+void ImpressionistUI::activeSaveFunc() {
+	menuitems[2].activate();
+}
 
 // I know this is ugle, but don't have better idea
 double ImpressionistUI::blendColor[3] = {1, 1, 1};
@@ -615,7 +619,7 @@ ImpressionistUI::ImpressionistUI() {
         m_BrushAngleSlider->labelfont(FL_COURIER);
         m_BrushAngleSlider->labelsize(12);
 		m_BrushAngleSlider->minimum(0);
-		m_BrushAngleSlider->maximum(359);
+		m_BrushAngleSlider->maximum(180);
 		m_BrushAngleSlider->step(1);
 		m_BrushAngleSlider->value(m_nAngle);
 		m_BrushAngleSlider->align(FL_ALIGN_RIGHT);

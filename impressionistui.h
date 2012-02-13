@@ -67,6 +67,8 @@ public:
 
 	static double blendColor[3];
 
+	static void activeSaveFunc();
+
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
 

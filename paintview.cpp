@@ -9,7 +9,7 @@
 #include "impressionistui.h"
 #include "paintview.h"
 #include "impbrush.h"
-
+#include <cmath>
 
 #define LEFT_MOUSE_DOWN		1
 #define LEFT_MOUSE_DRAG		2
@@ -37,6 +37,7 @@ PaintView::PaintView(int			x,
 {
 	m_nWindowWidth	= w;
 	m_nWindowHeight	= h;
+	start = Point(0 ,0);
 }
 
 
@@ -50,10 +51,13 @@ void PaintView::draw()
 	if(!valid())
 	{
 
-		glClearColor(0.7f, 0.7f, 0.7f, 1.0);
+		glClearColor(0.9f, 0.9f, 0.9f, 1.0);
 
 		// We're only using 2-D, so turn off depth 
 		glDisable( GL_DEPTH_TEST );
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+		glEnable( GL_BLEND ); //enable alpha
 
 		ortho();
 
@@ -103,6 +107,10 @@ void PaintView::draw()
 		// This is the event handler
 		switch (eventToDo) 
 		{
+
+		default:
+			printf("Unknown event!!\n");		
+			break;
 		case LEFT_MOUSE_DOWN:
 			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
 			break;
@@ -116,17 +124,35 @@ void PaintView::draw()
 			RestoreContent();
 			break;
 		case RIGHT_MOUSE_DOWN:
+			start = target;
 
 			break;
 		case RIGHT_MOUSE_DRAG:
+			RestoreContent();
+			glDrawBuffer(GL_BACK);
+			glLineWidth(5);
+			
+			glBegin( GL_LINES );
+				glColor3f(0.8f, 0.05f, 0.1f);
+				glVertex2d(start.x, start.y);
+				glVertex2d(target.x, target.y);
+			glEnd();
 
 			break;
 		case RIGHT_MOUSE_UP:
+			RestoreContent();
+			int d = std::sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
+			if (d > 40) d = 40;
+			m_pDoc->setSize(d);
 
-			break;
+			if (target.x == start.x)
+			{
+				m_pDoc->setAngle(90);
+				break;
+			}
 
-		default:
-			printf("Unknown event!!\n");		
+			m_pDoc->setAngle(180 - abs((atan2(float(target.y - start.y) , (target.x - start.x)))) * 180 / M_PI);
+
 			break;
 		}
 	}

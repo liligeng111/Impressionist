@@ -26,6 +26,9 @@ ipch/
 [Dd]ebug*/
 *.sbr
 *.sdf
+*.ncb
+*.bmp
+*.orig
 obj/
 [Rr]elease*/
 _ReSharper*/

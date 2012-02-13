@@ -8,6 +8,7 @@
 #include "impressionistdoc.h"
 #include "impressionistui.h"
 #include "linebrush.h"
+#include <math.h>
 
 extern float frand();
 
@@ -44,12 +45,21 @@ void LineBrush::BrushMove( const Point source, const Point target )
 	glGetIntegerv(GL_POINT_SIZE, half_size);
 	*half_size /= 2;
 
-	glBegin( GL_LINES );
+	int width = ceil(pDoc->getWidth() / 2.0); //make sure it works when width is 1
+	int angle = pDoc->getAngle();
+
+	float m_sin = sin(2.0f * M_PI * angle / 360);
+	float m_cos = cos(2.0f * M_PI * angle / 360);
+
+	glBegin( GL_POLYGON );
 		SetColor( source );
+		
 
+		glVertex2d( target.x - *half_size * m_cos - width * m_sin, target.y - *half_size * m_sin + width * m_cos);
+		glVertex2d( target.x + *half_size * m_cos - width * m_sin, target.y + *half_size * m_sin + width * m_cos);
+		glVertex2d( target.x + *half_size * m_cos + width * m_sin, target.y + *half_size * m_sin - width * m_cos);
+		glVertex2d( target.x - *half_size * m_cos + width * m_sin, target.y - *half_size * m_sin - width * m_cos);
 
-		glVertex2d( target.x - *half_size, target.y );
-		glVertex2d( target.x + *half_size, target.y );
 
 	glEnd();
 }

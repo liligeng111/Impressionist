@@ -90,8 +90,8 @@ void OriginalView::draw()
 		glBegin(GL_POLYGON);
 		// to mock mouse cursor
 		glVertex2f(cursor_x, cursor_y); 
-		glVertex2f(cursor_x + 10, cursor_y - 3); 
-		glVertex2f(cursor_x + 5, cursor_y - 8); 
+		glVertex2f(cursor_x + 15, cursor_y - 7); 
+		glVertex2f(cursor_x + 5, cursor_y - 15); 
 		glEnd();
 	}
 
