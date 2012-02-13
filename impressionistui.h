@@ -15,6 +15,7 @@
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Light_Button.H>
+#include <FL/Fl_Color_Chooser.H>
 
 #include "impressionist.h"
 #include "originalview.h"
@@ -64,7 +65,7 @@ public:
 	float				getAlpha();
 	void				setAlpha(float alpha);
 
-	void set_wrapper_size(int x, int y);
+	static double blendColor[3];
 
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
@@ -86,6 +87,8 @@ private:
 
 	// All callbacks here.  Callbacks are declared 
 	// static
+	static void cb_blendcolor(Fl_Menu_* o, void* v);
+	// callbacks are not necessarily to be static
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);

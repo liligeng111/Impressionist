@@ -353,6 +353,12 @@ void ImpressionistUI::cb_alphaSlides(Fl_Widget* o, void* v)
 	((ImpressionistUI*)(o->user_data()))->m_nAlpha=float( ((Fl_Slider *)o)->value() ) ;
 }
 
+// callback for blend menu 
+void ImpressionistUI::cb_blendcolor(Fl_Menu_* o, void* v) {
+	fl_color_chooser("Please choose blend color", blendColor[0], blendColor[1], blendColor[2]);
+	// ((ImpressionistUI*)(o->user_data()))->m_BlendColorChooserDialog->show();
+}
+
 //---------------------------------- per instance functions --------------------------------------
 
 //------------------------------------------------
@@ -477,14 +483,16 @@ void ImpressionistUI::setAlpha( float alpha )
 	}
 }
 
+
 // Main menu definition
 /// need to set callback during initialization
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
-		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image },
+		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
+		{ "Blend", FL_ALT + 'k', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
 		
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
@@ -508,6 +516,8 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
 };
 
 
+// I know this is ugle, but don't have better idea
+double ImpressionistUI::blendColor[3] = {1, 1, 1};
 
 //----------------------------------------------------
 // Constructor.  Creates all of the widgets.
@@ -529,14 +539,14 @@ ImpressionistUI::ImpressionistUI() {
 		Fl_Group* group = new Fl_Group(0, 25, 600, 275);
 
 			// install paint view window
-			wrapper_group_paintview = new Fl_Group(300, 25, 300, 275, "just wrapper");
+			wrapper_group_paintview = new Fl_Group(300, 25, 300, 275);
 				m_paintView = new PaintView(300, 25, 300, 275, "This is the paint view");//0jon
 				m_paintView->box(FL_BORDER_FRAME);
 			wrapper_group_paintview->end();
 			wrapper_group_paintview->resizable(0);
 
 			// install original view window
-			wrapper_group_origiview = new Fl_Group(0, 25, 300, 275, "just wrapper");
+			wrapper_group_origiview = new Fl_Group(0, 25, 300, 275);
 				m_origView = new OriginalView(0, 25, 300, 275, "This is the orig view");//300jon
 				m_origView->box(FL_DOWN_FRAME);
 				m_origView->deactivate();
@@ -546,6 +556,7 @@ ImpressionistUI::ImpressionistUI() {
 		group->end();
 		Fl_Group::current()->resizable(group);
 		// current() should mean the mainwindow
+
     m_mainWindow->end();
 
 	// init values
@@ -554,6 +565,8 @@ ImpressionistUI::ImpressionistUI() {
 	m_nWidth = 1;
 	m_nAngle = 0;
 	m_nAlpha = 1.0f;
+
+
 
 	// brush dialog definition
 	m_brushDialog = new Fl_Window(400, 325, "Brush Dialog");

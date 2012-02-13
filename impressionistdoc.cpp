@@ -237,9 +237,14 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( int x, int y )
 	else if ( y >= m_nHeight ) 
 		y = m_nHeight-1;
 
-	return (GLubyte*)(m_ucBitmap + 3 * (y*m_nWidth + x));
+	GLubyte* color = (GLubyte*)(m_ucBitmap + 3 * (y*m_nWidth + x));
+	
+	// blend here
+	for (int i = 0; i < 3; i++) {
+		color[i] = (GLubyte) (color[i] * this->m_pUI->blendColor[i]);
+	}
+	return color;
 	// GLubyte is merely an unsigned char [3].
-
 }
 
 //----------------------------------------------------------------
