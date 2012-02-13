@@ -65,6 +65,7 @@
       <ObjectFileName>c:\temp\</ObjectFileName>
       <ProgramDataBaseFileName>c:\temp\</ProgramDataBaseFileName>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAsManaged>false</CompileAsManaged>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>

@@ -203,6 +203,8 @@ int ImpressionistDoc::loadImage(const char *iname)
 	*/
 	// new way
 	m_pUI->resize_windows(width, height);
+	m_pUI->m_paintView->init();
+	m_pUI->m_paintView->SaveCurrentContent();
 
 	return 1;
 }
@@ -242,6 +244,7 @@ int ImpressionistDoc::clearCanvas()
 	
 	return 0;
 }
+
 
 //------------------------------------------------------------------
 // Get the color of the pixel in the original image at coord x and y

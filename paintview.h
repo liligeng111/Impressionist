@@ -33,6 +33,12 @@ public:
 	int getGradient();
 	int getBrushDirection();
 
+	void undo();
+
+	void redo();
+
+	void init();
+
 	ImpressionistDoc *m_pDoc;
 
 	// current or last coord of the mouse cursor
@@ -50,7 +56,15 @@ private:
 			m_nWindowWidth, 
 			m_nWindowHeight;
 
+	unsigned char** pics;
+	int current_pic; // the current pic
+	int size_pic; //number of pics in the buffer
+	int max_pic; //the max number of picture buffered
+	
+	void savePic();
+
 	Point start;
+
 };
 
 #endif
