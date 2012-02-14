@@ -61,6 +61,8 @@ private:
 	int size_pic; //number of pics in the buffer
 	int max_pic; //the max number of picture buffered
 	
+	bool red_line; // if a read line is drawn 
+
 	void savePic();
 
 	Point start;

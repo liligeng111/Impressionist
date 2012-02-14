@@ -55,6 +55,7 @@ void PaintView::init()
 		delete []pics;
 		pics = 0;
 	}
+	red_line = false;
 	current_pic = -1;
 	size_pic = 0;
 	pics = new unsigned char*[max_pic];
@@ -159,7 +160,7 @@ void PaintView::draw()
 			RestoreContent();
 			glDrawBuffer(GL_BACK);
 			glLineWidth(5);
-			
+			red_line = true;
 			glBegin( GL_LINES );
 				glColor3f(0.8f, 0.05f, 0.1f);
 				glVertex2d(start.x, start.y);
@@ -212,7 +213,10 @@ int PaintView::handle(int event)
 		if (Fl::event_button()>1)
 			eventToDo=RIGHT_MOUSE_DOWN;
 		else
+		{
+
 			eventToDo=LEFT_MOUSE_DOWN;
+		}
 		isAnEvent=1;
 		redraw();
 		break;
@@ -236,7 +240,9 @@ int PaintView::handle(int event)
 		if (Fl::event_button()>1)
 			eventToDo=RIGHT_MOUSE_UP;
 		else
+		{
 			eventToDo=LEFT_MOUSE_UP;
+		}
 		isAnEvent=1;
 		redraw();
 		break;
@@ -269,6 +275,11 @@ void PaintView::SaveCurrentContent()
 {
 	// Tell openGL to read from the front buffer when capturing
 	// out paint strokes
+	if (red_line)
+	{
+		RestoreContent();
+		return;
+	}
 	glReadBuffer(GL_FRONT);
 
 	glPixelStorei( GL_PACK_ALIGNMENT, 1 );
@@ -287,6 +298,7 @@ void PaintView::SaveCurrentContent()
 
 void PaintView::RestoreContent()
 {
+	red_line = false;
 	glDrawBuffer(GL_BACK);
 
 	glClear( GL_COLOR_BUFFER_BIT );
@@ -303,41 +315,9 @@ void PaintView::RestoreContent()
 //	glDrawBuffer(GL_FRONT);
 }
 
-unsigned char rgb2grayscale(GLubyte* color) {
-	return (unsigned char)(color[0] * 0.3 + color[1] * 0.59 + color[2] * 0.11);
-}
-
-int PaintView::getBrushDirection() {
-	return (int) (atan2((double)(lastCoord.y - coord.y), (double)(lastCoord.x - coord.x)) * 180 / M_PI);
-}
-
-int PaintView::getGradient() {
-	// more general functions should be better
-	// but currently let's just implement one by one
-	static const char gx[][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-	static const char gy[][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
-	int gxsum = 0, gysum = 0;
-	// larget convolution size ?
-	unsigned char color[3][3];
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			color[i][j] = rgb2grayscale(this->m_pDoc->GetOriginalPixel(coord.x - 1 + j, coord.y - 1 + i));
-			gxsum += color[i][j] * gx[i][j];
-			gysum += color[i][j] * gy[i][j];
-		}
-	}
-
-	/*
-	char msg[255];
-	sprintf(msg, "color : %uc, x: %d, y: %d\n",color[1][1], gxsum, gysum);
-	OutputDebugString(msg);
-	*/
-	return (int)(atan2((double)gxsum, (double)gysum) * 180 / M_PI);
-}
 
 void PaintView::savePic()
 {	
-	
 	current_pic++;
 	if (current_pic < size_pic)
 	{
@@ -384,4 +364,36 @@ void PaintView::redo()
 	current_pic++;
 	m_pDoc->m_ucPainting = pics[current_pic];
 	refresh();
+}
+
+unsigned char rgb2grayscale(GLubyte* color) {
+	return (unsigned char)(color[0] * 0.3 + color[1] * 0.59 + color[2] * 0.11);
+}
+
+int PaintView::getBrushDirection() {
+	return (int) (atan2((double)(lastCoord.y - coord.y), (double)(lastCoord.x - coord.x)) * 180 / M_PI);
+}
+
+int PaintView::getGradient() {
+	// more general functions should be better
+	// but currently let's just implement one by one
+	static const char gx[][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+	static const char gy[][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+	int gxsum = 0, gysum = 0;
+	// larget convolution size ?
+	unsigned char color[3][3];
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			color[i][j] = rgb2grayscale(this->m_pDoc->GetOriginalPixel(coord.x - 1 + j, coord.y - 1 + i));
+			gxsum += color[i][j] * gx[i][j];
+			gysum += color[i][j] * gy[i][j];
+		}
+	}
+
+	/*
+	char msg[255];
+	sprintf(msg, "color : %uc, x: %d, y: %d\n",color[1][1], gxsum, gysum);
+	OutputDebugString(msg);
+	*/
+	return (int)(atan2((double)gxsum, (double)gysum) * 180 / M_PI);
 }
