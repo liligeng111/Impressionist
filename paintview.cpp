@@ -447,71 +447,57 @@ void PaintView::autoPaint() {
 	randflag = new bool [m_nDrawHeight * m_nDrawWidth];
 	memset(randflag, 0, m_nDrawHeight * m_nDrawWidth);
 	Point p;
-	/*
-	while (getRandomPoint(p, randflag)) {
-			if (randp) {
-				size = ( size + irand(20) - 10 + 39) % 40 + 1;
-			}
-			glPointSize((float)size);
-			this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
-	}
-	*/
-	
-//	for (int tempk = 0; tempk < 17; tempk++)
-	bool even = true;
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0);
 	glClear( GL_COLOR_BUFFER_BIT );
-	for (int i = 0; i < this->m_pDoc->m_nPaintHeight; i += spacing) {
-		if (even) i += spacing;
-		else i-=spacing;
-		for (int j = 0; j < this->m_pDoc->m_nPaintWidth; j+= spacing * 2) {
-//			if (tempk == 16 || (!randflag[i * m_nDrawHeight + j] && !irand(9))) {
-				randflag[i * m_nDrawHeight + j] = true;
-				size = m_pDoc->getSize();			
-				if (randp) {
-					size = ( size + irand(20) - 10 + 39) % 40 + 1;
-				}
-				glPointSize((float)size);
-				p.x = j; 
-				p.y = i;
-				this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
-				// candy for random
-				p.y += irand(8) - 4 * spacing;
-				if (p.y < 0) p.y = 0; 
-				else if (p.y >= m_nDrawHeight) p.y = m_nDrawHeight - 1;
-				this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
-//			}
+
+	int max_preority = 70;
+	const int y = m_pDoc->m_nPaintHeight / spacing + 1;
+	const int x = m_pDoc->m_nPaintWidth / spacing + 1;
+
+	int** preority;
+	preority = new int*[x];
+	for (int i = 0; i < x; i++)
+	{
+		preority[i] = new int[y]; //preority to indicate layer
+	}
+
+
+	for (int i = 0; i < x; i++)
+	{
+		for (int j = 0; j < y; j++) 
+		{
+			preority[i][j] = irand(max_preority); //asign each point a random preority
 		}
-		for (int j = spacing; j < this->m_pDoc->m_nPaintWidth; j+= spacing * 2) {
-//			if (tempk == 16 || (!randflag[i * m_nDrawHeight + j] && !irand(9))) {
-				randflag[i * m_nDrawHeight + j] = true;
-				size = m_pDoc->getSize();			
-				if (randp) {
-					size = ( size + irand(20) - 10 + 39) % 40 + 1;
+	}
+
+	for (int l = 0; l < max_preority; l++)
+	{   
+		//draw all points accoring to their preority
+		for (int i = 0; i < x; i++)
+		{	
+			for (int j = 0; j < y; j++) 
+			{
+				if (preority[i][j] == l)
+				{
+					coord.x = i * spacing;
+					coord.y = m_pDoc->m_nPaintHeight - j * spacing;
+					size = m_pDoc->getSize();       
+					if (randp) 
+					{ 
+						size = size * (0.75 + frand() / 2);
+					}
+					glPointSize((float)size); 
+					p.x = i * spacing;
+					p.y = j * spacing; 
+					m_pDoc->m_pCurrentBrush->BrushMove(p, p); 
 				}
-				glPointSize((float)size);
-				p.x = j; 
-				p.y = i;
-			m_pDoc->m_pCurrentBrush->BrushMove(p, p);
-
-				// candy for random
-				p.y += irand(8) - 4 * spacing;
-				if (p.y < 0) p.y = 0; 
-				else if (p.y >= m_nDrawHeight) p.y = m_nDrawHeight - 1;
-				this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
-//			}
+			}
+			glFlush();
 		}
-		
-		if (!even) i += spacing;
-		else i-=spacing;
-
-		even = !even;
-
-		glFlush();
-//		refresh();
-//		m_pDoc->m_pUI->m_origView->refresh();
 	}
 	glFlush();
+
 	m_pDoc->m_pUI->m_origView->refresh();
 	refresh();
 	SaveCurrentContent();
