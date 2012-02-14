@@ -34,11 +34,13 @@ public:
 
 	ImpressionistDoc*	m_pDoc;
 
+	void setView(int);
 
 private:
 	int cursor_x, cursor_y;
 	int	m_nWindowWidth, 
 		m_nWindowHeight;
+	int view;
 	// coord for cursor in PaintView
 
 };

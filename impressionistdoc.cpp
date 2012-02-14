@@ -30,6 +30,7 @@ ImpressionistDoc::ImpressionistDoc()
 
 	m_nWidth		= -1;
 	m_ucBitmap		= NULL;
+	m_ucEdge		= NULL;
 	m_ucPainting	= NULL;
 
 
@@ -172,12 +173,15 @@ int ImpressionistDoc::loadImage(const char *iname)
 
 	// release old storage
 	if ( m_ucBitmap ) delete [] m_ucBitmap;
+	if ( m_ucEdge ) delete [] m_ucEdge;
 	if ( m_ucPainting ) delete [] m_ucPainting;
 
 	m_ucBitmap		= data;
 
 	// allocate space for draw view
 	m_ucPainting	= new unsigned char [width*height*3];
+	m_ucEdge	= new unsigned char [width*height*3];
+	m_pUI->m_origView->setView(0);
 	// here we can see how the image is stored
 	// by rows
 
@@ -241,13 +245,13 @@ int ImpressionistDoc::changeImage(const char *iname)
 
 	// release old storage
 	if ( m_ucBitmap ) delete [] m_ucBitmap;
+	if ( m_ucEdge ) delete [] m_ucEdge;
 
 	m_ucBitmap		= data;
 	
 	m_pUI->resize_windows(width, height);
 	m_pUI->m_paintView->creatPic();
 	m_pUI->m_paintView->init();
-
 	return 1;
 }
 

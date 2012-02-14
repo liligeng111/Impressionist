@@ -23,6 +23,7 @@ OriginalView::OriginalView(int			x,
 	m_nWindowHeight	= h;
 	cursor_x = -1;
 	cursor_y = -1;
+	view = 0;
 }
 
 void OriginalView::update_cursor(int x, int y) {
@@ -54,7 +55,18 @@ void OriginalView::draw()
 
 	glClear( GL_COLOR_BUFFER_BIT );
 
-	if ( m_pDoc->m_ucBitmap ) 
+	unsigned char* to_load = 0;
+	switch (view)
+	{
+	case 1:
+		to_load = m_pDoc->m_ucEdge;
+		break;
+	default:
+		to_load = m_pDoc->m_ucBitmap;
+		break;
+	}
+
+	if ( to_load ) 
 	{
 		// note that both OpenGL pixel storage and the Windows BMP format
 		// store pixels left-to-right, BOTTOM-to-TOP!!  thus all the fiddling
@@ -77,7 +89,7 @@ void OriginalView::draw()
 		if ( startrow < 0 ) 
 			startrow = 0;
 
-		bitstart = m_pDoc->m_ucBitmap + 3 * ((m_pDoc->m_nWidth * startrow) + scrollpos.x);
+		bitstart = to_load + 3 * ((m_pDoc->m_nWidth * startrow) + scrollpos.x);
 
 		// just copy image to GLwindow conceptually
 		glRasterPos2i( 0, m_nWindowHeight - drawHeight );
@@ -96,6 +108,12 @@ void OriginalView::draw()
 	}
 
 	glFlush();
+}
+
+void OriginalView::setView(int n)
+{
+	view = n;
+	refresh();
 }
 
 void OriginalView::refresh()

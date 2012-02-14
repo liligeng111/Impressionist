@@ -50,6 +50,8 @@ public:
 	static Point coord;
 	static Point lastCoord;
 
+	static unsigned char rgb2grayscale(GLubyte* color);
+
 private:
 	GLvoid* m_pPaintBitstart;
 	int		m_nDrawWidth,

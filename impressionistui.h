@@ -122,6 +122,7 @@ private:
 	static void	cb_alphaSlides(Fl_Widget* o, void* v);
 
 	static void	cb_autoPaint(Fl_Widget* o, void* v);
+	static void	cb_edge(Fl_Widget* o, void* v);
 
 };
 
