@@ -46,7 +46,7 @@ PaintView::PaintView(int			x,
 
 void PaintView::init()
 {	
-	if (pics && 0)
+	if (pics)
 	{
 		for (int i = 0; i < max_pic; i++)
 		{
@@ -345,6 +345,7 @@ void PaintView::savePic()
 		for (int i = current_pic; i < size_pic; i++)
 		{
 			delete []pics[i]; //delete the useless pics
+			pics[i] = 0;
 		}
 		size_pic = current_pic;
 	}	
@@ -353,6 +354,7 @@ void PaintView::savePic()
 	if (current_pic == max_pic)
 	{
 		// max number of pics stored reached
+		delete []pics[0];
 		for (int i = 0; i < size_pic - 1; i++)
 		{
 			pics[i] = pics[i + 1];
