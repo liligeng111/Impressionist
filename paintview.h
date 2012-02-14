@@ -44,6 +44,7 @@ public:
 	ImpressionistDoc *m_pDoc;
 
 	void autoPaint();
+	bool getRandomPoint(Point& p, bool* flag);
 
 	// current or last coord of the mouse cursor
 	static Point coord;
@@ -70,6 +71,8 @@ private:
 	void savePic();
 
 	Point start;
+
+	bool * randflag;
 
 };
 

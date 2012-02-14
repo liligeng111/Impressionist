@@ -405,38 +405,112 @@ void PaintView::creatPic()
 
 }
 
+bool PaintView::getRandomPoint(Point& p, bool* table) {
+	int x = irand(m_nDrawHeight);
+	int y = irand(m_nDrawWidth);
+
+	for (int i = x; i < m_nDrawHeight; i++) {
+		for (int j = 0; j < m_nDrawHeight; j++) {
+			if (!table[m_nDrawHeight *  i + j]) {
+				p.x = j;
+				p.y = i;
+				table[m_nDrawHeight * i - j] = true;
+				return true;
+			}
+		}
+	}
+	for (int i = 0; i < x; i++) {
+		for (int j = 0; j < m_nDrawHeight; j++) {
+			if (i == i - x && j == y - 1) {
+				return false;
+			} else if (!table[m_nDrawHeight *  i + j]) {
+				p.x = j;
+				p.y = i;
+				table[m_nDrawHeight * i - j] = true;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 void PaintView::autoPaint() {
 	#ifndef MESA
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_FRONT_AND_BACK);
 	#endif // !MESA
 
-	
-
 	int spacing = m_pDoc->m_pUI->m_AutoPaintDistanceSlider->value();
 	bool randp = m_pDoc->m_pUI->m_AutoPaintRandButton->value();
 	int	size = m_pDoc->getSize();
+	randflag = new bool [m_nDrawHeight * m_nDrawWidth];
+	memset(randflag, 0, m_nDrawHeight * m_nDrawWidth);
 	Point p;
 
 	/*
-	ImpBrush::c_pBrushes[0]->BrushMove(Point(300, 180), Point(100, 100));
-	this->m_pCurrentBrush->BrushMove(Point(100, 100), Point(100, 100));
-	this->m_pUI->m_paintView->refresh();
-	*/
-
-
-
-	for (int i = 0; i < this->m_pDoc->m_nPaintHeight; i += spacing) {
-		for (int j = 0; j < this->m_pDoc->m_nPaintWidth; j+= spacing) {
-			size = m_pDoc->getSize();			
+	while (getRandomPoint(p, randflag)) {
 			if (randp) {
 				size = ( size + irand(20) - 10 + 39) % 40 + 1;
 			}
 			glPointSize((float)size);
-			p.x = j; 
-			p.y = i;
 			this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
+	}
+	*/
+
+//	for (int tempk = 0; tempk < 17; tempk++)
+	bool even = true;
+	for (int i = 0; i < this->m_pDoc->m_nPaintHeight; i += spacing) {
+		if (even) i += spacing;
+		else i-=spacing;
+
+		for (int j = 0; j < this->m_pDoc->m_nPaintWidth; j+= spacing * 2) {
+//			if (tempk == 16 || (!randflag[i * m_nDrawHeight + j] && !irand(9))) {
+				randflag[i * m_nDrawHeight + j] = true;
+				size = m_pDoc->getSize();			
+				if (randp) {
+					size = ( size + irand(20) - 10 + 39) % 40 + 1;
+				}
+				glPointSize((float)size);
+				p.x = j; 
+				p.y = i;
+				this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
+
+				// candy for random
+				p.y += irand(8) - 4 * spacing;
+				if (p.y < 0) p.y = 0; 
+				else if (p.y >= m_nDrawHeight) p.y = m_nDrawHeight - 1;
+				this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
+//			}
 		}
+		for (int j = spacing; j < this->m_pDoc->m_nPaintWidth; j+= spacing * 2) {
+//			if (tempk == 16 || (!randflag[i * m_nDrawHeight + j] && !irand(9))) {
+				randflag[i * m_nDrawHeight + j] = true;
+				size = m_pDoc->getSize();			
+				if (randp) {
+					size = ( size + irand(20) - 10 + 39) % 40 + 1;
+				}
+				glPointSize((float)size);
+				p.x = j; 
+				p.y = i;
+				this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
+
+				// candy for random
+				p.y += irand(8) - 4 * spacing;
+				if (p.y < 0) p.y = 0; 
+				else if (p.y >= m_nDrawHeight) p.y = m_nDrawHeight - 1;
+				this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
+//			}
+		}
+		
+		if (!even) i += spacing;
+		else i-=spacing;
+
+		even = !even;
+
+		glFlush();
+//		refresh();
+//		m_pDoc->m_pUI->m_origView->refresh();
 	}
 	SaveCurrentContent();
 	glFlush();
