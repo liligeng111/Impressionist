@@ -48,7 +48,7 @@ void PaintView::init()
 {	
 	if (pics)
 	{
-		for (int i = 0; i < max_pic; i++)
+		for (int i = 0; i < current_pic; i++)
 		{
 			if (pics[i]) delete []pics[i];
 		}
@@ -59,7 +59,8 @@ void PaintView::init()
 	current_pic = -1;
 	size_pic = 0;
 	pics = new unsigned char*[max_pic];
-	memset(pics, 0, max_pic * sizeof(void *));
+	for (int i = 0; i < max_pic; i++)
+		pics[i] = 0;
 	savePic();
 }
 
@@ -127,20 +128,13 @@ void PaintView::draw()
 
 		
 		// temp 
-		int d;
+		//int d;
 		// This is the event handler
 		switch (eventToDo) 
 		{
 
 		case LEFT_MOUSE_DOWN:
-			if (current_pic < size_pic - 1)
-			{				
-				// happens then paint sth after severral undo;
-				int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
-				m_pDoc->m_ucPainting = new unsigned char[n];
-				for (int i = 0; i < n; i++)	
-					m_pDoc->m_ucPainting[i] = pics[current_pic][i];
-			}	
+			creatPic();	
 			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
 			break;
 		case LEFT_MOUSE_DRAG:
@@ -170,9 +164,9 @@ void PaintView::draw()
 			break;
 		case RIGHT_MOUSE_UP:
 			RestoreContent();
-			d = sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
-			if (d > 40) d = 40;
-			m_pDoc->setSize(d);
+			//d = sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
+			//if (d > 40) d = 40;
+			//m_pDoc->setSize(d);
 
 			if (target.x == start.x)
 			{
@@ -396,4 +390,17 @@ int PaintView::getGradient() {
 	OutputDebugString(msg);
 	*/
 	return (int)(atan2((double)gxsum, (double)gysum) * 180 / M_PI);
+}
+
+void PaintView::creatPic()
+{
+	if (current_pic < size_pic - 1)
+	{				
+		// happens then paint sth after severral undo;
+		int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
+		m_pDoc->m_ucPainting = new unsigned char[n];
+		for (int i = 0; i < n; i++)	
+			m_pDoc->m_ucPainting[i] = pics[current_pic][i];
+	}
+
 }

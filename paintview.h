@@ -39,6 +39,8 @@ public:
 
 	void init();
 
+	void creatPic(); // creat another copy fot the painting
+
 	ImpressionistDoc *m_pDoc;
 
 	// current or last coord of the mouse cursor

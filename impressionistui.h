@@ -101,6 +101,7 @@ private:
 	// callbacks are not necessarily to be static
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
+	static void	cb_change_image(Fl_Menu_* o, void* v);
 	static void	cb_undo(Fl_Menu_* o, void* v);
 	static void	cb_redo(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);

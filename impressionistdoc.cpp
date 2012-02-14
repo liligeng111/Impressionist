@@ -208,6 +208,48 @@ int ImpressionistDoc::loadImage(const char *iname)
 	return 1;
 }
 
+//---------------------------------------------------------
+// Change to specified image
+// This is called by the UI when the change image button is 
+// pressed.
+//---------------------------------------------------------
+
+int ImpressionistDoc::changeImage(const char *iname) 
+{
+	// try to open the image to read
+	unsigned char*	data;
+	int				width, 
+					height;
+
+	if ( (data=load_image(iname, width, height))==NULL ) 
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+
+	if (width != m_nPaintWidth || height != m_nPaintHeight)
+	{
+		fl_message("Two images are of different size");
+		return 0;
+	}
+
+	// reflect the fact of loading the new image
+	m_nWidth		= width;
+	m_nPaintWidth	= width;
+	m_nHeight		= height;
+	m_nPaintHeight	= height;
+
+	// release old storage
+	if ( m_ucBitmap ) delete [] m_ucBitmap;
+
+	m_ucBitmap		= data;
+	
+	m_pUI->resize_windows(width, height);
+	m_pUI->m_paintView->creatPic();
+	m_pUI->m_paintView->init();
+
+	return 1;
+}
 
 //----------------------------------------------------------------
 // Save the specified image

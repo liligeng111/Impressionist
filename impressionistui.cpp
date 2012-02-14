@@ -206,7 +206,35 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
 	*/
 }
 
+//------------------------------------------------------------------
+// Brings up a file chooser and then loads the chosen image
+// This is called by the UI when the change image menu item is chosen
+//------------------------------------------------------------------
+void ImpressionistUI::cb_change_image(Fl_Menu_* o, void* v) 
+{
+	ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
+	const char* newfile;
+	// this will get the file path relative to the application itself
+	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->title("Open an image file");                        // optional title
+	chooser->directory(".");
+	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
+	switch ( chooser->show() ) {
+		case -1:    // ERROR
+			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+			break;
+		case 1:     // CANCEL
+			fprintf(stderr, "*** CANCEL\n");
+			break;
+		default:    // USER PICKED A FILE
+			newfile = chooser->filename();
+			fprintf(stderr, "Filename was '%s'\n", newfile);
+			pDoc->changeImage(newfile);
+			break;
+	}
+}
 
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
@@ -520,6 +548,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
+		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image},
 		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
 		{ "Blend", FL_ALT + 'k', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
