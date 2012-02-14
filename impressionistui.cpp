@@ -319,6 +319,43 @@ void ImpressionistUI::cb_redo(Fl_Menu_* o, void* v)
 	whoami(o)->m_paintView->redo();
 }
 
+
+//-------------------------------------------------------------
+// Callbacks for display menu 
+//-------------------------------------------------------------
+void ImpressionistUI::cb_show_edge_image(Fl_Menu_ *o, void* v) {
+	ImpressionistUI *ui = whoami(o);
+	ui->m_origView->setView(1);
+}
+void ImpressionistUI::cb_show_original_image(Fl_Menu_ *o, void* v) {
+	ImpressionistUI *ui = whoami(o);
+	ui->m_origView->setView(0);
+}
+void ImpressionistUI::cb_show_another_image(Fl_Menu_ *o, void* v) {
+	ImpressionistUI *ui = whoami(o);
+	ui->m_origView->setView(2);
+}
+
+
+//-----------------
+// callback for filter dialog
+//-----------------
+void ImpressionistUI::cb_filter_dialog(Fl_Menu_ *o, void* v) {
+	whoami(o)->m_FilterDialog->show();;
+}
+void ImpressionistUI::cb_filter_preview(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	// then?
+}
+void ImpressionistUI::cb_filter_apply(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	// then?
+}
+void ImpressionistUI::cb_filter_cancel(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	pUI->m_FilterDialog->hide();
+}
+
 //-----------------------------------------------------------
 // Brings up an about dialog box
 // Called by the UI when the about menu item is chosen
@@ -554,16 +591,22 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
 		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image},
-		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
-		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
-		{ "Blend", FL_ALT + 'k', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
-		
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
 
 	{ "&Edit",		0, 0, 0, FL_SUBMENU },
 		{ "&Undo",	FL_CTRL + 'z', (Fl_Callback *)ImpressionistUI::cb_undo},
 		{ "&Redo",	FL_CTRL + 'x', (Fl_Callback *)ImpressionistUI::cb_redo},
+		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
+		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
+		{ "&Filter Kernel",	FL_ALT + 'f', (Fl_Callback *)ImpressionistUI::cb_filter_dialog}, 
+		{ "B&lend", FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
+		{ 0 },
+
+	{ "&Display",		0, 0, 0, FL_SUBMENU },
+		{ "&Original Image",	FL_ALT + 'o', (Fl_Callback *)ImpressionistUI::cb_show_original_image},
+		{ "&Edge Image",	FL_ALT + 'e', (Fl_Callback *)ImpressionistUI::cb_show_edge_image},
+		{ "Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_show_another_image},
 		{ 0 },
 
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
@@ -641,6 +684,33 @@ ImpressionistUI::ImpressionistUI() {
 
 	m_mainWindow->end();
 
+	// filter kernel dialog
+	m_FilterDialog = new Fl_Window(300, 300, 350, 400, "Filter Dialog Dialog");
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				m_FilterInput[i][j] = new Fl_Int_Input(10 + 60 * i, 10 + 40 * j, 50, 30);
+				m_FilterInput[i][j]->value("0");
+			}
+		}
+		m_FilterInput[2][2]->value("1");
+		m_FilterDivideByInput = new Fl_Int_Input(200, 220, 100, 30, "Divide By: ");
+		m_FilterDivideByInput->align(FL_ALIGN_LEFT);
+		m_FilterOffsetInput = new Fl_Int_Input(200, 260, 100, 30, "Offset: ");
+		m_FilterOffsetInput->align(FL_ALIGN_LEFT);
+
+		m_FilterCancelButton = new Fl_Button(200, 350, 50, 30, "Cancel");
+		m_FilterCancelButton->user_data((void*)this);
+		m_FilterCancelButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_cancel);
+		m_FilterApplyButton = new Fl_Button(100, 300, 100, 50, "Apply");
+		m_FilterApplyButton->user_data((void*)this);
+		m_FilterApplyButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_apply);
+		m_FilterPreviewButton = new Fl_Button(100, 350, 50, 30, "Preview");
+		m_FilterPreviewButton->user_data((void*)this);
+		m_FilterPreviewButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_preview);
+
+
+
+	m_FilterDialog->end();
 
 	// brush dialog definition
 	m_brushDialog = new Fl_Window(400, 375, "Brush Dialog");

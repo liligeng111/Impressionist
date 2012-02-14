@@ -16,6 +16,8 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Light_Button.H>
 #include <FL/Fl_Color_Chooser.H>
+#include <FL/Fl_Input.H>
+#include <FL/Fl_Int_Input.H>
 
 #include "impressionist.h"
 #include "originalview.h"
@@ -56,6 +58,15 @@ public:
 	Fl_Group* m_EdgeSettingBox;
 	Fl_Slider* m_EdgeThresholdSlider;
 	Fl_Button* m_EdgingButton;
+
+// for filter dialog
+	Fl_Window* m_FilterDialog;
+	Fl_Int_Input* m_FilterInput[5][5];
+	Fl_Int_Input* m_FilterDivideByInput;
+	Fl_Int_Input* m_FilterOffsetInput;
+	Fl_Button* m_FilterPreviewButton;
+	Fl_Button* m_FilterCancelButton;
+	Fl_Button* m_FilterApplyButton;
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -124,6 +135,14 @@ private:
 	static void	cb_autoPaint(Fl_Widget* o, void* v);
 	static void	cb_edge(Fl_Widget* o, void* v);
 
-};
+	static void	cb_show_edge_image(Fl_Menu_* o, void* v);
+	static void	cb_show_original_image(Fl_Menu_* o, void* v);
+	static void	cb_show_another_image(Fl_Menu_* o, void* v);
 
+	static void	cb_filter_preview(Fl_Widget* o, void* v);
+	static void	cb_filter_apply(Fl_Widget* o, void* v);
+	static void	cb_filter_cancel(Fl_Widget* o, void* v);
+
+	static void	cb_filter_dialog(Fl_Menu_* o, void* v);
+};
 #endif
