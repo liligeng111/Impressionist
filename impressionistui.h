@@ -77,12 +77,6 @@ private:
 	Fl_Group * wrapper_group_paintview;
 	Fl_Group * wrapper_group_origiview;
 
-	// All attributes here
-	int		m_nSize;
-	int		m_nWidth;
-	int		m_nAngle;	
-	float 	m_nAlpha;
-
 	static TYPE_LINE_DIRECTION m_pLineDirectionType;
 
 	// Static class members
