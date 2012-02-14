@@ -33,6 +33,13 @@ void PointBrush::BrushMove( const Point source, const Point target )
 	ImpressionistDoc* pDoc = GetDocument();
 	ImpressionistUI* dlg=pDoc->m_pUI;
 
+	/*
+	// debug
+	char msg[355];
+	sprintf(msg, "source x: %d, y: %d\ntarget x: %d, y %d\n\n", source.x, source.y, target.x, target.y); 
+	OutputDebugString(msg);
+	*/
+
 	if ( pDoc == NULL ) {
 		printf( "PointBrush::BrushMove  document is NULL\n" );
 		return;

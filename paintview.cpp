@@ -281,7 +281,7 @@ void PaintView::SaveCurrentContent()
 		return;
 	}
 	glReadBuffer(GL_FRONT);
-
+	
 	glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 	glPixelStorei( GL_PACK_ROW_LENGTH, m_pDoc->m_nPaintWidth );
 	
@@ -396,4 +396,82 @@ int PaintView::getGradient() {
 	OutputDebugString(msg);
 	*/
 	return (int)(atan2((double)gxsum, (double)gysum) * 180 / M_PI);
+}
+
+void PaintView::autoPaint() {
+	#ifndef MESA
+	// To avoid flicker on some machines.
+	glDrawBuffer(GL_FRONT_AND_BACK);
+	#endif // !MESA
+
+	if(!valid())
+	{
+
+		glClearColor(0.9f, 0.9f, 0.9f, 1.0);
+
+		// We're only using 2-D, so turn off depth 
+		glDisable( GL_DEPTH_TEST );
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+		glEnable( GL_BLEND ); //enable alpha
+
+		ortho();
+
+		glClear( GL_COLOR_BUFFER_BIT );
+	}
+
+	Point scrollpos;// = GetScrollPosition();
+	scrollpos.x = 0;
+	scrollpos.y	= 0;
+
+	m_nWindowWidth	= w();
+	m_nWindowHeight	= h();
+
+	int drawWidth, drawHeight;
+	drawWidth = min( m_nWindowWidth, m_pDoc->m_nPaintWidth );
+	drawHeight = min( m_nWindowHeight, m_pDoc->m_nPaintHeight );
+
+	int startrow = m_pDoc->m_nPaintHeight - (scrollpos.y + drawHeight);
+	if ( startrow < 0 ) startrow = 0;
+
+	m_pPaintBitstart = m_pDoc->m_ucPainting + 
+		3 * ((m_pDoc->m_nPaintWidth * startrow) + scrollpos.x);
+
+	m_nDrawWidth	= drawWidth;
+	m_nDrawHeight	= drawHeight;
+
+	m_nStartRow		= startrow;
+	m_nEndRow		= startrow + drawHeight;
+	m_nStartCol		= scrollpos.x;
+	m_nEndCol		= m_nStartCol + drawWidth;
+
+	int spacing = this->m_pDoc->m_pUI->m_AutoPaintDistanceSlider->value();
+	bool randp = m_pDoc->m_pUI->m_AutoPaintRandButton->value();
+	int size = 10;
+	Point source, target;
+	Point p;
+
+	glDrawBuffer(GL_FRONT_AND_BACK);
+
+	/*
+	ImpBrush::c_pBrushes[0]->BrushMove(Point(300, 180), Point(100, 100));
+	this->m_pCurrentBrush->BrushMove(Point(100, 100), Point(100, 100));
+	this->m_pUI->m_paintView->refresh();
+	*/
+
+
+
+	for (int i = 0; i < this->m_pDoc->m_nPaintHeight; i += spacing) {
+		for (int j = 0; j < this->m_pDoc->m_nPaintWidth; j+= spacing) {
+			size = this->m_pDoc->getSize();
+			if (randp) {
+				size = ( size + irand(20) - 10 + 39) % 40 + 1;
+			}
+			glPointSize((float)size);
+			p.x = j; p.y = i;
+			this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
+		}
+	}
+	SaveCurrentContent();
+	glFlush();
 }

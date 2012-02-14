@@ -33,7 +33,7 @@ public:
 	void	setAngle(int angle);			// set the UI angle
 	float	getAlpha();						// get the UI alpha
 	char*	getImageName();					// get the current image name
-	
+
 
 // Attributes
 public:

@@ -29,6 +29,9 @@ help understand the codes.
 #define TRUE	1
 #define FALSE	0
 
+float frand();
+int irand(int);
+
 #ifdef WIN32
 #define M_PI	3.1415926535F
 #define NUMBER_OF_EDGES_ 20

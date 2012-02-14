@@ -46,6 +46,17 @@ public:
 	Fl_Slider*			m_BrushAlphaSlider;
 	Fl_Button*          m_ClearCanvasButton;
 
+// for auto paint box
+	Fl_Group* m_AutoPaintBox;
+	Fl_Slider* m_AutoPaintDistanceSlider;
+	Fl_Light_Button* m_AutoPaintRandButton;
+	Fl_Button* m_AutoPaintButton;
+
+// for edge detection setting box
+	Fl_Group* m_EdgeSettingBox;
+	Fl_Slider* m_EdgeThresholdSlider;
+	Fl_Button* m_EdgingButton;
+
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
 	ImpressionistDoc*	getDocument();
@@ -114,6 +125,8 @@ private:
 	static void	cb_widthSlides(Fl_Widget* o, void* v);
 	static void	cb_angleSlides(Fl_Widget* o, void* v);
 	static void	cb_alphaSlides(Fl_Widget* o, void* v);
+
+	static void	cb_autoPaint(Fl_Widget* o, void* v);
 
 };
 

@@ -22,137 +22,137 @@ make them look how you want.  Descriptions for all of the widgets here can be fo
 in links on the fltk help session page.
 
 //---------Window/Dialog and Menubar-----------------------------------
-	
-	//----To install a window--------------------------
-	Fl_Window* myWindow = new Fl_Window(600, 300, "MyWindow");
-		myWindow->user_data((void*)(this));	// record self to be used by static callback functions
-		
-		// install menu bar
-		myMenubar = new Fl_Menu_Bar(0, 0, 600, 25);
-		Fl_Menu_Item ImpressionistUI::myMenuItems[] = {
-			{ "&File",		0, 0, 0, FL_SUBMENU },
-				{ "&Load...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load },
-				{ "&Save...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save }.
-				{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
-				{ 0 },
-			{ "&Edit",		0, 0, 0, FL_SUBMENU },
-				{ "&Copy",FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_copy, (void *)COPY },
-				{ "&Cut",	FL_ALT + 'x', (Fl_Callback *)ImpressionistUI::cb_cut, (void *)CUT },
-				{ "&Paste",	FL_ALT + 'v', (Fl_Callback *)ImpressionistUI::cb_paste, (void *)PASTE },
-				{ 0 },
-			{ "&Help",		0, 0, 0, FL_SUBMENU },
-				{ "&About",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_about },
-				{ 0 },
-			{ 0 }
-		};
-		myMenubar->menu(myMenuItems);
+    
+    //----To install a window--------------------------
+    Fl_Window* myWindow = new Fl_Window(600, 300, "MyWindow");
+        myWindow->user_data((void*)(this));	// record self to be used by static callback functions
+        
+        // install menu bar
+        myMenubar = new Fl_Menu_Bar(0, 0, 600, 25);
+        Fl_Menu_Item ImpressionistUI::myMenuItems[] = {
+            { "&File",		0, 0, 0, FL_SUBMENU },
+                { "&Load...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load },
+                { "&Save...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save }.
+                { "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
+                { 0 },
+            { "&Edit",		0, 0, 0, FL_SUBMENU },
+                { "&Copy",FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_copy, (void *)COPY },
+                { "&Cut",	FL_ALT + 'x', (Fl_Callback *)ImpressionistUI::cb_cut, (void *)CUT },
+                { "&Paste",	FL_ALT + 'v', (Fl_Callback *)ImpressionistUI::cb_paste, (void *)PASTE },
+                { 0 },
+            { "&Help",		0, 0, 0, FL_SUBMENU },
+                { "&About",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_about },
+                { 0 },
+            { 0 }
+        };
+        myMenubar->menu(myMenuItems);
     m_mainWindow->end();
 
-	//----The window callback--------------------------
-	// One of the callbacks
-	void ImpressionistUI::cb_load(Fl_Menu_* o, void* v) 
-	{	
-		ImpressionistDoc *pDoc=whoami(o)->getDocument();
+    //----The window callback--------------------------
+    // One of the callbacks
+    void ImpressionistUI::cb_load(Fl_Menu_* o, void* v) 
+    {	
+        ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-		char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName() );
-		if (newfile != NULL) {
-			pDoc->loadImage(newfile);
-		}
-	}
+        char* newfile = fl_file_chooser("Open File?", "*.bmp", pDoc->getImageName() );
+        if (newfile != NULL) {
+            pDoc->loadImage(newfile);
+        }
+    }
 
 
 //------------Slider---------------------------------------
 
-	//----To install a slider--------------------------
-	Fl_Value_Slider * mySlider = new Fl_Value_Slider(10, 80, 300, 20, "My Value");
-	mySlider->user_data((void*)(this));	// record self to be used by static callback functions
-	mySlider->type(FL_HOR_NICE_SLIDER);
+    //----To install a slider--------------------------
+    Fl_Value_Slider * mySlider = new Fl_Value_Slider(10, 80, 300, 20, "My Value");
+    mySlider->user_data((void*)(this));	// record self to be used by static callback functions
+    mySlider->type(FL_HOR_NICE_SLIDER);
     mySlider->labelfont(FL_COURIER);
     mySlider->labelsize(12);
-	mySlider->minimum(1);
-	mySlider->maximum(40);
-	mySlider->step(1);
-	mySlider->value(m_nMyValue);
-	mySlider->align(FL_ALIGN_RIGHT);
-	mySlider->callback(cb_MyValueSlides);
+    mySlider->minimum(1);
+    mySlider->maximum(40);
+    mySlider->step(1);
+    mySlider->value(m_nMyValue);
+    mySlider->align(FL_ALIGN_RIGHT);
+    mySlider->callback(cb_MyValueSlides);
 
-	//----The slider callback--------------------------
-	void ImpressionistUI::cb_MyValueSlides(Fl_Widget* o, void* v)
-	{
-		((ImpressionistUI*)(o->user_data()))->m_nMyValue=int( ((Fl_Slider *)o)->value() ) ;
-	}
-	
+    //----The slider callback--------------------------
+    void ImpressionistUI::cb_MyValueSlides(Fl_Widget* o, void* v)
+    {
+        ((ImpressionistUI*)(o->user_data()))->m_nMyValue=int( ((Fl_Slider *)o)->value() ) ;
+    }
+    
 
 //------------Choice---------------------------------------
-	
-	//----To install a choice--------------------------
-	Fl_Choice * myChoice = new Fl_Choice(50,10,150,25,"&myChoiceLabel");
-	myChoice->user_data((void*)(this));	 // record self to be used by static callback functions
-	Fl_Menu_Item ImpressionistUI::myChoiceMenu[3+1] = {
-	  {"one",FL_ALT+'p', (Fl_Callback *)ImpressionistUI::cb_myChoice, (void *)ONE},
-	  {"two",FL_ALT+'l', (Fl_Callback *)ImpressionistUI::cb_myChoice, (void *)TWO},
-	  {"three",FL_ALT+'c', (Fl_Callback *)ImpressionistUI::cb_myChoice, (void *)THREE},
-	  {0}
-	};
-	myChoice->menu(myChoiceMenu);
-	myChoice->callback(cb_myChoice);
-	
-	//-----The choice callback-------------------------
-	void ImpressionistUI::cb_myChoice(Fl_Widget* o, void* v)
-	{
-		ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
-		ImpressionistDoc* pDoc=pUI->getDocument();
+    
+    //----To install a choice--------------------------
+    Fl_Choice * myChoice = new Fl_Choice(50,10,150,25,"&myChoiceLabel");
+    myChoice->user_data((void*)(this));	 // record self to be used by static callback functions
+    Fl_Menu_Item ImpressionistUI::myChoiceMenu[3+1] = {
+      {"one",FL_ALT+'p', (Fl_Callback *)ImpressionistUI::cb_myChoice, (void *)ONE},
+      {"two",FL_ALT+'l', (Fl_Callback *)ImpressionistUI::cb_myChoice, (void *)TWO},
+      {"three",FL_ALT+'c', (Fl_Callback *)ImpressionistUI::cb_myChoice, (void *)THREE},
+      {0}
+    };
+    myChoice->menu(myChoiceMenu);
+    myChoice->callback(cb_myChoice);
+    
+    //-----The choice callback-------------------------
+    void ImpressionistUI::cb_myChoice(Fl_Widget* o, void* v)
+    {
+        ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+        ImpressionistDoc* pDoc=pUI->getDocument();
 
-		int type=(int)v;
+        int type=(int)v;
 
-		pDoc->setMyType(type);
-	}
+        pDoc->setMyType(type);
+    }
 
 
 //------------Button---------------------------------------
 
-	//---To install a button---------------------------
-	Fl_Button* myButton = new Fl_Button(330,220,50,20,"&myButtonLabel");
-	myButton->user_data((void*)(this));   // record self to be used by static callback functions
-	myButton->callback(cb_myButton);
+    //---To install a button---------------------------
+    Fl_Button* myButton = new Fl_Button(330,220,50,20,"&myButtonLabel");
+    myButton->user_data((void*)(this));   // record self to be used by static callback functions
+    myButton->callback(cb_myButton);
 
-	//---The button callback---------------------------
-	void ImpressionistUI::cb_myButton(Fl_Widget* o, void* v)
-	{
-		ImpressionistUI* pUI=((ImpressionistUI*)(o->user_data()));
-		ImpressionistDoc* pDoc = pUI->getDocument();
-		pDoc->startPainting();
-	}
+    //---The button callback---------------------------
+    void ImpressionistUI::cb_myButton(Fl_Widget* o, void* v)
+    {
+        ImpressionistUI* pUI=((ImpressionistUI*)(o->user_data()));
+        ImpressionistDoc* pDoc = pUI->getDocument();
+        pDoc->startPainting();
+    }
 
 
 //---------Light Button------------------------------------
-	
-	//---To install a light button---------------------
-	Fl_Light_Button* myLightButton = new Fl_Light_Button(240,10,150,25,"&myLightButtonLabel");
-	myLightButton->user_data((void*)(this));   // record self to be used by static callback functions
-	myLightButton->callback(cb_myLightButton);
+    
+    //---To install a light button---------------------
+    Fl_Light_Button* myLightButton = new Fl_Light_Button(240,10,150,25,"&myLightButtonLabel");
+    myLightButton->user_data((void*)(this));   // record self to be used by static callback functions
+    myLightButton->callback(cb_myLightButton);
 
-	//---The light button callback---------------------
-	void ImpressionistUI::cb_myLightButton(Fl_Widget* o, void* v)
-	{
-		ImpressionistUI *pUI=((ImpressionistUI*)(o->user_data()));
+    //---The light button callback---------------------
+    void ImpressionistUI::cb_myLightButton(Fl_Widget* o, void* v)
+    {
+        ImpressionistUI *pUI=((ImpressionistUI*)(o->user_data()));
 
-		if (pUI->myBool==TRUE) pUI->myBool=FALSE;
-		else pUI->myBool=TRUE;
-	}
+        if (pUI->myBool==TRUE) pUI->myBool=FALSE;
+        else pUI->myBool=TRUE;
+    }
 
 //----------Int Input--------------------------------------
 
     //---To install an int input-----------------------
-	Fl_Int_Input* myInput = new Fl_Int_Input(200, 50, 5, 5, "&My Input");
-	myInput->user_data((void*)(this));   // record self to be used by static callback functions
-	myInput->callback(cb_myInput);
+    Fl_Int_Input* myInput = new Fl_Int_Input(200, 50, 5, 5, "&My Input");
+    myInput->user_data((void*)(this));   // record self to be used by static callback functions
+    myInput->callback(cb_myInput);
 
-	//---The int input callback------------------------
-	void ImpressionistUI::cb_myInput(Fl_Widget* o, void* v)
-	{
-		((ImpressionistUI*)(o->user_data()))->m_nMyInputValue=int( ((Fl_Int_Input *)o)->value() );
-	}
+    //---The int input callback------------------------
+    void ImpressionistUI::cb_myInput(Fl_Widget* o, void* v)
+    {
+        ((ImpressionistUI*)(o->user_data()))->m_nMyInputValue=int( ((Fl_Int_Input *)o)->value() );
+    }
 
 //------------------------------------------------------------------------------------------------
 */
@@ -165,7 +165,7 @@ in links on the fltk help session page.
 //------------------------------------------------------------
 ImpressionistUI* ImpressionistUI::whoami(Fl_Menu_* o)	
 {
-	return ( (ImpressionistUI*)(o->parent()->user_data()) );
+    return ( (ImpressionistUI*)(o->parent()->user_data()) );
 }
 
 
@@ -177,33 +177,33 @@ ImpressionistUI* ImpressionistUI::whoami(Fl_Menu_* o)
 //------------------------------------------------------------------
 void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v) 
 {
-	ImpressionistDoc *pDoc=whoami(o)->getDocument();
+    ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-	const char* newfile;
-	// this will get the file path relative to the application itself
-	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
-	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
-	chooser->title("Open an image file");                        // optional title
-	chooser->directory(".");
-	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
-	switch ( chooser->show() ) {
-		case -1:    // ERROR
-			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
-			break;
-		case 1:     // CANCEL
-			fprintf(stderr, "*** CANCEL\n");
-			break;
-		default:    // USER PICKED A FILE
-			newfile = chooser->filename();
-			fprintf(stderr, "Filename was '%s'\n", newfile);
-			pDoc->loadImage(newfile);
-			break;
-	}
-	/*
-	if (newfile != NULL) {
-		pDoc->loadImage(newfile);
-	}
-	*/
+    const char* newfile;
+    // this will get the file path relative to the application itself
+    Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+    chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+    chooser->title("Open an image file");                        // optional title
+    chooser->directory(".");
+    chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
+    switch ( chooser->show() ) {
+        case -1:    // ERROR
+            fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+            break;
+        case 1:     // CANCEL
+            fprintf(stderr, "*** CANCEL\n");
+            break;
+        default:    // USER PICKED A FILE
+            newfile = chooser->filename();
+            fprintf(stderr, "Filename was '%s'\n", newfile);
+            pDoc->loadImage(newfile);
+            break;
+    }
+    /*
+    if (newfile != NULL) {
+        pDoc->loadImage(newfile);
+    }
+    */
 }
 
 
@@ -214,31 +214,31 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
 //------------------------------------------------------------------
 void ImpressionistUI::cb_save_image(Fl_Menu_* o, void* v) 
 {
-	ImpressionistDoc *pDoc=whoami(o)->getDocument();
+    ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-	const char* newfile = NULL;
-	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
-	chooser->type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);   // let user browse a single file
-	chooser->title("Save image");                        // optional title
-	chooser->directory(".");
-	chooser->preset_file("untitled.bmp");
-	chooser->filter("RGB Image Files\t*.bmp");                 // optional filter
-	switch ( chooser->show() ) {
-		case -1:    // ERROR
-			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
-			break;
-		case 1:     // CANCEL
-			fprintf(stderr, "*** CANCEL\n");
-			break;
-		default:    // USER PICKED A FILE
-			newfile = chooser->filename();
-			fprintf(stderr, "Filename was '%s'\n", newfile);
-			break;
-	}
+    const char* newfile = NULL;
+    Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+    chooser->type(Fl_Native_File_Chooser::BROWSE_SAVE_FILE);   // let user browse a single file
+    chooser->title("Save image");                        // optional title
+    chooser->directory(".");
+    chooser->preset_file("untitled.bmp");
+    chooser->filter("RGB Image Files\t*.bmp");                 // optional filter
+    switch ( chooser->show() ) {
+        case -1:    // ERROR
+            fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+            break;
+        case 1:     // CANCEL
+            fprintf(stderr, "*** CANCEL\n");
+            break;
+        default:    // USER PICKED A FILE
+            newfile = chooser->filename();
+            fprintf(stderr, "Filename was '%s'\n", newfile);
+            break;
+    }
 
-	if (newfile != NULL) {
-		pDoc->saveImage(newfile);
-	}
+    if (newfile != NULL) {
+        pDoc->saveImage(newfile);
+    }
 }
 
 //-------------------------------------------------------------
@@ -248,7 +248,7 @@ void ImpressionistUI::cb_save_image(Fl_Menu_* o, void* v)
 //-------------------------------------------------------------
 void ImpressionistUI::cb_brushes(Fl_Menu_* o, void* v) 
 {
-	whoami(o)->m_brushDialog->show();
+    whoami(o)->m_brushDialog->show();
 }
 
 //------------------------------------------------------------
@@ -257,9 +257,9 @@ void ImpressionistUI::cb_brushes(Fl_Menu_* o, void* v)
 //------------------------------------------------------------
 void ImpressionistUI::cb_clear_canvas(Fl_Menu_* o, void* v)
 {
-	ImpressionistDoc* pDoc=whoami(o)->getDocument();
+    ImpressionistDoc* pDoc=whoami(o)->getDocument();
 
-	pDoc->clearCanvas();
+    pDoc->clearCanvas();
 }
 
 //------------------------------------------------------------
@@ -268,9 +268,9 @@ void ImpressionistUI::cb_clear_canvas(Fl_Menu_* o, void* v)
 //------------------------------------------------------------
 void ImpressionistUI::cb_exit(Fl_Menu_* o, void* v) 
 {
-	whoami(o)->m_brushDialog->hide();
-	whoami(o)->m_mainWindow->hide();
-	// remember to add more hide() functions if there are
+    whoami(o)->m_brushDialog->hide();
+    whoami(o)->m_mainWindow->hide();
+    // remember to add more hide() functions if there are
 
 }
 
@@ -279,7 +279,7 @@ void ImpressionistUI::cb_exit(Fl_Menu_* o, void* v)
 //-------------------------------------------------------------
 void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v) 
 {
-	whoami(o)->m_paintView->undo();
+    whoami(o)->m_paintView->undo();
 }
 
 //-------------------------------------------------------------
@@ -287,7 +287,7 @@ void ImpressionistUI::cb_undo(Fl_Menu_* o, void* v)
 //-------------------------------------------------------------
 void ImpressionistUI::cb_redo(Fl_Menu_* o, void* v) 
 {
-	whoami(o)->m_paintView->redo();
+    whoami(o)->m_paintView->redo();
 }
 
 //-----------------------------------------------------------
@@ -296,7 +296,7 @@ void ImpressionistUI::cb_redo(Fl_Menu_* o, void* v)
 //-----------------------------------------------------------
 void ImpressionistUI::cb_about(Fl_Menu_* o, void* v) 
 {
-	fl_message("Impressionist for COMP4411, HKUST\nBy Heng and Ligeng\nSpring, 2012. Due on May 1");
+    fl_message("Impressionist for COMP4411, HKUST\nBy Heng and Ligeng\nSpring, 2012. Due on May 1");
 }
 
 //------- UI should keep track of the current for all the controls for answering the query from Doc ---------
@@ -307,18 +307,18 @@ void ImpressionistUI::cb_about(Fl_Menu_* o, void* v)
 //-------------------------------------------------------------
 void ImpressionistUI::cb_brushChoice(Fl_Widget* o, void* v)
 {
-	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
-	ImpressionistDoc* pDoc=pUI->getDocument();
+    ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+    ImpressionistDoc* pDoc=pUI->getDocument();
 
-	int type=(int)v;
+    int type=(int)v;
 
-	pDoc->setBrushType(type);
+    pDoc->setBrushType(type);
 }
 
 void ImpressionistUI::cb_lineDirectionChoice(Fl_Widget* o, void* v)
 {
-	m_pLineDirectionType = (TYPE_LINE_DIRECTION)(int)v;
-	// ca~~, must convert twice ?
+    m_pLineDirectionType = (TYPE_LINE_DIRECTION)(int)v;
+    // ca~~, must convert twice ?
 }
 
 //------------------------------------------------------------
@@ -327,9 +327,17 @@ void ImpressionistUI::cb_lineDirectionChoice(Fl_Widget* o, void* v)
 //------------------------------------------------------------
 void ImpressionistUI::cb_clear_canvas_button(Fl_Widget* o, void* v)
 {
-	ImpressionistDoc * pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+    ImpressionistDoc * pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
 
-	pDoc->clearCanvas();
+    pDoc->clearCanvas();
+}
+
+// auto paint button callback
+void ImpressionistUI::cb_autoPaint(Fl_Widget* o, void* v)
+{
+    ImpressionistDoc * pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+
+	pDoc->m_pUI->m_paintView->autoPaint();
 }
 
 
@@ -340,7 +348,7 @@ void ImpressionistUI::cb_clear_canvas_button(Fl_Widget* o, void* v)
 //-----------------------------------------------------------
 void ImpressionistUI::cb_sizeSlides(Fl_Widget* o, void* v)
 {
-	((ImpressionistUI*)(o->user_data()))->m_nSize=int( ((Fl_Slider *)o)->value() ) ;
+    ((ImpressionistUI*)(o->user_data()))->m_nSize=int( ((Fl_Slider *)o)->value() ) ;
 }
 
 //-----------------------------------------------------------
@@ -350,7 +358,7 @@ void ImpressionistUI::cb_sizeSlides(Fl_Widget* o, void* v)
 //-----------------------------------------------------------
 void ImpressionistUI::cb_widthSlides(Fl_Widget* o, void* v)
 {
-	((ImpressionistUI*)(o->user_data()))->m_nWidth=int( ((Fl_Slider *)o)->value() ) ;
+    ((ImpressionistUI*)(o->user_data()))->m_nWidth=int( ((Fl_Slider *)o)->value() ) ;
 }
 
 //-----------------------------------------------------------
@@ -360,7 +368,7 @@ void ImpressionistUI::cb_widthSlides(Fl_Widget* o, void* v)
 //-----------------------------------------------------------
 void ImpressionistUI::cb_angleSlides(Fl_Widget* o, void* v)
 {
-	((ImpressionistUI*)(o->user_data()))->m_nAngle=int( ((Fl_Slider *)o)->value() ) ;
+    ((ImpressionistUI*)(o->user_data()))->m_nAngle=int( ((Fl_Slider *)o)->value() ) ;
 }
 
 //-----------------------------------------------------------
@@ -370,13 +378,13 @@ void ImpressionistUI::cb_angleSlides(Fl_Widget* o, void* v)
 //-----------------------------------------------------------
 void ImpressionistUI::cb_alphaSlides(Fl_Widget* o, void* v)
 {
-	((ImpressionistUI*)(o->user_data()))->m_nAlpha=float( ((Fl_Slider *)o)->value() ) ;
+    ((ImpressionistUI*)(o->user_data()))->m_nAlpha=float( ((Fl_Slider *)o)->value() ) ;
 }
 
 // callback for blend menu 
 void ImpressionistUI::cb_blendcolor(Fl_Menu_* o, void* v) {
-	fl_color_chooser("Please choose blend color", blendColor[0], blendColor[1], blendColor[2]);
-	// ((ImpressionistUI*)(o->user_data()))->m_BlendColorChooserDialog->show();
+    fl_color_chooser("Please choose blend color", blendColor[0], blendColor[1], blendColor[2]);
+    // ((ImpressionistUI*)(o->user_data()))->m_BlendColorChooserDialog->show();
 }
 
 //---------------------------------- per instance functions --------------------------------------
@@ -386,16 +394,16 @@ void ImpressionistUI::cb_blendcolor(Fl_Menu_* o, void* v) {
 //------------------------------------------------
 ImpressionistDoc* ImpressionistUI::getDocument()
 {
-	return m_pDoc;
+    return m_pDoc;
 }
 
 //------------------------------------------------
 // Draw the main window
 //------------------------------------------------
 void ImpressionistUI::show() {
-	m_mainWindow->show();
-	m_origView->show();
-	m_paintView->show();
+    m_mainWindow->show();
+    m_origView->show();
+    m_paintView->show();
 }
 
 //------------------------------------------------
@@ -403,12 +411,12 @@ void ImpressionistUI::show() {
 // w by h
 //------------------------------------------------
 void ImpressionistUI::resize_windows(int w, int h) {
-	m_paintView->size(w,h);
-	m_origView->size(w,h);
-	wrapper_group_paintview->size(w, h);
-	wrapper_group_origiview->size(w, h);
-	m_paintView->refresh();
-	m_origView->refresh();
+    m_paintView->size(w,h);
+    m_origView->size(w,h);
+    wrapper_group_paintview->size(w, h);
+    wrapper_group_origiview->size(w, h);
+    m_paintView->refresh();
+    m_origView->refresh();
 }
 
 //------------------------------------------------ 
@@ -417,10 +425,10 @@ void ImpressionistUI::resize_windows(int w, int h) {
 //------------------------------------------------
 void ImpressionistUI::setDocument(ImpressionistDoc* doc)
 {
-	m_pDoc = doc;
+    m_pDoc = doc;
 
-	m_origView->m_pDoc = doc;
-	m_paintView->m_pDoc = doc;
+    m_origView->m_pDoc = doc;
+    m_paintView->m_pDoc = doc;
 }
 
 //------------------------------------------------
@@ -428,7 +436,7 @@ void ImpressionistUI::setDocument(ImpressionistDoc* doc)
 //------------------------------------------------
 int ImpressionistUI::getSize()
 {
-	return m_nSize;
+    return m_nSize;
 }
 
 //-------------------------------------------------
@@ -436,11 +444,11 @@ int ImpressionistUI::getSize()
 //-------------------------------------------------
 void ImpressionistUI::setSize( int size )
 {
-	m_nSize=size;
+    m_nSize=size;
 
-	if (size<=40) {
-		m_BrushSizeSlider->value(m_nSize);
-	}
+    if (size<=40) {
+        m_BrushSizeSlider->value(m_nSize);
+    }
 }
 
 //------------------------------------------------
@@ -448,7 +456,7 @@ void ImpressionistUI::setSize( int size )
 //------------------------------------------------
 int ImpressionistUI::getWidth()
 {
-	return m_nWidth;
+    return m_nWidth;
 }
 
 //-------------------------------------------------
@@ -456,11 +464,11 @@ int ImpressionistUI::getWidth()
 //-------------------------------------------------
 void ImpressionistUI::setWidth( int width )
 {
-	m_nWidth = width;
+    m_nWidth = width;
 
-	if (width<=40) {
-		m_BrushWidthSlider->value(m_nWidth);
-	}
+    if (width<=40) {
+        m_BrushWidthSlider->value(m_nWidth);
+    }
 }
 
 //------------------------------------------------
@@ -468,17 +476,17 @@ void ImpressionistUI::setWidth( int width )
 //------------------------------------------------
 int ImpressionistUI::getAngle()
 {
-	switch (m_pLineDirectionType) {
-	case LDIRECTION_SLIDER_RIGHT_MOUSE:
-		return m_nAngle;
-	case LDIRECTION_GRADIENT:
-		return m_paintView->getGradient();
-	case LDIRECTION_BRUSH_DIRECTION:
-		return m_paintView->getBrushDirection();
-	default:
-		// this is error
-		return 0;
-	}
+    switch (m_pLineDirectionType) {
+    case LDIRECTION_SLIDER_RIGHT_MOUSE:
+        return m_nAngle;
+    case LDIRECTION_GRADIENT:
+        return m_paintView->getGradient();
+    case LDIRECTION_BRUSH_DIRECTION:
+        return m_paintView->getBrushDirection();
+    default:
+        // this is error
+        return 0;
+    }
 }
 
 //-------------------------------------------------
@@ -486,11 +494,11 @@ int ImpressionistUI::getAngle()
 //-------------------------------------------------
 void ImpressionistUI::setAngle( int angle )
 {
-	m_nAngle = angle;
+    m_nAngle = angle;
 
-	if (angle<=180) {
-		m_BrushAngleSlider->value(m_nAngle);
-	}
+    if (angle<=180) {
+        m_BrushAngleSlider->value(m_nAngle);
+    }
 }
 
 //------------------------------------------------
@@ -498,7 +506,7 @@ void ImpressionistUI::setAngle( int angle )
 //------------------------------------------------
 float ImpressionistUI::getAlpha()
 {
-	return m_nAlpha;
+    return m_nAlpha;
 }
 
 //-------------------------------------------------
@@ -506,37 +514,37 @@ float ImpressionistUI::getAlpha()
 //-------------------------------------------------
 void ImpressionistUI::setAlpha( float alpha )
 {
-	m_nAlpha = alpha;
+    m_nAlpha = alpha;
 
-	if (alpha<=1.0f) {
-		m_BrushAlphaSlider->value(m_nAlpha);
-	}
+    if (alpha<=1.0f) {
+        m_BrushAlphaSlider->value(m_nAlpha);
+    }
 }
 
 
 // Main menu definition
 /// need to set callback during initialization
 Fl_Menu_Item ImpressionistUI::menuitems[] = {
-	{ "&File",		0, 0, 0, FL_SUBMENU },
-		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
-		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
-		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
-		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
-		{ "Blend", FL_ALT + 'k', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
-		
-		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
-		{ 0 },
+    { "&File",		0, 0, 0, FL_SUBMENU },
+        { "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
+        { "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
+        { "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
+        { "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
+        { "Blend", FL_ALT + 'k', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
+        
+        { "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
+        { 0 },
 
-	{ "&Edit",		0, 0, 0, FL_SUBMENU },
-		{ "&Undo",	FL_CTRL + 'z', (Fl_Callback *)ImpressionistUI::cb_undo},
-		{ "&Redo",	FL_CTRL + 'x', (Fl_Callback *)ImpressionistUI::cb_redo},
-		{ 0 },
+    { "&Edit",		0, 0, 0, FL_SUBMENU },
+        { "&Undo",	FL_CTRL + 'z', (Fl_Callback *)ImpressionistUI::cb_undo},
+        { "&Redo",	FL_CTRL + 'x', (Fl_Callback *)ImpressionistUI::cb_redo},
+        { 0 },
 
-	{ "&Help",		0, 0, 0, FL_SUBMENU },
-		{ "&About",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_about },
-		{ 0 },
+    { "&Help",		0, 0, 0, FL_SUBMENU },
+        { "&About",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_about },
+        { 0 },
 
-	{ 0 }
+    { 0 }
 };
 
 // Brush choice menu definition
@@ -559,7 +567,7 @@ Fl_Menu_Item ImpressionistUI::lineDirectionMenu[NUM_LDIRECTION_TYPE + 1] = {
 
 
 void ImpressionistUI::activeSaveFunc() {
-	menuitems[2].activate();
+    menuitems[2].activate();
 }
 
 // I know this is ugle, but don't have better idea
@@ -572,124 +580,165 @@ TYPE_LINE_DIRECTION ImpressionistUI::m_pLineDirectionType = LDIRECTION_SLIDER_RI
 // Add new widgets here
 //----------------------------------------------------
 ImpressionistUI::ImpressionistUI() {
-	// Create the main window
-	Fl::scheme("gtk+");
-	m_mainWindow = new Fl_Window(600, 300, "Impressionist");
-	m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
-	// using user_data is convention
+    // Create the main window
+    Fl::scheme("gtk+");
+    m_mainWindow = new Fl_Window(600, 300, "Impressionist");
+    m_mainWindow->user_data((void*)(this));	// record self to be used by static callback functions
+    // using user_data is convention
 
-		// install menu bar
-		m_menubar = new Fl_Menu_Bar(0, 0, 600, 25);
-		m_menubar->menu(menuitems);
+        // install menu bar
+        m_menubar = new Fl_Menu_Bar(0, 0, 600, 25);
+        m_menubar->menu(menuitems);
 
-		// Create a group that will hold two sub windows inside the main
-		// window
-		Fl_Group* group = new Fl_Group(0, 25, 600, 275);
+        // Create a group that will hold two sub windows inside the main
+        // window
+        Fl_Group* group = new Fl_Group(0, 25, 600, 275);
 
-			// install paint view window
-			wrapper_group_paintview = new Fl_Group(300, 25, 300, 275);
-				m_paintView = new PaintView(300, 25, 300, 275, "This is the paint view");//0jon
-				m_paintView->box(FL_BORDER_FRAME);
-			wrapper_group_paintview->end();
-			wrapper_group_paintview->resizable(0);
+            // install paint view window
+            wrapper_group_paintview = new Fl_Group(300, 25, 300, 275);
+                m_paintView = new PaintView(300, 25, 300, 275, "This is the paint view");//0jon
+                m_paintView->box(FL_BORDER_FRAME);
+            wrapper_group_paintview->end();
+            wrapper_group_paintview->resizable(0);
 
-			// install original view window
-			wrapper_group_origiview = new Fl_Group(0, 25, 300, 275);
-				m_origView = new OriginalView(0, 25, 300, 275, "This is the orig view");//300jon
-				m_origView->box(FL_DOWN_FRAME);
-				m_origView->deactivate();
-			wrapper_group_origiview->end();
-			wrapper_group_origiview->resizable(0);
+            // install original view window
+            wrapper_group_origiview = new Fl_Group(0, 25, 300, 275);
+                m_origView = new OriginalView(0, 25, 300, 275, "This is the orig view");//300jon
+                m_origView->box(FL_DOWN_FRAME);
+                m_origView->deactivate();
+            wrapper_group_origiview->end();
+            wrapper_group_origiview->resizable(0);
 
-		group->end();
-		Fl_Group::current()->resizable(group);
-		// current() should mean the mainwindow
+        group->end();
+        Fl_Group::current()->resizable(group);
+        // current() should mean the mainwindow
 
     m_mainWindow->end();
 
-	// init values
+    // init values
 
-	m_nSize = 10;
-	m_nWidth = 1;
-	m_nAngle = 0;
-	m_nAlpha = 1.0f;
+    m_nSize = 10;
+    m_nWidth = 1;
+    m_nAngle = 0;
+    m_nAlpha = 1.0f;
 
 
 
-	// brush dialog definition
-	m_brushDialog = new Fl_Window(400, 325, "Brush Dialog");
-		// Add a brush type choice to the dialog
-		m_BrushTypeChoice = new Fl_Choice(50,10,150,25,"&Brush");
-		m_BrushTypeChoice->user_data((void*)(this));	// record self to be used by static callback functions
-		m_BrushTypeChoice->menu(brushTypeMenu);
-		m_BrushTypeChoice->callback(cb_brushChoice);
+    // brush dialog definition
+    m_brushDialog = new Fl_Window(400, 355, "Brush Dialog");
+        // Add a brush type choice to the dialog
+        m_BrushTypeChoice = new Fl_Choice(50,10,150,25,"&Brush");
+        m_BrushTypeChoice->user_data((void*)(this));	// record self to be used by static callback functions
+        m_BrushTypeChoice->menu(brushTypeMenu);
+        m_BrushTypeChoice->callback(cb_brushChoice);
 
-		// clear canvas button
-		m_ClearCanvasButton = new Fl_Button(240,10,150,25,"&Clear Canvas");
-		m_ClearCanvasButton->user_data((void*)(this));
-		m_ClearCanvasButton->callback(cb_clear_canvas_button);
+        // clear canvas button
+        m_ClearCanvasButton = new Fl_Button(240,10,150,25,"&Clear Canvas");
+        m_ClearCanvasButton->user_data((void*)(this));
+        m_ClearCanvasButton->callback(cb_clear_canvas_button);
 
-		// line direction choice
-		m_LineDirectionChoice = new Fl_Choice(100, 45, 250, 25, "&Line Direction");
-		m_LineDirectionChoice->user_data((void*)(this));
-		m_LineDirectionChoice->menu(lineDirectionMenu);
-		m_LineDirectionChoice->callback(cb_lineDirectionChoice);
-		m_LineDirectionChoice->deactivate();
+        // line direction choice
+        m_LineDirectionChoice = new Fl_Choice(100, 45, 250, 25, "&Line Direction");
+        m_LineDirectionChoice->user_data((void*)(this));
+        m_LineDirectionChoice->menu(lineDirectionMenu);
+        m_LineDirectionChoice->callback(cb_lineDirectionChoice);
+        m_LineDirectionChoice->deactivate();
 
-		// Add brush size slider to the dialog 
-		m_BrushSizeSlider = new Fl_Value_Slider(10, 80, 300, 20, "Size");
-		m_BrushSizeSlider->user_data((void*)(this));	// record self to be used by static callback functions
-		m_BrushSizeSlider->type(FL_HOR_NICE_SLIDER);
+        // Add brush size slider to the dialog 
+        m_BrushSizeSlider = new Fl_Value_Slider(10, 80, 300, 20, "Size");
+        m_BrushSizeSlider->user_data((void*)(this));	// record self to be used by static callback functions
+        m_BrushSizeSlider->type(FL_HOR_NICE_SLIDER);
         m_BrushSizeSlider->labelfont(FL_COURIER);
         m_BrushSizeSlider->labelsize(12);
-		m_BrushSizeSlider->minimum(1);
-		m_BrushSizeSlider->maximum(40);
-		m_BrushSizeSlider->step(1);
-		m_BrushSizeSlider->value(m_nSize);
-		m_BrushSizeSlider->align(FL_ALIGN_RIGHT);
-		m_BrushSizeSlider->callback(cb_sizeSlides);
+        m_BrushSizeSlider->minimum(1);
+        m_BrushSizeSlider->maximum(40);
+        m_BrushSizeSlider->step(1);
+        m_BrushSizeSlider->value(m_nSize);
+        m_BrushSizeSlider->align(FL_ALIGN_RIGHT);
+        m_BrushSizeSlider->callback(cb_sizeSlides);
 
-		// Add brush width slider to the dialog 
-		m_BrushWidthSlider = new Fl_Value_Slider(10, 110, 300, 20, "Width");
-		m_BrushWidthSlider->user_data((void*)(this));	// record self to be used by static callback functions
-		m_BrushWidthSlider->type(FL_HOR_NICE_SLIDER);
+        // Add brush width slider to the dialog 
+        m_BrushWidthSlider = new Fl_Value_Slider(10, 110, 300, 20, "Width");
+        m_BrushWidthSlider->user_data((void*)(this));	// record self to be used by static callback functions
+        m_BrushWidthSlider->type(FL_HOR_NICE_SLIDER);
         m_BrushWidthSlider->labelfont(FL_COURIER);
         m_BrushWidthSlider->labelsize(12);
-		m_BrushWidthSlider->minimum(1);
-		m_BrushWidthSlider->maximum(40);
-		m_BrushWidthSlider->step(1);
-		m_BrushWidthSlider->value(m_nWidth);
-		m_BrushWidthSlider->align(FL_ALIGN_RIGHT);
-		m_BrushWidthSlider->callback(cb_widthSlides);
-		m_BrushWidthSlider->deactivate(); // disable
+        m_BrushWidthSlider->minimum(1);
+        m_BrushWidthSlider->maximum(40);
+        m_BrushWidthSlider->step(1);
+        m_BrushWidthSlider->value(m_nWidth);
+        m_BrushWidthSlider->align(FL_ALIGN_RIGHT);
+        m_BrushWidthSlider->callback(cb_widthSlides);
+        m_BrushWidthSlider->deactivate(); // disable
 
-		// Add brush angle slider to the dialog 
-		m_BrushAngleSlider = new Fl_Value_Slider(10, 140, 300, 20, "Angle");
-		m_BrushAngleSlider->user_data((void*)(this));	// record self to be used by static callback functions
-		m_BrushAngleSlider->type(FL_HOR_NICE_SLIDER);
+        // Add brush angle slider to the dialog 
+        m_BrushAngleSlider = new Fl_Value_Slider(10, 140, 300, 20, "Angle");
+        m_BrushAngleSlider->user_data((void*)(this));	// record self to be used by static callback functions
+        m_BrushAngleSlider->type(FL_HOR_NICE_SLIDER);
         m_BrushAngleSlider->labelfont(FL_COURIER);
         m_BrushAngleSlider->labelsize(12);
-		m_BrushAngleSlider->minimum(0);
-		m_BrushAngleSlider->maximum(180);
-		m_BrushAngleSlider->step(1);
-		m_BrushAngleSlider->value(m_nAngle);
-		m_BrushAngleSlider->align(FL_ALIGN_RIGHT);
-		m_BrushAngleSlider->callback(cb_angleSlides);
-		m_BrushAngleSlider->deactivate(); // disable
+        m_BrushAngleSlider->minimum(0);
+        m_BrushAngleSlider->maximum(180);
+        m_BrushAngleSlider->step(1);
+        m_BrushAngleSlider->value(m_nAngle);
+        m_BrushAngleSlider->align(FL_ALIGN_RIGHT);
+        m_BrushAngleSlider->callback(cb_angleSlides);
+        m_BrushAngleSlider->deactivate(); // disable
 
-		// Add brush alpha slider to the dialog 
-		m_BrushAlphaSlider = new Fl_Value_Slider(10, 170, 300, 20, "Alpha");
-		m_BrushAlphaSlider->user_data((void*)(this));	// record self to be used by static callback functions
-		m_BrushAlphaSlider->type(FL_HOR_NICE_SLIDER);
+        // Add brush alpha slider to the dialog 
+        m_BrushAlphaSlider = new Fl_Value_Slider(10, 170, 300, 20, "Alpha");
+        m_BrushAlphaSlider->user_data((void*)(this));	// record self to be used by static callback functions
+        m_BrushAlphaSlider->type(FL_HOR_NICE_SLIDER);
         m_BrushAlphaSlider->labelfont(FL_COURIER);
         m_BrushAlphaSlider->labelsize(12);
-		m_BrushAlphaSlider->minimum(0.0f);
-		m_BrushAlphaSlider->maximum(1.0f);
-		m_BrushAlphaSlider->step(0.01f);
-		m_BrushAlphaSlider->value(m_nAlpha);
-		m_BrushAlphaSlider->align(FL_ALIGN_RIGHT);
-		m_BrushAlphaSlider->callback(cb_alphaSlides);
+        m_BrushAlphaSlider->minimum(0.0f);
+        m_BrushAlphaSlider->maximum(1.0f);
+        m_BrushAlphaSlider->step(0.01f);
+        m_BrushAlphaSlider->value(m_nAlpha);
+        m_BrushAlphaSlider->align(FL_ALIGN_RIGHT);
+        m_BrushAlphaSlider->callback(cb_alphaSlides);
+
+        m_AutoPaintBox = new Fl_Group(10, 215, 380, 50, "Auto Painting ");
+        m_AutoPaintBox->box(FL_UP_BOX);
+        m_AutoPaintBox->align(FL_ALIGN_TOP_LEFT);
+
+            m_AutoPaintDistanceSlider = new Fl_Value_Slider(20, 235, 150, 20, "Spacing");
+            m_AutoPaintDistanceSlider->type(FL_HOR_NICE_SLIDER);
+            m_AutoPaintDistanceSlider->labelfont(FL_COURIER);
+            m_AutoPaintDistanceSlider->labelsize(12);
+            m_AutoPaintDistanceSlider->minimum(1);
+            m_AutoPaintDistanceSlider->maximum(10);
+            m_AutoPaintDistanceSlider->step(1);
+            m_AutoPaintDistanceSlider->value(1);
+            m_AutoPaintDistanceSlider->align(FL_ALIGN_TOP_LEFT);
+
+            m_AutoPaintRandButton = new Fl_Light_Button(190, 225, 100, 30, "Rand Size");
+            m_AutoPaintRandButton->value(1);
+
+            m_AutoPaintButton = new Fl_Button(310, 225, 50, 30, "Do!");
+			m_AutoPaintButton->user_data((void*)(this));
+            m_AutoPaintButton->callback(cb_autoPaint);
+
+        m_AutoPaintBox->end();
+
+		m_EdgeSettingBox = new Fl_Group(10, 285, 380, 50, "Edge Detecting");
+		m_EdgeSettingBox->box(FL_UP_BOX);
+		m_EdgeSettingBox->align(FL_ALIGN_TOP_LEFT);;
+
+			m_EdgeThresholdSlider = new Fl_Value_Slider(20, 300, 180, 20, "Edge Threshold");
+			m_EdgeThresholdSlider->type(FL_HOR_NICE_SLIDER);
+			m_EdgeThresholdSlider->minimum(0);
+			m_EdgeThresholdSlider->maximum(500);
+			m_EdgeThresholdSlider->step(1);
+			m_EdgeThresholdSlider->value(100);
+			m_EdgeThresholdSlider->labelsize(12);
+			m_EdgeThresholdSlider->align(FL_ALIGN_RIGHT);
+
+			m_EdgingButton = new Fl_Button(310, 295, 50, 30, "Do!");
+			m_EdgingButton->user_data((void*)(this));
+			// m_EdgingButton->callback();
+
+		m_EdgeSettingBox->end();
 
     m_brushDialog->end();	
-
 }

@@ -41,6 +41,8 @@ public:
 
 	ImpressionistDoc *m_pDoc;
 
+	void autoPaint();
+
 	// current or last coord of the mouse cursor
 	static Point coord;
 	static Point lastCoord;

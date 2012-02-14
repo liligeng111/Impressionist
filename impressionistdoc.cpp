@@ -271,3 +271,4 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( const Point p )
 	return GetOriginalPixel( p.x, p.y );
 }
 
+// automatically paint the whole canvas according parameter setting in UI
