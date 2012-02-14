@@ -88,12 +88,6 @@ private:
 	Fl_Group * wrapper_group_paintview;
 	Fl_Group * wrapper_group_origiview;
 
-	// All attributes here
-	int		m_nSize;
-	int		m_nWidth;
-	int		m_nAngle;	
-	float 	m_nAlpha;
-
 	static TYPE_LINE_DIRECTION m_pLineDirectionType;
 
 	// Static class members
@@ -112,6 +106,7 @@ private:
 	// callbacks are not necessarily to be static
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
+	static void	cb_change_image(Fl_Menu_* o, void* v);
 	static void	cb_undo(Fl_Menu_* o, void* v);
 	static void	cb_redo(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);

@@ -196,7 +196,7 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
         default:    // USER PICKED A FILE
             newfile = chooser->filename();
             fprintf(stderr, "Filename was '%s'\n", newfile);
-            pDoc->loadImage(newfile);
+			pDoc->loadImage(newfile);
             break;
     }
     /*
@@ -206,7 +206,35 @@ void ImpressionistUI::cb_load_image(Fl_Menu_* o, void* v)
     */
 }
 
+//------------------------------------------------------------------
+// Brings up a file chooser and then loads the chosen image
+// This is called by the UI when the change image menu item is chosen
+//------------------------------------------------------------------
+void ImpressionistUI::cb_change_image(Fl_Menu_* o, void* v) 
+{
+	ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
+	const char* newfile;
+	// this will get the file path relative to the application itself
+	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->title("Open an image file");                        // optional title
+	chooser->directory(".");
+	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
+	switch ( chooser->show() ) {
+		case -1:    // ERROR
+			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+			break;
+		case 1:     // CANCEL
+			fprintf(stderr, "*** CANCEL\n");
+			break;
+		default:    // USER PICKED A FILE
+			newfile = chooser->filename();
+			fprintf(stderr, "Filename was '%s'\n", newfile);
+			pDoc->changeImage(newfile);
+			break;
+	}
+}
 
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
@@ -341,45 +369,7 @@ void ImpressionistUI::cb_autoPaint(Fl_Widget* o, void* v)
 }
 
 
-//-----------------------------------------------------------
-// Updates the brush size to use from the value of the size
-// slider
-// Called by the UI when the size slider is moved
-//-----------------------------------------------------------
-void ImpressionistUI::cb_sizeSlides(Fl_Widget* o, void* v)
-{
-    ((ImpressionistUI*)(o->user_data()))->m_nSize=int( ((Fl_Slider *)o)->value() ) ;
-}
 
-//-----------------------------------------------------------
-// Updates the brush width to use from the value of the size
-// slider
-// Called by the UI when the size slider is moved
-//-----------------------------------------------------------
-void ImpressionistUI::cb_widthSlides(Fl_Widget* o, void* v)
-{
-    ((ImpressionistUI*)(o->user_data()))->m_nWidth=int( ((Fl_Slider *)o)->value() ) ;
-}
-
-//-----------------------------------------------------------
-// Updates the brush angle to use from the value of the size
-// slider
-// Called by the UI when the size slider is moved
-//-----------------------------------------------------------
-void ImpressionistUI::cb_angleSlides(Fl_Widget* o, void* v)
-{
-    ((ImpressionistUI*)(o->user_data()))->m_nAngle=int( ((Fl_Slider *)o)->value() ) ;
-}
-
-//-----------------------------------------------------------
-// Updates the brush alpha to use from the value of the size
-// slider
-// Called by the UI when the size slider is moved
-//-----------------------------------------------------------
-void ImpressionistUI::cb_alphaSlides(Fl_Widget* o, void* v)
-{
-    ((ImpressionistUI*)(o->user_data()))->m_nAlpha=float( ((Fl_Slider *)o)->value() ) ;
-}
 
 // callback for blend menu 
 void ImpressionistUI::cb_blendcolor(Fl_Menu_* o, void* v) {
@@ -436,7 +426,7 @@ void ImpressionistUI::setDocument(ImpressionistDoc* doc)
 //------------------------------------------------
 int ImpressionistUI::getSize()
 {
-    return m_nSize;
+	return m_BrushSizeSlider->value();
 }
 
 //-------------------------------------------------
@@ -444,10 +434,8 @@ int ImpressionistUI::getSize()
 //-------------------------------------------------
 void ImpressionistUI::setSize( int size )
 {
-    m_nSize=size;
-
     if (size<=40) {
-        m_BrushSizeSlider->value(m_nSize);
+		m_BrushSizeSlider->value(size);
     }
 }
 
@@ -456,7 +444,7 @@ void ImpressionistUI::setSize( int size )
 //------------------------------------------------
 int ImpressionistUI::getWidth()
 {
-    return m_nWidth;
+	return m_BrushWidthSlider->value();
 }
 
 //-------------------------------------------------
@@ -464,10 +452,9 @@ int ImpressionistUI::getWidth()
 //-------------------------------------------------
 void ImpressionistUI::setWidth( int width )
 {
-    m_nWidth = width;
 
     if (width<=40) {
-        m_BrushWidthSlider->value(m_nWidth);
+		m_BrushWidthSlider->value(width);
     }
 }
 
@@ -478,7 +465,7 @@ int ImpressionistUI::getAngle()
 {
     switch (m_pLineDirectionType) {
     case LDIRECTION_SLIDER_RIGHT_MOUSE:
-        return m_nAngle;
+		return m_BrushAngleSlider->value();
     case LDIRECTION_GRADIENT:
         return m_paintView->getGradient();
     case LDIRECTION_BRUSH_DIRECTION:
@@ -494,10 +481,8 @@ int ImpressionistUI::getAngle()
 //-------------------------------------------------
 void ImpressionistUI::setAngle( int angle )
 {
-    m_nAngle = angle;
-
     if (angle<=180) {
-        m_BrushAngleSlider->value(m_nAngle);
+		m_BrushAngleSlider->value(angle);
     }
 }
 
@@ -506,7 +491,7 @@ void ImpressionistUI::setAngle( int angle )
 //------------------------------------------------
 float ImpressionistUI::getAlpha()
 {
-    return m_nAlpha;
+	return m_BrushAlphaSlider->value();
 }
 
 //-------------------------------------------------
@@ -514,10 +499,9 @@ float ImpressionistUI::getAlpha()
 //-------------------------------------------------
 void ImpressionistUI::setAlpha( float alpha )
 {
-    m_nAlpha = alpha;
 
     if (alpha<=1.0f) {
-        m_BrushAlphaSlider->value(m_nAlpha);
+		m_BrushAlphaSlider->value(alpha);
     }
 }
 
@@ -528,6 +512,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
     { "&File",		0, 0, 0, FL_SUBMENU },
         { "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
         { "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
+		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image},
         { "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
         { "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
         { "Blend", FL_ALT + 'k', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
@@ -615,12 +600,6 @@ ImpressionistUI::ImpressionistUI() {
 
     m_mainWindow->end();
 
-    // init values
-
-    m_nSize = 10;
-    m_nWidth = 1;
-    m_nAngle = 0;
-    m_nAlpha = 1.0f;
 
 
 
@@ -631,6 +610,13 @@ ImpressionistUI::ImpressionistUI() {
         m_BrushTypeChoice->user_data((void*)(this));	// record self to be used by static callback functions
         m_BrushTypeChoice->menu(brushTypeMenu);
         m_BrushTypeChoice->callback(cb_brushChoice);
+	// brush dialog definition
+	m_brushDialog = new Fl_Window(400, 325, "Brush Dialog");
+		// Add a brush type choice to the dialog
+		m_BrushTypeChoice = new Fl_Choice(50,10,150,25,"&Brush");
+		m_BrushTypeChoice->user_data((void*)(this));	// record self to be used by static callback functions
+		m_BrushTypeChoice->menu(brushTypeMenu);
+		m_BrushTypeChoice->callback(cb_brushChoice);
 
         // clear canvas button
         m_ClearCanvasButton = new Fl_Button(240,10,150,25,"&Clear Canvas");
@@ -653,9 +639,8 @@ ImpressionistUI::ImpressionistUI() {
         m_BrushSizeSlider->minimum(1);
         m_BrushSizeSlider->maximum(40);
         m_BrushSizeSlider->step(1);
-        m_BrushSizeSlider->value(m_nSize);
+		m_BrushSizeSlider->value(20);
         m_BrushSizeSlider->align(FL_ALIGN_RIGHT);
-        m_BrushSizeSlider->callback(cb_sizeSlides);
 
         // Add brush width slider to the dialog 
         m_BrushWidthSlider = new Fl_Value_Slider(10, 110, 300, 20, "Width");
@@ -666,9 +651,8 @@ ImpressionistUI::ImpressionistUI() {
         m_BrushWidthSlider->minimum(1);
         m_BrushWidthSlider->maximum(40);
         m_BrushWidthSlider->step(1);
-        m_BrushWidthSlider->value(m_nWidth);
+		m_BrushWidthSlider->value(1);
         m_BrushWidthSlider->align(FL_ALIGN_RIGHT);
-        m_BrushWidthSlider->callback(cb_widthSlides);
         m_BrushWidthSlider->deactivate(); // disable
 
         // Add brush angle slider to the dialog 
@@ -680,9 +664,8 @@ ImpressionistUI::ImpressionistUI() {
         m_BrushAngleSlider->minimum(0);
         m_BrushAngleSlider->maximum(180);
         m_BrushAngleSlider->step(1);
-        m_BrushAngleSlider->value(m_nAngle);
+		m_BrushAngleSlider->value(0);
         m_BrushAngleSlider->align(FL_ALIGN_RIGHT);
-        m_BrushAngleSlider->callback(cb_angleSlides);
         m_BrushAngleSlider->deactivate(); // disable
 
         // Add brush alpha slider to the dialog 
@@ -694,9 +677,8 @@ ImpressionistUI::ImpressionistUI() {
         m_BrushAlphaSlider->minimum(0.0f);
         m_BrushAlphaSlider->maximum(1.0f);
         m_BrushAlphaSlider->step(0.01f);
-        m_BrushAlphaSlider->value(m_nAlpha);
+	m_BrushAlphaSlider->value(1.0f);
         m_BrushAlphaSlider->align(FL_ALIGN_RIGHT);
-        m_BrushAlphaSlider->callback(cb_alphaSlides);
 
         m_AutoPaintBox = new Fl_Group(10, 215, 380, 50, "Auto Painting ");
         m_AutoPaintBox->box(FL_UP_BOX);

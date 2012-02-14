@@ -86,7 +86,7 @@ void OriginalView::draw()
 		glDrawBuffer( GL_BACK );
 		glDrawPixels( drawWidth, drawHeight, GL_RGB, GL_UNSIGNED_BYTE, bitstart );
 
-		glColor3f(1.0f, 0.0f, 0.0f);
+		glColor3f(0.9f, 0.05f, 0.1f);
 		glBegin(GL_POLYGON);
 		// to mock mouse cursor
 		glVertex2f(cursor_x, cursor_y); 
