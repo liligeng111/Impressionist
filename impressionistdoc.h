@@ -49,6 +49,7 @@ public:
 					m_nPaintHeight;	
 	// Bitmaps for original image and painting.
 	unsigned char*	m_ucBitmap;
+	unsigned char*	m_ucEdge;
 	unsigned char*	m_ucPainting;
 
 

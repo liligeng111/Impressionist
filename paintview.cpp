@@ -360,8 +360,8 @@ void PaintView::redo()
 	refresh();
 }
 
-unsigned char rgb2grayscale(GLubyte* color) {
-	return (unsigned char)(color[0] * 0.3 + color[1] * 0.59 + color[2] * 0.11);
+unsigned char PaintView::rgb2grayscale(GLubyte* color) {
+	return (unsigned char)(color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.144);
 }
 
 int PaintView::getBrushDirection() {
@@ -410,22 +410,19 @@ void PaintView::autoPaint() {
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_FRONT_AND_BACK);
 	#endif // !MESA
-
 	
-
 	int spacing = m_pDoc->m_pUI->m_AutoPaintDistanceSlider->value();
 	bool randp = m_pDoc->m_pUI->m_AutoPaintRandButton->value();
 	int	size = m_pDoc->getSize();
 	Point p;
-
 	/*
 	ImpBrush::c_pBrushes[0]->BrushMove(Point(300, 180), Point(100, 100));
 	this->m_pCurrentBrush->BrushMove(Point(100, 100), Point(100, 100));
 	this->m_pUI->m_paintView->refresh();
 	*/
-
-
-
+	
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0);
+	glClear( GL_COLOR_BUFFER_BIT );
 	for (int i = 0; i < this->m_pDoc->m_nPaintHeight; i += spacing) {
 		for (int j = 0; j < this->m_pDoc->m_nPaintWidth; j+= spacing) {
 			size = m_pDoc->getSize();			
@@ -435,11 +432,16 @@ void PaintView::autoPaint() {
 			glPointSize((float)size);
 			p.x = j; 
 			p.y = i;
-			this->m_pDoc->m_pCurrentBrush->BrushMove(p, p);
+			m_pDoc->m_pCurrentBrush->BrushMove(p, p);
 		}
 	}
-	SaveCurrentContent();
 	glFlush();
-	refresh();
 	m_pDoc->m_pUI->m_origView->refresh();
+	refresh();
+	SaveCurrentContent();
+
+	#ifndef MESA
+	// To avoid flicker on some machines.
+	glDrawBuffer(GL_BACK);
+	#endif // !MESA
 }
