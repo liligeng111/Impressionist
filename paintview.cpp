@@ -126,13 +126,11 @@ void PaintView::draw()
 		Point source( coord.x + m_nStartCol, m_nEndRow - coord.y );
 		Point target( coord.x, m_nWindowHeight - coord.y );
 
-		
 		// temp 
 		//int d;
 		// This is the event handler
 		switch (eventToDo) 
 		{
-
 		case LEFT_MOUSE_DOWN:
 			creatPic();	
 			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
@@ -189,7 +187,6 @@ void PaintView::draw()
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_BACK);
 	#endif // !MESA
-
 }
 
 
@@ -204,11 +201,9 @@ int PaintView::handle(int event)
 		lastCoord = coord;
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
-		if (Fl::event_button()>1)
+		if (Fl::event_button()>1) {
 			eventToDo=RIGHT_MOUSE_DOWN;
-		else
-		{
-
+		} else {
 			eventToDo=LEFT_MOUSE_DOWN;
 		}
 		isAnEvent=1;
@@ -246,6 +241,9 @@ int PaintView::handle(int event)
 		coord.y = Fl::event_y();
 		// update the cursor for OriginalView
 		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, m_nWindowHeight-coord.y);
+		break;
+	case FL_LEAVE:
+		this->m_pDoc->m_pUI->m_origView->update_cursor(-1, -1);
 		break;
 	default:
 		return 0;
@@ -405,8 +403,13 @@ void PaintView::creatPic()
 	{				
 		// happens then paint sth after severral undo;
 		int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
-		m_pDoc->m_ucPainting = new unsigned char[n];
 		// don't we need garbege collection here?
+		// let me do it!
+		if (!m_pDoc->m_ucPainting) {
+			delete []m_pDoc->m_ucPainting;
+		}
+
+		m_pDoc->m_ucPainting = new unsigned char[n];
 
 		// why not use memcpy here?
 		/*
@@ -496,4 +499,8 @@ void PaintView::autoPaint() {
 		delete [] preority[i];
 	}
 	delete [] preority;
+}
+
+GLubyte* PaintView::getPaintingFromPics() {
+	return this->pics[this->current_pic];
 }

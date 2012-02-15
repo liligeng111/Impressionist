@@ -39,7 +39,9 @@ public:
 
 	void init();
 
-	void creatPic(); // creat another copy fot the painting
+	void creatPic(); // creat another copy for the painting
+	void savePic();  // save current shown pic (m_ucPainting) to pics list
+	// need to use this in filter, so that filter effect can be undo
 
 	ImpressionistDoc *m_pDoc;
 
@@ -48,6 +50,8 @@ public:
 	// current or last coord of the mouse cursor
 	static Point coord;
 	static Point lastCoord;
+
+	GLubyte* getPaintingFromPics();
 
 	static unsigned char rgb2grayscale(GLubyte* color);
 
@@ -68,12 +72,7 @@ private:
 	int max_pic; //the max number of picture buffered
 	
 	bool red_line; // if a read line is drawn 
-
-	void savePic();
-	// save current shown pic (m_ucPainting) to pics list
-
 	Point start;
-
 };
 
 #endif

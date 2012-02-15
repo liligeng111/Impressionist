@@ -317,4 +317,17 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( const Point p )
 	return GetOriginalPixel( p.x, p.y );
 }
 
-// automatically paint the whole canvas according parameter setting in UI
+
+GLubyte* ImpressionistDoc::getPaintingPixelFromPics(int x, int y) {
+	if ( x < 0 ) 
+		x = 0;
+	else if ( x >= m_nPaintWidth) 
+		x = m_nPaintWidth-1;
+
+	if ( y < 0 ) 
+		y = 0;
+	else if ( y >= m_nPaintHeight ) 
+		y = m_nPaintHeight-1;
+
+	return (GLubyte*)(this->m_pUI->m_paintView->getPaintingFromPics() + 3 * (y* m_nPaintWidth + x));
+}

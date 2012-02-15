@@ -341,21 +341,159 @@ void ImpressionistUI::cb_show_another_image(Fl_Menu_ *o, void* v) {
 // callback for filter dialog
 //-----------------
 void ImpressionistUI::cb_filter_dialog(Fl_Menu_ *o, void* v) {
-	whoami(o)->m_FilterDialog->show();;
+	whoami(o)->m_FilterDialog->show();
+	whoami(o)->m_paintView->creatPic();
 }
 void ImpressionistUI::cb_filter_preview(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
-	// then?
+	// this is where filtering is implemented, I knwo this is ugly, but...
+	int matrix[5][5];
+	int divideBy, offset;
+
+	// get values from UI
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			matrix[j][i] = atoi(pUI->m_FilterInput[i][j]->value());
+		}
+	}
+	divideBy = atoi(pUI->m_FilterDivideByInput->value());
+	offset = atoi(pUI->m_FilterOffsetInput->value());
+
+	// do the filtering
+	int width = pUI->m_pDoc->m_nPaintWidth;
+	int height = pUI->m_pDoc->m_nPaintHeight;
+	unsigned char* image = pUI->m_pDoc->m_ucPainting;
+
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			int colorsum[3] = {0, 0, 0};
+			int pixelp = (i * width + j) * 3;
+			for (int k = 0; k < 5; k++) {
+				for (int t = 0; t < 5; t++) {
+					GLubyte* color = pUI->m_pDoc->getPaintingPixelFromPics(j + t - 2, i + k - 2);
+					colorsum[0] += color[0] * matrix[k][t];
+					colorsum[1] += color[1] * matrix[k][t];
+					colorsum[2] += color[2] * matrix[k][t];
+				}
+			}
+
+			image[pixelp] = (GLubyte)((colorsum[0] / divideBy) + offset);
+			image[pixelp + 1] = (GLubyte)((colorsum[1] / divideBy) + offset);
+			image[pixelp + 2] = (GLubyte)((colorsum[2] / divideBy) + offset);
+		}
+	}
+	pUI->m_paintView->refresh();
 }
 void ImpressionistUI::cb_filter_apply(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	pUI->m_FilterPreviewButton->do_callback();
+	// save the current content to pics list
+	pUI->m_paintView->savePic();
 	pUI->m_FilterDialog->hide();
-	// then?
 }
 void ImpressionistUI::cb_filter_cancel(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	pUI->m_paintView->undo(); // discard current canvas, get fresh new pic from pics
+	pUI->m_paintView->refresh();
 	pUI->m_FilterDialog->hide();
 }
+void ImpressionistUI::cb_filter_reset(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			pUI->m_FilterInput[i][j]->value("0");
+		}
+	}
+	pUI->m_FilterInput[2][2]->value("1");
+	pUI->m_FilterOffsetInput->value("0");
+	pUI->m_FilterDivideByInput->value("1");
+}
+
+void ImpressionistUI::cb_filter_sharpen(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
+	pUI->m_FilterResetButton->do_callback();
+	int matrix[3][3] = {{0, -1, 0}, {-1, 5, -1}, {0, -1, 0}};
+	char number[5];
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			sprintf(number, "%d", matrix[i-1][j-1]);
+			pUI->m_FilterInput[i][j]->value(number);
+		}
+	}
+	pUI->m_FilterOffsetInput->value("0");
+	pUI->m_FilterDivideByInput->value("1");
+}
+void ImpressionistUI::cb_filter_enhance(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
+	pUI->m_FilterResetButton->do_callback();
+	int matrix[3][3] = {{0, 0, 0}, {-1, -1, 0}, {0, 0, 0}};
+	char number[5];
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			sprintf(number, "%d", matrix[i-1][j-1]);
+			pUI->m_FilterInput[i][j]->value(number);
+		}
+	}
+	pUI->m_FilterOffsetInput->value("0");
+	pUI->m_FilterDivideByInput->value("1");
+}
+void ImpressionistUI::cb_filter_blur(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
+	pUI->m_FilterResetButton->do_callback();
+	int matrix[3][3] = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+	char number[5];
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			sprintf(number, "%d", matrix[i-1][j-1]);
+			pUI->m_FilterInput[i][j]->value(number);
+		}
+	}
+	pUI->m_FilterOffsetInput->value("0");
+	pUI->m_FilterDivideByInput->value("1");
+}
+void ImpressionistUI::cb_filter_emboss(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
+	pUI->m_FilterResetButton->do_callback();
+	int matrix[3][3] = {{-2, 1, 0}, {-1, 1, 1}, {0, 1, 2}};
+	char number[5];
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			sprintf(number, "%d", matrix[i-1][j-1]);
+			pUI->m_FilterInput[i][j]->value(number);
+		}
+	}
+	pUI->m_FilterOffsetInput->value("0");
+	pUI->m_FilterDivideByInput->value("1");
+}
+void ImpressionistUI::cb_filter_edgeenhance(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
+	pUI->m_FilterResetButton->do_callback();
+	int matrix[3][3] = {{0, 0, 0}, {-1, -1, 0}, {0, 0, 0}};
+	char number[5];
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			sprintf(number, "%d", matrix[i-1][j-1]);
+			pUI->m_FilterInput[i][j]->value(number);
+		}
+	}
+	pUI->m_FilterOffsetInput->value("0");
+	pUI->m_FilterDivideByInput->value("1");
+}
+void ImpressionistUI::cb_filter_edgedetect(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
+	pUI->m_FilterResetButton->do_callback();
+	int matrix[3][3] = {{0, 1, 0}, {1, -4, 1}, {0, 1, 0}};
+	char number[5];
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			sprintf(number, "%d", matrix[i-1][j-1]);
+			pUI->m_FilterInput[i][j]->value(number);
+		}
+	}
+	pUI->m_FilterOffsetInput->value("0");
+	pUI->m_FilterDivideByInput->value("1");
+}
+
 
 //-----------------------------------------------------------
 // Brings up an about dialog box
@@ -593,7 +731,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
-		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image},
+		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image, 0, FL_MENU_DIVIDER},
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
 
@@ -688,8 +826,10 @@ ImpressionistUI::ImpressionistUI() {
 	m_mainWindow->end();
 
 	// filter kernel dialog
-	m_FilterDialog = new Fl_Window(300, 300, 210, 300, "Filter Dialog Dialog");
-	// m_FilterDialog->
+	m_FilterDialog = new Fl_Window(210, 500, "Filter Dialog Dialog");
+	m_FilterDialog->set_modal();
+		Fl_Group *inputGroup = new Fl_Group(5, 5, 200, 150);
+		inputGroup->box(FL_DOWN_BOX);
 	// how to deactive the mainwindow when this dialog is shown ?
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 5; j++) {
@@ -697,6 +837,34 @@ ImpressionistUI::ImpressionistUI() {
 				m_FilterInput[i][j]->value("0");
 			}
 		}
+		inputGroup->end();
+
+		m_FilterEdgeEnhanceButton = new Fl_Button(10, 220, 190, 30, "Edge Enhance");
+		m_FilterBlurButton = new Fl_Button(10, 300, 90, 30, "Blur");
+		m_FilterEnhanceButton = new Fl_Button(110, 300, 90, 30, "Enhance");
+		m_FilterEdgeDetectButton = new Fl_Button(10, 260, 90, 30, "Edge Detect");
+		m_FilterSharpenButton = new Fl_Button(10, 340, 90, 30, "Sharpen");
+		m_FilterEmbossButton = new Fl_Button(110, 260, 90, 30, "Emboss");
+		
+		m_FilterBlurButton->user_data((void*)this);
+		m_FilterEnhanceButton->user_data((void*)this);
+		m_FilterSharpenButton->user_data((void*)this);
+		m_FilterEdgeEnhanceButton->user_data((void*)this);
+		m_FilterEdgeDetectButton->user_data((void*)this);
+		m_FilterEmbossButton->user_data((void*)this);
+		
+		m_FilterBlurButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_blur);
+		m_FilterEnhanceButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_enhance);
+		m_FilterSharpenButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_sharpen);
+		m_FilterEdgeEnhanceButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_edgeenhance);
+		m_FilterEdgeDetectButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_edgedetect);
+		m_FilterEmbossButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_emboss);
+		
+
+		m_FilterResetButton = new Fl_Button(110, 340, 90, 30, "Reset");
+		m_FilterResetButton->user_data((void*)this);
+		m_FilterResetButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_reset);
+
 		m_FilterInput[2][2]->value("1");
 		m_FilterDivideByInput = new Fl_Int_Input(150, 160, 50, 20, "Divide By: ");
 		m_FilterDivideByInput->align(FL_ALIGN_LEFT);
@@ -705,13 +873,13 @@ ImpressionistUI::ImpressionistUI() {
 		m_FilterOffsetInput->value("0");
 		// no need to set user_data/callback for inputs, values will be retrieved directly
 
-		m_FilterCancelButton = new Fl_Button(110, 260, 90, 30, "Cancel");
+		m_FilterCancelButton = new Fl_Button(110, 460, 90, 30, "Cancel");
 		m_FilterCancelButton->user_data((void*)this);
 		m_FilterCancelButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_cancel);
-		m_FilterApplyButton = new Fl_Button(10, 260, 90, 30, "Apply");
+		m_FilterApplyButton = new Fl_Button(10, 460, 90, 30, "Apply");
 		m_FilterApplyButton->user_data((void*)this);
 		m_FilterApplyButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_apply);
-		m_FilterPreviewButton = new Fl_Button(10, 220, 190, 30, "Preview");
+		m_FilterPreviewButton = new Fl_Button(10, 420, 190, 30, "Preview");
 		m_FilterPreviewButton->user_data((void*)this);
 		m_FilterPreviewButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_preview);
 

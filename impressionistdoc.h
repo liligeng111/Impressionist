@@ -64,6 +64,7 @@ public:
 	GLubyte* GetOriginalPixel( int x, int y );   
 	// Get the color of the original picture at the specified point	
 	GLubyte* GetOriginalPixel( const Point p );  
+	GLubyte* getPaintingPixelFromPics(int x, int y);
 
 
 private:

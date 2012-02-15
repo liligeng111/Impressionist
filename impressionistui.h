@@ -67,6 +67,15 @@ public:
 	Fl_Button* m_FilterPreviewButton;
 	Fl_Button* m_FilterCancelButton;
 	Fl_Button* m_FilterApplyButton;
+	Fl_Button* m_FilterResetButton;
+
+	Fl_Button* m_FilterBlurButton;
+	Fl_Button* m_FilterEnhanceButton;
+	Fl_Button* m_FilterSharpenButton;
+	Fl_Button* m_FilterEdgeEnhanceButton;
+	Fl_Button* m_FilterEdgeDetectButton;
+	Fl_Button* m_FilterEmbossButton;
+
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -142,7 +151,15 @@ private:
 	static void	cb_filter_preview(Fl_Widget* o, void* v);
 	static void	cb_filter_apply(Fl_Widget* o, void* v);
 	static void	cb_filter_cancel(Fl_Widget* o, void* v);
+	static void	cb_filter_reset(Fl_Widget* o, void* v);
 
 	static void	cb_filter_dialog(Fl_Menu_* o, void* v);
+
+	static void cb_filter_blur(Fl_Widget* o, void* v);
+	static void cb_filter_enhance(Fl_Widget* o, void* v);
+	static void cb_filter_sharpen(Fl_Widget* o, void* v);
+	static void cb_filter_edgeenhance(Fl_Widget* o, void* v);
+	static void cb_filter_edgedetect(Fl_Widget* o, void* v);
+	static void cb_filter_emboss(Fl_Widget* o, void* v);
 };
 #endif
