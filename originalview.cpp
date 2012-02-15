@@ -27,12 +27,6 @@ OriginalView::OriginalView(int			x,
 }
 
 void OriginalView::update_cursor(int x, int y) {
-	/*
-	if (y > m_nWindowWidth - this->h() && x < this->w()) {
-	// cannot do, bcs w & h of FL_GL_WINDOW is updated according to resize action
-	}
-	further improvement, restrict the cursor in the image
-	*/
 	cursor_x = x; cursor_y = y;
 	refresh();
 }

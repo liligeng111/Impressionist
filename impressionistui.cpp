@@ -297,10 +297,10 @@ void ImpressionistUI::cb_clear_canvas(Fl_Menu_* o, void* v)
 //------------------------------------------------------------
 void ImpressionistUI::cb_exit(Fl_Menu_* o, void* v) 
 {
+	whoami(o)->m_FilterDialog->hide();
 	whoami(o)->m_brushDialog->hide();
 	whoami(o)->m_mainWindow->hide();
 	// remember to add more hide() functions if there are
-
 }
 
 //-------------------------------------------------------------
@@ -349,6 +349,7 @@ void ImpressionistUI::cb_filter_preview(Fl_Widget* o, void* v) {
 }
 void ImpressionistUI::cb_filter_apply(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	pUI->m_FilterDialog->hide();
 	// then?
 }
 void ImpressionistUI::cb_filter_cancel(Fl_Widget* o, void* v) {
@@ -362,7 +363,7 @@ void ImpressionistUI::cb_filter_cancel(Fl_Widget* o, void* v) {
 //-----------------------------------------------------------
 void ImpressionistUI::cb_about(Fl_Menu_* o, void* v) 
 {
-	fl_message("Impressionist for COMP4411, HKUST\nBy Heng and Ligeng\nSpring, 2012. Due on May 1");
+	fl_message("Impressionist for COMP4411, HKUST\nBy Heng and Ligeng\nSpring, 2012. Due on March 1");
 }
 
 //------- UI should keep track of the current for all the controls for answering the query from Doc ---------
@@ -483,8 +484,10 @@ void ImpressionistUI::resize_windows(int w, int h) {
 	m_origView->size(w,h);
 	wrapper_group_paintview->size(w, h);
 	wrapper_group_origiview->size(w, h);
-	m_paintView->refresh();
+
+	// order matters?
 	m_origView->refresh();
+	m_paintView->refresh();
 }
 
 //------------------------------------------------ 
@@ -685,26 +688,30 @@ ImpressionistUI::ImpressionistUI() {
 	m_mainWindow->end();
 
 	// filter kernel dialog
-	m_FilterDialog = new Fl_Window(300, 300, 350, 400, "Filter Dialog Dialog");
+	m_FilterDialog = new Fl_Window(300, 300, 210, 300, "Filter Dialog Dialog");
+	// m_FilterDialog->
+	// how to deactive the mainwindow when this dialog is shown ?
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 5; j++) {
-				m_FilterInput[i][j] = new Fl_Int_Input(10 + 60 * i, 10 + 40 * j, 50, 30);
+				m_FilterInput[i][j] = new Fl_Int_Input(10 + 40 * i, 10 + 30 * j, 30, 20);
 				m_FilterInput[i][j]->value("0");
 			}
 		}
 		m_FilterInput[2][2]->value("1");
-		m_FilterDivideByInput = new Fl_Int_Input(200, 220, 100, 30, "Divide By: ");
+		m_FilterDivideByInput = new Fl_Int_Input(150, 160, 50, 20, "Divide By: ");
 		m_FilterDivideByInput->align(FL_ALIGN_LEFT);
-		m_FilterOffsetInput = new Fl_Int_Input(200, 260, 100, 30, "Offset: ");
-		m_FilterOffsetInput->align(FL_ALIGN_LEFT);
+		m_FilterDivideByInput->value("1");
+		m_FilterOffsetInput = new Fl_Int_Input(150, 190, 50, 20, "Offset: ");
+		m_FilterOffsetInput->value("0");
+		// no need to set user_data/callback for inputs, values will be retrieved directly
 
-		m_FilterCancelButton = new Fl_Button(200, 350, 50, 30, "Cancel");
+		m_FilterCancelButton = new Fl_Button(110, 260, 90, 30, "Cancel");
 		m_FilterCancelButton->user_data((void*)this);
 		m_FilterCancelButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_cancel);
-		m_FilterApplyButton = new Fl_Button(100, 300, 100, 50, "Apply");
+		m_FilterApplyButton = new Fl_Button(10, 260, 90, 30, "Apply");
 		m_FilterApplyButton->user_data((void*)this);
 		m_FilterApplyButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_apply);
-		m_FilterPreviewButton = new Fl_Button(100, 350, 50, 30, "Preview");
+		m_FilterPreviewButton = new Fl_Button(10, 220, 190, 30, "Preview");
 		m_FilterPreviewButton->user_data((void*)this);
 		m_FilterPreviewButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_preview);
 

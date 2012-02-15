@@ -48,7 +48,7 @@ void PaintView::init()
 {	
 	if (pics)
 	{
-		for (int i = 0; i < current_pic; i++)
+		for (int i = 0; i <= current_pic; i++)
 		{
 			if (pics[i]) delete []pics[i];
 		}
@@ -267,6 +267,9 @@ void PaintView::resizeWindow(int width, int height)
 
 void PaintView::SaveCurrentContent()
 {
+	// for debug
+	// system("PAUSE");
+
 	// Tell openGL to read from the front buffer when capturing
 	// out paint strokes
 	if (red_line)
@@ -339,8 +342,12 @@ void PaintView::savePic()
 
 	int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
 	pics[current_pic] = new unsigned char[n];
+	// use memcpy
+	memcpy(pics[current_pic], m_pDoc->m_ucPainting, n);
+	/*
 	for (int i = 0; i < n; i++)	
 		pics[current_pic][i] = m_pDoc->m_ucPainting[i];	
+	*/
 	
 }
 
@@ -399,43 +406,23 @@ void PaintView::creatPic()
 		// happens then paint sth after severral undo;
 		int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
 		m_pDoc->m_ucPainting = new unsigned char[n];
+		// don't we need garbege collection here?
+
+		// why not use memcpy here?
+		/*
 		for (int i = 0; i < n; i++)	
 			m_pDoc->m_ucPainting[i] = pics[current_pic][i];
+		*/
+		memcpy(m_pDoc->m_ucPainting, pics[current_pic], n);
 	}
 
-}
-
-bool PaintView::getRandomPoint(Point& p, bool* table) {
-	int x = irand(m_nDrawHeight);
-	int y = irand(m_nDrawWidth);
-
-	for (int i = x; i < m_nDrawHeight; i++) {
-		for (int j = 0; j < m_nDrawHeight; j++) {
-			if (!table[m_nDrawHeight *  i + j]) {
-				p.x = j;
-				p.y = i;
-				table[m_nDrawHeight * i - j] = true;
-				return true;
-			}
-		}
-	}
-	for (int i = 0; i < x; i++) {
-		for (int j = 0; j < m_nDrawHeight; j++) {
-			if (i == i - x && j == y - 1) {
-				return false;
-			} else if (!table[m_nDrawHeight *  i + j]) {
-				p.x = j;
-				p.y = i;
-				table[m_nDrawHeight * i - j] = true;
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 void PaintView::autoPaint() {
+
+	// this is the magic
+	this->make_current();
+
 	#ifndef MESA
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_FRONT_AND_BACK);
@@ -444,23 +431,21 @@ void PaintView::autoPaint() {
 	int spacing = m_pDoc->m_pUI->m_AutoPaintDistanceSlider->value();
 	bool randp = m_pDoc->m_pUI->m_AutoPaintRandButton->value();
 	int	size = m_pDoc->getSize();
-	randflag = new bool [m_nDrawHeight * m_nDrawWidth];
-	memset(randflag, 0, m_nDrawHeight * m_nDrawWidth);
 	Point p;
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0);
-	glClear( GL_COLOR_BUFFER_BIT );
 
 	int max_preority = 70;
 	const int y = m_pDoc->m_nPaintHeight / spacing + 1;
 	const int x = m_pDoc->m_nPaintWidth / spacing + 1;
 
-	int** preority;
-	preority = new int*[x];
+	char** preority;
+	// notes to geng ge, 
+	// as priority is 70 at most, should better make it char** or something to save memory
+	preority = new char*[x];
 	for (int i = 0; i < x; i++)
 	{
-		preority[i] = new int[y]; //preority to indicate layer
+		preority[i] = new char[y]; //preority to indicate layer
 	}
+	// should delete priority after using it
 
 
 	for (int i = 0; i < x; i++)
@@ -496,7 +481,6 @@ void PaintView::autoPaint() {
 			glFlush();
 		}
 	}
-	glFlush();
 
 	m_pDoc->m_pUI->m_origView->refresh();
 	refresh();
@@ -506,4 +490,10 @@ void PaintView::autoPaint() {
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_BACK);
 	#endif // !MESA
+
+	// delete priority
+	for (int i = 0; i < x; i++) {
+		delete [] preority[i];
+	}
+	delete [] preority;
 }
