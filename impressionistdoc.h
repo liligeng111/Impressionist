@@ -22,6 +22,7 @@ public:
 	int		loadImage(const char *iname);			// called by the UI to load image
 	int		saveImage(const char *iname);			// called by the UI to save image
 	int		changeImage(const char *iname);			// called by the UI to change image
+	int		loadAnotherImage(const char *iname);			// called by the UI to load another image
 
 
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas
@@ -51,6 +52,7 @@ public:
 	unsigned char*	m_ucBitmap;
 	unsigned char*	m_ucEdge;
 	unsigned char*	m_ucPainting;
+	unsigned char*	m_ucAnother;
 
 
 	// The current active brush.

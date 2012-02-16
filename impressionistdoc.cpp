@@ -32,6 +32,7 @@ ImpressionistDoc::ImpressionistDoc()
 	m_ucBitmap		= NULL;
 	m_ucEdge		= NULL;
 	m_ucPainting	= NULL;
+	m_ucAnother	= NULL;
 
 
 	// create one instance of each brush
@@ -209,6 +210,39 @@ int ImpressionistDoc::loadImage(const char *iname)
 	m_pUI->resize_windows(width, height);
 	m_pUI->m_paintView->init();
 
+	return 1;
+}
+//---------------------------------------------------------
+// load another image for various purpose
+// This is called by the UI when the load another image button is pressed.
+//---------------------------------------------------------
+
+int ImpressionistDoc::loadAnotherImage(const char *iname) 
+{
+	// try to open the image to read
+	unsigned char*	data;
+	int				width, 
+					height;
+
+	if ( (data=load_image(iname, width, height))==NULL ) 
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+
+	if (width != m_nPaintWidth || height != m_nPaintHeight)
+	{
+		fl_message("Two images are of different size");
+		return 0;
+	}
+
+	// release old storage
+	if ( m_ucAnother ) delete [] m_ucAnother;
+
+	m_ucAnother		= data;
+	
+	m_pUI->resize_windows(width, height);
+	//m_pUI->m_paintView->init();
 	return 1;
 }
 

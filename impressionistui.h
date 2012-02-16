@@ -48,6 +48,8 @@ public:
 	Fl_Slider*			m_BrushAlphaSlider;
 	Fl_Button*          m_ClearCanvasButton;
 
+	Fl_Slider*			m_DissolveAlphaSlider;
+
 // for auto paint box
 	Fl_Group* m_AutoPaintBox;
 	Fl_Slider* m_AutoPaintDistanceSlider;
@@ -127,6 +129,7 @@ private:
 	static void	cb_load_image(Fl_Menu_* o, void* v);
 	static void	cb_save_image(Fl_Menu_* o, void* v);
 	static void	cb_change_image(Fl_Menu_* o, void* v);
+	static void	cb_another_image(Fl_Menu_* o, void* v);
 	static void	cb_undo(Fl_Menu_* o, void* v);
 	static void	cb_redo(Fl_Menu_* o, void* v);
 	static void	cb_brushes(Fl_Menu_* o, void* v);
@@ -143,10 +146,12 @@ private:
 
 	static void	cb_autoPaint(Fl_Widget* o, void* v);
 	static void	cb_edge(Fl_Widget* o, void* v);
+	static void	cb_dissolve(Fl_Widget* o, void* v);
 
 	static void	cb_show_edge_image(Fl_Menu_* o, void* v);
 	static void	cb_show_original_image(Fl_Menu_* o, void* v);
 	static void	cb_show_another_image(Fl_Menu_* o, void* v);
+	static void	cb_show_dissolve_image(Fl_Menu_* o, void* v);
 
 	static void	cb_filter_preview(Fl_Widget* o, void* v);
 	static void	cb_filter_apply(Fl_Widget* o, void* v);

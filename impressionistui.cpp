@@ -237,6 +237,32 @@ void ImpressionistUI::cb_change_image(Fl_Menu_* o, void* v)
 	}
 }
 
+// load another image
+void ImpressionistUI::cb_another_image(Fl_Menu_* o, void* v)  {
+	ImpressionistDoc *pDoc=whoami(o)->getDocument();
+
+	const char* newfile;
+	// this will get the file path relative to the application itself
+	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->title("Load another image file");                        // optional title
+	chooser->directory(".");
+	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
+	switch ( chooser->show() ) {
+		case -1:    // ERROR
+			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+			break;
+		case 1:     // CANCEL
+			fprintf(stderr, "*** CANCEL\n");
+			break;
+		default:    // USER PICKED A FILE
+			newfile = chooser->filename();
+			fprintf(stderr, "Filename was '%s'\n", newfile);
+			pDoc->loadAnotherImage(newfile);
+			break;
+	}
+}
+
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
 // This is called by the UI when the save image menu item is chosen
@@ -325,15 +351,19 @@ void ImpressionistUI::cb_redo(Fl_Menu_* o, void* v)
 //-------------------------------------------------------------
 void ImpressionistUI::cb_show_edge_image(Fl_Menu_ *o, void* v) {
 	ImpressionistUI *ui = whoami(o);
-	ui->m_origView->setView(1);
+	ui->m_origView->setView(EDGE_VIEW);
 }
 void ImpressionistUI::cb_show_original_image(Fl_Menu_ *o, void* v) {
 	ImpressionistUI *ui = whoami(o);
-	ui->m_origView->setView(0);
+	ui->m_origView->setView(ORIGIN_VIEW);
 }
 void ImpressionistUI::cb_show_another_image(Fl_Menu_ *o, void* v) {
 	ImpressionistUI *ui = whoami(o);
-	ui->m_origView->setView(2);
+	ui->m_origView->setView(ANOTHER_VIEW);
+}
+void ImpressionistUI::cb_show_dissolve_image(Fl_Menu_ *o, void* v) {
+	ImpressionistUI *ui = whoami(o);
+	ui->m_origView->setView(DISSOLVE_VIEW);
 }
 
 
@@ -587,6 +617,13 @@ void ImpressionistUI::cb_edge(Fl_Widget* o, void* v)
 	pDoc->m_pUI->m_origView->setView(1);
 }
 
+// disolve slider call back
+void	cb_dissolve(Fl_Widget* o, void* v) {
+	ImpressionistDoc* pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+	pDoc->dissolve_image(((Fl_Value_Slider*)o)->value());
+	pDoc->m_pUI->m_origView->setView(DISSOLVE_VIEW);
+}
+
 
 // callback for blend menu 
 void ImpressionistUI::cb_blendcolor(Fl_Menu_* o, void* v) {
@@ -731,7 +768,9 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
-		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image, 0, FL_MENU_DIVIDER},
+		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image},
+		{ "&Load Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_another_image, 0, FL_MENU_DIVIDER},
+
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
 
@@ -739,7 +778,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Undo",	FL_CTRL + 'z', (Fl_Callback *)ImpressionistUI::cb_undo},
 		{ "&Redo",	FL_CTRL + 'x', (Fl_Callback *)ImpressionistUI::cb_redo},
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
-		{ "&Brushes...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
+		{ "&Brush Panel...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
 		{ "&Filter Kernel",	FL_ALT + 'f', (Fl_Callback *)ImpressionistUI::cb_filter_dialog}, 
 		{ "B&lend", FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
 		{ 0 },
@@ -748,6 +787,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Original Image",	FL_ALT + 'o', (Fl_Callback *)ImpressionistUI::cb_show_original_image},
 		{ "&Edge Image",	FL_ALT + 'e', (Fl_Callback *)ImpressionistUI::cb_show_edge_image},
 		{ "Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_show_another_image},
+		{ "Dissolved Image",	FL_ALT + 'd', (Fl_Callback *)ImpressionistUI::cb_show_dissolve_image},
 		{ 0 },
 
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
@@ -888,7 +928,7 @@ ImpressionistUI::ImpressionistUI() {
 	m_FilterDialog->end();
 
 	// brush dialog definition
-	m_brushDialog = new Fl_Window(400, 375, "Brush Dialog");
+	m_brushDialog = new Fl_Window(400, 475, "Brush Dialog");
 		// Add a brush type choice to the dialog
 		m_BrushTypeChoice = new Fl_Choice(50,10,150,25,"&Brush");
 		m_BrushTypeChoice->user_data((void*)(this));	// record self to be used by static callback functions
@@ -1000,6 +1040,18 @@ ImpressionistUI::ImpressionistUI() {
 			m_EdgingButton->callback((Fl_Callback *)ImpressionistUI::cb_edge);
 
 		m_EdgeSettingBox->end();
+		
+		this->m_DissolveAlphaSlider = new Fl_Value_Slider(20, 375, 180, 20, "Dissolve Level");
+		this->m_DissolveAlphaSlider->type(FL_HOR_NICE_SLIDER);
+		this->m_DissolveAlphaSlider->minimum(0.0f);
+		this->m_DissolveAlphaSlider->maximum(1.0f);
+		this->m_DissolveAlphaSlider->step(0.01f);
+		this->m_DissolveAlphaSlider->value(0.5f);
+		this->m_DissolveAlphaSlider->labelsize(12);
+		this->m_DissolveAlphaSlider->align(FL_ALIGN_TOP_LEFT);
+		this->m_DissolveAlphaSlider->callback((Fl_Callback *)ImpressionistUI::cb_dissolve);
+		this->m_DissolveAlphaSlider->user_data((void*)this);
+
 
 	m_brushDialog->end();	
 }
