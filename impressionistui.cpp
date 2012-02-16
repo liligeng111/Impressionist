@@ -549,7 +549,7 @@ void ImpressionistUI::cb_autoPaint(Fl_Widget* o, void* v)
 // Edge button callback
 void ImpressionistUI::cb_edge(Fl_Widget* o, void* v)
 {
-    ImpressionistDoc * pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+	ImpressionistDoc * pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
 	
 	if (!pDoc->m_ucBitmap) return;
 	static const char gx[][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
