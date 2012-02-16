@@ -250,8 +250,7 @@ int ImpressionistDoc::changeImage(const char *iname)
 	m_ucBitmap		= data;
 	
 	m_pUI->resize_windows(width, height);
-	m_pUI->m_paintView->creatPic();
-	m_pUI->m_paintView->init();
+	//m_pUI->m_paintView->init();
 	return 1;
 }
 

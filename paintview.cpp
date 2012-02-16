@@ -48,9 +48,13 @@ void PaintView::init()
 {	
 	if (pics)
 	{
-		for (int i = 0; i <= current_pic; i++)
+		for (int i = 0; i < max_pic; i++)
 		{
-			if (pics[i]) delete []pics[i];
+			if (pics[i])
+			{
+			delete []pics[i];
+			pics[i] = 0;
+			}
 		}
 		delete []pics;
 		pics = 0;
@@ -132,7 +136,6 @@ void PaintView::draw()
 		switch (eventToDo) 
 		{
 		case LEFT_MOUSE_DOWN:
-			creatPic();	
 			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
 			break;
 		case LEFT_MOUSE_DRAG:
@@ -353,7 +356,9 @@ void PaintView::undo()
 { 
 	if (current_pic <= 0) return; //nothing to undo
 	current_pic--;
-	m_pDoc->m_ucPainting = pics[current_pic];
+	int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
+	// use memcpy
+	memcpy(m_pDoc->m_ucPainting, pics[current_pic], n);
 	refresh();
 }
 
@@ -361,7 +366,9 @@ void PaintView::redo()
 {
 	if (current_pic >= size_pic - 1) return; //nothing to redo
 	current_pic++;
-	m_pDoc->m_ucPainting = pics[current_pic];
+	int n = m_pDoc->m_nPaintWidth * m_pDoc->m_nPaintHeight * 3;
+	// use memcpy
+	memcpy(m_pDoc->m_ucPainting, pics[current_pic], n);
 	refresh();
 }
 
@@ -397,7 +404,7 @@ int PaintView::getGradient() {
 	return (int)(atan2((double)gxsum, (double)gysum) * 180 / M_PI);
 }
 
-void PaintView::creatPic()
+/*void PaintView::creatPic()
 {
 	if (current_pic < size_pic - 1)
 	{				
@@ -416,14 +423,16 @@ void PaintView::creatPic()
 		for (int i = 0; i < n; i++)	
 			m_pDoc->m_ucPainting[i] = pics[current_pic][i];
 		*/
-		memcpy(m_pDoc->m_ucPainting, pics[current_pic], n);
+		/*memcpy(m_pDoc->m_ucPainting, pics[current_pic], n);
 	}
 
-}
+}*/
 
-void PaintView::autoPaint() {
+void PaintView::autoPaint() 
+{
 
 	// this is the magic
+	// gei hengye guile
 	this->make_current();
 
 	#ifndef MESA
@@ -501,6 +510,7 @@ void PaintView::autoPaint() {
 	delete [] preority;
 }
 
-GLubyte* PaintView::getPaintingFromPics() {
+GLubyte* PaintView::getPaintingFromPics()
+{
 	return this->pics[this->current_pic];
 }

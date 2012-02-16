@@ -342,7 +342,7 @@ void ImpressionistUI::cb_show_another_image(Fl_Menu_ *o, void* v) {
 //-----------------
 void ImpressionistUI::cb_filter_dialog(Fl_Menu_ *o, void* v) {
 	whoami(o)->m_FilterDialog->show();
-	whoami(o)->m_paintView->creatPic();
+	//whoami(o)->m_paintView->creatPic();
 }
 void ImpressionistUI::cb_filter_preview(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
