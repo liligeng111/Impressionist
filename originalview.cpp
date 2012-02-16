@@ -6,6 +6,7 @@
 
 #include "impressionist.h"
 #include "impressionistdoc.h"
+#include "impressionistui.h"
 #include "originalview.h"
 
 #ifndef WIN32
@@ -52,8 +53,14 @@ void OriginalView::draw()
 	unsigned char* to_load = 0;
 	switch (view)
 	{
-	case 1:
+	case EDGE_VIEW:
 		to_load = m_pDoc->m_ucEdge;
+		break;
+	case ANOTHER_VIEW:
+		to_load = m_pDoc->m_ucAnother;
+		break;
+	case DISSOLVE_VIEW:
+		to_load = m_pDoc->m_ucDissolve;
 		break;
 	default:
 		to_load = m_pDoc->m_ucBitmap;
@@ -107,6 +114,9 @@ void OriginalView::draw()
 void OriginalView::setView(int n)
 {
 	view = n;
+	if (n == DISSOLVE_VIEW) {
+		this->m_pDoc->dissolve_image(this->m_pDoc->m_pUI->m_DissolveAlphaSlider->value());
+	}
 	refresh();
 }
 

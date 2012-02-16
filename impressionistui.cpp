@@ -524,6 +524,10 @@ void ImpressionistUI::cb_filter_edgedetect(Fl_Widget* o, void* v) {
 	pUI->m_FilterDivideByInput->value("1");
 }
 
+void ImpressionistUI::cb_painterly_do(Fl_Widget* o, void* v) {
+
+}
+
 
 //-----------------------------------------------------------
 // Brings up an about dialog box
@@ -618,7 +622,7 @@ void ImpressionistUI::cb_edge(Fl_Widget* o, void* v)
 }
 
 // disolve slider call back
-void	cb_dissolve(Fl_Widget* o, void* v) {
+void ImpressionistUI::cb_dissolve(Fl_Widget* o, void* v) {
 	ImpressionistDoc* pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
 	pDoc->dissolve_image(((Fl_Value_Slider*)o)->value());
 	pDoc->m_pUI->m_origView->setView(DISSOLVE_VIEW);
@@ -761,6 +765,11 @@ void ImpressionistUI::setAlpha( float alpha )
 	}
 }
 
+// show painterly dialog
+void ImpressionistUI::cb_painterly_dialog(Fl_Menu_* o, void* v) {
+	whoami(o)->m_PainterlyDialog->show();
+}
+
 
 // Main menu definition
 /// need to set callback during initialization
@@ -780,7 +789,8 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
 		{ "&Brush Panel...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
 		{ "&Filter Kernel",	FL_ALT + 'f', (Fl_Callback *)ImpressionistUI::cb_filter_dialog}, 
-		{ "B&lend", FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_blendcolor, 0, FL_MENU_DIVIDER },
+		{ "B&lend", FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_blendcolor},
+		{ "Painterly", FL_ALT + 'p', (Fl_Callback *)ImpressionistUI::cb_painterly_dialog},
 		{ 0 },
 
 	{ "&Display",		0, 0, 0, FL_SUBMENU },
@@ -815,6 +825,11 @@ Fl_Menu_Item ImpressionistUI::lineDirectionMenu[NUM_LDIRECTION_TYPE + 1] = {
   {0}
 };
 
+Fl_Menu_Item ImpressionistUI::painterlyStyleMenu[NUM_PAINTERLY_STYLE + 1] = {
+  {"Impressionist",	FL_ALT+'g', (Fl_Callback *)ImpressionistUI::cb_lineDirectionChoice, (void *)LDIRECTION_GRADIENT},
+  {"Expressionist",	FL_ALT+'b', (Fl_Callback *)ImpressionistUI::cb_lineDirectionChoice, (void *)LDIRECTION_BRUSH_DIRECTION},
+  {0}
+};
 
 void ImpressionistUI::activeSaveFunc() {
 	menuitems[2].activate();
@@ -1041,17 +1056,33 @@ ImpressionistUI::ImpressionistUI() {
 
 		m_EdgeSettingBox->end();
 		
-		this->m_DissolveAlphaSlider = new Fl_Value_Slider(20, 375, 180, 20, "Dissolve Level");
+		this->m_DissolveAlphaSlider = new Fl_Value_Slider(20, 375, 280, 20, "Dissolve Level");
 		this->m_DissolveAlphaSlider->type(FL_HOR_NICE_SLIDER);
 		this->m_DissolveAlphaSlider->minimum(0.0f);
 		this->m_DissolveAlphaSlider->maximum(1.0f);
-		this->m_DissolveAlphaSlider->step(0.01f);
+		this->m_DissolveAlphaSlider->step(0.02f);
 		this->m_DissolveAlphaSlider->value(0.5f);
-		this->m_DissolveAlphaSlider->labelsize(12);
+		// this->m_DissolveAlphaSlider->labelsize(12);
 		this->m_DissolveAlphaSlider->align(FL_ALIGN_TOP_LEFT);
 		this->m_DissolveAlphaSlider->callback((Fl_Callback *)ImpressionistUI::cb_dissolve);
 		this->m_DissolveAlphaSlider->user_data((void*)this);
 
-
 	m_brushDialog->end();	
+
+	m_PainterlyDialog = new Fl_Window(400, 400, "Painterly");
+	// m_PainterlyDialog->set_modal();
+	// set_modal() could cause the exit button to disapear, 
+	// thus need to implement cancel button by yourself...
+	// to do or not to do
+		m_PainterlyDoButton = new Fl_Button(300, 20, 50, 30, "Do");
+		m_PainterlyDoButton->callback((Fl_Callback*)ImpressionistUI::cb_painterly_do);
+		m_PainterlyDoButton->user_data((void*) this);
+
+		m_PaintingStyleChoice = new Fl_Choice(10, 20, 200, 30);
+		m_PaintingStyleChoice->menu(ImpressionistUI::painterlyStyleMenu);
+		m_PaintingStyleChoice->user_data((void*)this);
+
+		// to add more here
+
+	m_PainterlyDialog->end();
 }

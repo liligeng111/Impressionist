@@ -78,6 +78,12 @@ public:
 	Fl_Button* m_FilterEdgeDetectButton;
 	Fl_Button* m_FilterEmbossButton;
 
+// for painterly dialog
+	Fl_Window* m_PainterlyDialog;
+	Fl_Choice* m_PaintingStyleChoice;
+	Fl_Button* m_PainterlyDoButton;
+	// to be implemented
+
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -119,6 +125,8 @@ private:
 	static Fl_Menu_Item		lineDirectionMenu[NUM_LDIRECTION_TYPE + 1];
 	// 3 types of line direction, 
 	// may be extended in further implementation
+
+	static Fl_Menu_Item		painterlyStyleMenu[NUM_PAINTERLY_STYLE + 1];
 
 	static ImpressionistUI*	whoami(Fl_Menu_* o);
 
@@ -166,5 +174,9 @@ private:
 	static void cb_filter_edgeenhance(Fl_Widget* o, void* v);
 	static void cb_filter_edgedetect(Fl_Widget* o, void* v);
 	static void cb_filter_emboss(Fl_Widget* o, void* v);
+	
+	static void cb_painterly_do(Fl_Widget* o, void* v);
+	static void cb_painterly_dialog(Fl_Menu_* o, void* v);
 };
+
 #endif

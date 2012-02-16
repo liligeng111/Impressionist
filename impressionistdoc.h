@@ -52,6 +52,7 @@ public:
 	unsigned char*	m_ucBitmap;
 	unsigned char*	m_ucEdge;
 	unsigned char*	m_ucPainting;
+	unsigned char*	m_ucDissolve;
 	unsigned char*	m_ucAnother;
 
 
@@ -67,7 +68,8 @@ public:
 	// Get the color of the original picture at the specified point	
 	GLubyte* GetOriginalPixel( const Point p );  
 	GLubyte* getPaintingPixelFromPics(int x, int y);
-
+	
+	void dissolve_image(float alpha);
 
 private:
 	char	 m_imageName[256];

@@ -20,6 +20,14 @@
 
 class ImpressionistDoc;
 
+typedef enum
+{
+	ORIGIN_VIEW = 0,
+	EDGE_VIEW,
+	ANOTHER_VIEW,
+	DISSOLVE_VIEW,
+}  VIEW_TYPE;
+
 class OriginalView : public Fl_Gl_Window
 {
 public:
