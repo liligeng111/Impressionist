@@ -32,6 +32,8 @@ ImpressionistDoc::ImpressionistDoc()
 	m_ucBitmap		= NULL;
 	m_ucEdge		= NULL;
 	m_ucPainting	= NULL;
+	m_ucDissolve	= NULL;
+	m_ucAnother		= NULL;
 
 
 	// create one instance of each brush
@@ -181,6 +183,8 @@ int ImpressionistDoc::loadImage(const char *iname)
 	// allocate space for draw view
 	m_ucPainting	= new unsigned char [width*height*3];
 	m_ucEdge	= new unsigned char [width*height*3];
+	m_ucAnother	= new unsigned char [width*height*3];
+	m_ucDissolve	= new unsigned char [width*height*3];
 	m_pUI->m_origView->setView(0);
 	// here we can see how the image is stored
 	// by rows
@@ -245,7 +249,6 @@ int ImpressionistDoc::changeImage(const char *iname)
 
 	// release old storage
 	if ( m_ucBitmap ) delete [] m_ucBitmap;
-	if ( m_ucEdge ) delete [] m_ucEdge;
 
 	m_ucBitmap		= data;
 	
@@ -330,3 +333,16 @@ GLubyte* ImpressionistDoc::getPaintingPixelFromPics(int x, int y) {
 
 	return (GLubyte*)(this->m_pUI->m_paintView->getPaintingFromPics() + 3 * (y* m_nPaintWidth + x));
 }
+
+
+void ImpressionistDoc::dissolve_image(float alpha)
+{
+	int n = m_nPaintWidth * m_nPaintHeight * 3;
+	float beta = 1.0f - alpha;
+
+	for (int i = 0; i < n; i++)
+	{		
+		m_ucDissolve[i] = m_ucBitmap[i] * beta + m_ucAnother[i] * alpha;
+	}
+}
+

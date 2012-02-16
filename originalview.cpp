@@ -52,8 +52,14 @@ void OriginalView::draw()
 	unsigned char* to_load = 0;
 	switch (view)
 	{
-	case 1:
+	case EDGE_VIEW:
 		to_load = m_pDoc->m_ucEdge;
+		break;
+	case ANOTHER_VIEW:
+		to_load = m_pDoc->m_ucAnother;
+		break;
+	case DISSOLVE_VIEW:
+		to_load = m_pDoc->m_ucDissolve;
 		break;
 	default:
 		to_load = m_pDoc->m_ucBitmap;
