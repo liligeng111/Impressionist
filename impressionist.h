@@ -32,10 +32,10 @@ help understand the codes.
 float frand();
 int irand(int);
 
-#ifdef WIN32
+// #ifdef WIN32
 #define M_PI	3.1415926535F
 #define NUMBER_OF_EDGES_ 20
-#endif
+// #endif
 
 
 #endif
