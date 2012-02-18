@@ -2,9 +2,9 @@
 #include "bitmap.h"
 #include <FL/Fl_Image.H>
 #include <FL/Fl_RGB_Image.H>
-#include <FL/Fl_bmp_Image.H>
-#include <FL/Fl_png_Image.H>
-#include <FL/Fl_jpeg_Image.H>
+#include <FL/Fl_BMP_Image.H>
+#include <FL/Fl_PNG_Image.H>
+#include <FL/Fl_JPEG_Image.H>
 #include <string.h>
 
 // for debug
