@@ -213,7 +213,7 @@ int ImpressionistDoc::loadImage(const char *iname)
 	memset(m_ucPainting, 0, width*height*3);
 
 	// enable save
-	m_pUI->activeSaveFunc();
+	m_pUI->activeMenus();
 
 	m_pUI->m_mainWindow->resize(m_pUI->m_mainWindow->x(), 
 								m_pUI->m_mainWindow->y(), 

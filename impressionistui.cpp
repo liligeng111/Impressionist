@@ -366,6 +366,28 @@ void ImpressionistUI::cb_show_dissolve_image(Fl_Menu_ *o, void* v) {
 	ui->m_origView->setView(DISSOLVE_VIEW);
 }
 
+// callback for swapping the two images
+void ImpressionistUI::cb_swap_two_images(Fl_Menu_ *o, void* v) {
+	ImpressionistDoc* pDoc = whoami(o)->m_pDoc;
+	unsigned char* temp;
+	temp = pDoc->m_ucPainting;
+	pDoc->m_ucPainting = pDoc->m_ucBitmap;
+	pDoc->m_ucBitmap = temp;
+	pDoc->m_pUI->m_paintView->refresh();
+	pDoc->m_pUI->m_origView->refresh();
+}
+// callback for copy from original view to paint view
+void ImpressionistUI::cb_copy_to_paintview(Fl_Menu_ *o, void* v) {
+	ImpressionistDoc* pDoc = whoami(o)->m_pDoc;
+	memcpy(pDoc->m_ucPainting, pDoc->m_ucBitmap, pDoc->m_nHeight * pDoc->m_nWidth * 3);
+	pDoc->m_pUI->m_paintView->refresh();
+}
+// callback for copy from paint view to original view
+void ImpressionistUI::cb_copy_to_originalview(Fl_Menu_ *o, void* v) {
+	ImpressionistDoc* pDoc = whoami(o)->m_pDoc;
+	memcpy(pDoc->m_ucBitmap, pDoc->m_ucPainting, pDoc->m_nHeight * pDoc->m_nWidth * 3);
+	pDoc->m_pUI->m_origView->refresh();
+}
 
 //-----------------
 // callback for filter dialog
@@ -400,13 +422,15 @@ void ImpressionistUI::cb_filter_preview(Fl_Widget* o, void* v) {
 			int pixelp = (i * width + j) * 3;
 			for (int k = 0; k < 5; k++) {
 				for (int t = 0; t < 5; t++) {
-					GLubyte* color = pUI->m_pDoc->getPaintingPixelFromPics(j + t - 2, i + k - 2);
+					GLubyte* color = pUI->m_pDoc->getPaintingPixelFromPics(j + t - 2, i - k + 2);
 					colorsum[0] += color[0] * matrix[k][t];
 					colorsum[1] += color[1] * matrix[k][t];
 					colorsum[2] += color[2] * matrix[k][t];
 				}
 			}
 
+			// avoid divide by 0
+			if (divideBy == 0) divideBy = 1;
 			image[pixelp] = (GLubyte)((colorsum[0] / divideBy) + offset);
 			image[pixelp + 1] = (GLubyte)((colorsum[1] / divideBy) + offset);
 			image[pixelp + 2] = (GLubyte)((colorsum[2] / divideBy) + offset);
@@ -439,6 +463,27 @@ void ImpressionistUI::cb_filter_reset(Fl_Widget* o, void* v) {
 	pUI->m_FilterDivideByInput->value("1");
 }
 
+void ImpressionistUI::cb_filter_normalize(Fl_Widget* o, void* v) {
+	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
+	int sum = 0;
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			sum += atoi(pUI->m_FilterInput[i][j]->value());
+		}
+	}
+	if (sum > 0) {
+		char v[100];
+		pUI->m_FilterOffsetInput->value("0");
+		pUI->m_FilterDivideByInput->value(itoa(sum, v, 10));
+	} else if (sum == 0) {
+		pUI->m_FilterOffsetInput->value("128");
+		pUI->m_FilterDivideByInput->value("0");
+	} else if (sum < 0) {
+		pUI->m_FilterOffsetInput->value("256");
+		pUI->m_FilterDivideByInput->value("0");
+	}
+}
+
 void ImpressionistUI::cb_filter_sharpen(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
 	pUI->m_FilterResetButton->do_callback();
@@ -446,26 +491,25 @@ void ImpressionistUI::cb_filter_sharpen(Fl_Widget* o, void* v) {
 	char number[5];
 	for (int i = 1; i < 4; i++) {
 		for (int j = 1; j < 4; j++) {
-			sprintf(number, "%d", matrix[i-1][j-1]);
+			sprintf(number, "%d", matrix[j-1][i-1]);
 			pUI->m_FilterInput[i][j]->value(number);
 		}
 	}
-	pUI->m_FilterOffsetInput->value("0");
-	pUI->m_FilterDivideByInput->value("1");
+	pUI->m_FilterNormalizeButton->do_callback();
 }
+
 void ImpressionistUI::cb_filter_enhance(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
 	pUI->m_FilterResetButton->do_callback();
-	int matrix[3][3] = {{0, 0, 0}, {-1, -1, 0}, {0, 0, 0}};
+	int matrix[3][3] = {{0, 0, 0}, {-1, 1, 0}, {0, 0, 0}};
 	char number[5];
 	for (int i = 1; i < 4; i++) {
 		for (int j = 1; j < 4; j++) {
-			sprintf(number, "%d", matrix[i-1][j-1]);
+			sprintf(number, "%d", matrix[j-1][i-1]);
 			pUI->m_FilterInput[i][j]->value(number);
 		}
 	}
-	pUI->m_FilterOffsetInput->value("0");
-	pUI->m_FilterDivideByInput->value("1");
+	pUI->m_FilterNormalizeButton->do_callback();
 }
 void ImpressionistUI::cb_filter_blur(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
@@ -474,12 +518,11 @@ void ImpressionistUI::cb_filter_blur(Fl_Widget* o, void* v) {
 	char number[5];
 	for (int i = 1; i < 4; i++) {
 		for (int j = 1; j < 4; j++) {
-			sprintf(number, "%d", matrix[i-1][j-1]);
+			sprintf(number, "%d", matrix[j-1][i-1]);
 			pUI->m_FilterInput[i][j]->value(number);
 		}
 	}
-	pUI->m_FilterOffsetInput->value("0");
-	pUI->m_FilterDivideByInput->value("1");
+	pUI->m_FilterNormalizeButton->do_callback();
 }
 void ImpressionistUI::cb_filter_emboss(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
@@ -488,26 +531,24 @@ void ImpressionistUI::cb_filter_emboss(Fl_Widget* o, void* v) {
 	char number[5];
 	for (int i = 1; i < 4; i++) {
 		for (int j = 1; j < 4; j++) {
-			sprintf(number, "%d", matrix[i-1][j-1]);
+			sprintf(number, "%d", matrix[j-1][i-1]);
 			pUI->m_FilterInput[i][j]->value(number);
 		}
 	}
-	pUI->m_FilterOffsetInput->value("0");
-	pUI->m_FilterDivideByInput->value("1");
+	pUI->m_FilterNormalizeButton->do_callback();
 }
 void ImpressionistUI::cb_filter_edgeenhance(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
 	pUI->m_FilterResetButton->do_callback();
-	int matrix[3][3] = {{0, 0, 0}, {-1, -1, 0}, {0, 0, 0}};
+	int matrix[3][3] = {{0, 0, 0}, {-1, 1, 0}, {0, 0, 0}};
 	char number[5];
 	for (int i = 1; i < 4; i++) {
 		for (int j = 1; j < 4; j++) {
-			sprintf(number, "%d", matrix[i-1][j-1]);
+			sprintf(number, "%d", matrix[j-1][i-1]);
 			pUI->m_FilterInput[i][j]->value(number);
 		}
 	}
-	pUI->m_FilterOffsetInput->value("0");
-	pUI->m_FilterDivideByInput->value("1");
+	pUI->m_FilterNormalizeButton->do_callback();
 }
 void ImpressionistUI::cb_filter_edgedetect(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
@@ -516,12 +557,11 @@ void ImpressionistUI::cb_filter_edgedetect(Fl_Widget* o, void* v) {
 	char number[5];
 	for (int i = 1; i < 4; i++) {
 		for (int j = 1; j < 4; j++) {
-			sprintf(number, "%d", matrix[i-1][j-1]);
+			sprintf(number, "%d", matrix[j-1][i-1]);
 			pUI->m_FilterInput[i][j]->value(number);
 		}
 	}
-	pUI->m_FilterOffsetInput->value("0");
-	pUI->m_FilterDivideByInput->value("1");
+	pUI->m_FilterNormalizeButton->do_callback();
 }
 
 void ImpressionistUI::cb_painterly_do(Fl_Widget* o, void* v) {
@@ -777,23 +817,26 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&File",		0, 0, 0, FL_SUBMENU },
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
-		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image},
-		{ "&Load Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_another_image, 0, FL_MENU_DIVIDER},
+		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image, 0, FL_MENU_INACTIVE},
+		{ "&Load Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_another_image, 0, FL_MENU_DIVIDER | FL_MENU_INACTIVE},
 
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
 		{ 0 },
 
-	{ "&Edit",		0, 0, 0, FL_SUBMENU },
+	{ "&Edit",		0, 0, 0, FL_SUBMENU | FL_MENU_INACTIVE },
 		{ "&Undo",	FL_CTRL + 'z', (Fl_Callback *)ImpressionistUI::cb_undo},
 		{ "&Redo",	FL_CTRL + 'x', (Fl_Callback *)ImpressionistUI::cb_redo},
 		{ "&Clear Canvas", FL_ALT + 'c', (Fl_Callback *)ImpressionistUI::cb_clear_canvas, 0, FL_MENU_DIVIDER },
 		{ "&Brush Panel...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
 		{ "&Filter Kernel",	FL_ALT + 'f', (Fl_Callback *)ImpressionistUI::cb_filter_dialog}, 
 		{ "B&lend", FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_blendcolor},
-		{ "Painterly", FL_ALT + 'p', (Fl_Callback *)ImpressionistUI::cb_painterly_dialog},
+		{ "&Painterly", FL_ALT + 'p', (Fl_Callback *)ImpressionistUI::cb_painterly_dialog, 0, FL_MENU_DIVIDER },
+		{ "&Swap Two View",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_swap_two_images},
+		{ "C&opy Paint2Orig",	FL_ALT + 'o', (Fl_Callback *)ImpressionistUI::cb_copy_to_originalview},
+		{ "Cop&y Orig2Paint",	FL_ALT + 'y', (Fl_Callback *)ImpressionistUI::cb_copy_to_paintview},
 		{ 0 },
 
-	{ "&Display",		0, 0, 0, FL_SUBMENU },
+	{ "&Display",		0, 0, 0, FL_SUBMENU | FL_MENU_INACTIVE },
 		{ "&Original Image",	FL_ALT + 'o', (Fl_Callback *)ImpressionistUI::cb_show_original_image},
 		{ "&Edge Image",	FL_ALT + 'e', (Fl_Callback *)ImpressionistUI::cb_show_edge_image},
 		{ "Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_show_another_image},
@@ -831,8 +874,13 @@ Fl_Menu_Item ImpressionistUI::painterlyStyleMenu[NUM_PAINTERLY_STYLE + 1] = {
   {0}
 };
 
-void ImpressionistUI::activeSaveFunc() {
+void ImpressionistUI::activeMenus() {
+	// remember to modify these magic numbers when new menu items are added
 	menuitems[2].activate();
+	menuitems[3].activate();
+	menuitems[4].activate();
+	menuitems[7].activate();
+	menuitems[19].activate();
 }
 
 // I know this is ugle, but don't have better idea
@@ -915,6 +963,10 @@ ImpressionistUI::ImpressionistUI() {
 		m_FilterEdgeDetectButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_edgedetect);
 		m_FilterEmbossButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_emboss);
 		
+		m_FilterNormalizeButton = new Fl_Button(10, 190, 80, 20, "Normalize");
+		m_FilterNormalizeButton->user_data((void*)this);
+		m_FilterNormalizeButton->labelsize(12);
+		m_FilterNormalizeButton->callback((Fl_Callback*)ImpressionistUI::cb_filter_normalize);
 
 		m_FilterResetButton = new Fl_Button(110, 340, 90, 30, "Reset");
 		m_FilterResetButton->user_data((void*)this);

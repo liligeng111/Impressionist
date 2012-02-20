@@ -70,6 +70,7 @@ public:
 	Fl_Button* m_FilterCancelButton;
 	Fl_Button* m_FilterApplyButton;
 	Fl_Button* m_FilterResetButton;
+	Fl_Button* m_FilterNormalizeButton;
 
 	Fl_Button* m_FilterBlurButton;
 	Fl_Button* m_FilterEnhanceButton;
@@ -108,7 +109,7 @@ public:
 
 	static double blendColor[3];
 
-	static void activeSaveFunc();
+	static void activeMenus();
 
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
@@ -165,6 +166,7 @@ private:
 	static void	cb_filter_apply(Fl_Widget* o, void* v);
 	static void	cb_filter_cancel(Fl_Widget* o, void* v);
 	static void	cb_filter_reset(Fl_Widget* o, void* v);
+	static void	cb_filter_normalize(Fl_Widget* o, void* v);
 
 	static void	cb_filter_dialog(Fl_Menu_* o, void* v);
 
@@ -177,6 +179,9 @@ private:
 	
 	static void cb_painterly_do(Fl_Widget* o, void* v);
 	static void cb_painterly_dialog(Fl_Menu_* o, void* v);
+	static void cb_swap_two_images(Fl_Menu_* o, void* v);
+	static void cb_copy_to_paintview(Fl_Menu_* o, void* v);
+	static void cb_copy_to_originalview(Fl_Menu_* o, void* v);
 };
 
 #endif
