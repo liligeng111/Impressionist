@@ -445,7 +445,7 @@ void PaintView::autoPaint()
 	int	size = m_pDoc->getSize();
 	Point p;
 
-	int max_preority = 70;
+	int max_preority = 20;
 	const int y = m_pDoc->m_nPaintHeight / spacing + 1;
 	const int x = m_pDoc->m_nPaintWidth / spacing + 1;
 

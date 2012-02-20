@@ -148,6 +148,26 @@ float ImpressionistDoc::getAlpha()
 	return m_pUI->getAlpha();
 }
 
+
+
+void resize_image(unsigned char* &source, int source_height, int source_width, unsigned char* &target, int target_height, int target_width)
+{
+	if(target) delete []target;
+	target = new unsigned char[target_width * target_height * 3];
+	float height_rate = 1.0f * source_height / target_height;
+	float width_rate = 1.0f * source_width / target_width;
+	for (int i = 0; i < target_height; i++)
+	{
+		int I = height_rate * i;
+		for (int j = 0; j < target_width; j++)
+		{
+			target[3 * (i * target_width+ j)] = source[3 * (source_width * I + j * source_width / target_width)];
+			target[3 * (i * target_width+ j) + 1] = source[3 * (source_width * I + j * source_width / target_width) + 1];
+			target[3 * (i * target_width+ j) + 2] = source[3 * (source_width * I + j * source_width / target_width) + 2];
+		}
+	}
+}
+
 //---------------------------------------------------------
 // Load the specified image
 // This is called by the UI when the load image button is 
@@ -226,13 +246,14 @@ int ImpressionistDoc::loadAnotherImage(const char *iname)
 	unsigned char*	data;
 	int				width, 
 					height;
-
+	
 	if ( (data=load_image(iname, width, height))==NULL ) 
 	{
 		fl_alert("Can't load bitmap file");
 		return 0;
 	}
-
+	
+	/*
 	if (width != m_nPaintWidth || height != m_nPaintHeight)
 	{
 		//char msg[255];
@@ -243,13 +264,15 @@ int ImpressionistDoc::loadAnotherImage(const char *iname)
 		//system("PAUSE");
 		return 0;
 	}
+	*/
 
 	// release old storage
-	if ( m_ucAnother ) delete [] m_ucAnother;
+	if ( m_ucAnother ) delete []m_ucAnother;
+	m_ucAnother = 0;
+	resize_image(data, height, width, m_ucAnother, m_nHeight, m_nWidth);
+	delete []data;
+	data = 0;
 
-	m_ucAnother		= data;
-	
-	m_pUI->resize_windows(width, height);
 	//m_pUI->m_paintView->init();
 	return 1;
 }
@@ -266,31 +289,19 @@ int ImpressionistDoc::changeImage(const char *iname)
 	unsigned char*	data;
 	int				width, 
 					height;
-
+	
 	if ( (data=load_image(iname, width, height))==NULL ) 
 	{
 		fl_alert("Can't load bitmap file");
 		return 0;
 	}
 
-	if (width != m_nPaintWidth || height != m_nPaintHeight)
-	{
-		fl_message("Two images are of different size");
-		return 0;
-	}
-
-	// reflect the fact of loading the new image
-	m_nWidth		= width;
-	m_nPaintWidth	= width;
-	m_nHeight		= height;
-	m_nPaintHeight	= height;
-
 	// release old storage
-	if ( m_ucBitmap ) delete [] m_ucBitmap;
-
-	m_ucBitmap		= data;
-	
-	m_pUI->resize_windows(width, height);
+	if ( m_ucBitmap ) delete []m_ucBitmap;
+	m_ucBitmap = 0;
+	resize_image(data, height, width, m_ucBitmap, m_nHeight, m_nWidth);
+	delete []data;
+	data = 0;
 	//m_pUI->m_paintView->init();
 	return 1;
 }
@@ -383,4 +394,3 @@ void ImpressionistDoc::dissolve_image(float alpha)
 		m_ucDissolve[i] = m_ucBitmap[i] * beta + m_ucAnother[i] * alpha;
 	}
 }
-
