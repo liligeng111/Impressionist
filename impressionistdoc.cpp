@@ -149,7 +149,8 @@ float ImpressionistDoc::getAlpha()
 }
 
 
-
+//  this may not a good place to put resize function
+//	what do you think of images.cpp ?
 void resize_image(unsigned char* &source, int source_height, int source_width, unsigned char* &target, int target_height, int target_width)
 {
 	if(target) delete []target;
@@ -269,7 +270,7 @@ int ImpressionistDoc::loadAnotherImage(const char *iname)
 	// release old storage
 	if ( m_ucAnother ) delete []m_ucAnother;
 	m_ucAnother = 0;
-	resize_image(data, height, width, m_ucAnother, m_nHeight, m_nWidth);
+	resize_image_bilinear(data, height, width, m_ucAnother, m_nHeight, m_nWidth);
 	delete []data;
 	data = 0;
 
