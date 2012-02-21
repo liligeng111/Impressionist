@@ -418,3 +418,57 @@ void ImpressionistDoc::dissolve_image(float alpha)
 		m_ucDissolve[i] = m_ucBitmap[i] * beta + m_ucAnother[i] * alpha;
 	}
 }
+
+
+//---------------------------------------------------------
+// Create image mosaic
+// This is called by the UI when the create mosaic image button is 
+// pressed.
+//---------------------------------------------------------
+
+int ImpressionistDoc::createMosaic(const char *iname) 
+{
+	// try to open the image to read
+	unsigned char*	data;
+	int				width, 
+					height;
+	
+	if ( (data=load_image(iname, width, height))==NULL ) 
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+
+	// release old storage
+	unsigned char*	thumbnail = 0;
+	int thumbnailHeight =  m_nPaintHeight / 10;
+	int thumbnailWidth =  m_nPaintWidth / 10;
+	resize_image(data, height, width, thumbnail, thumbnailHeight, thumbnailWidth);
+	delete []data;
+	data = 0;
+	int n;
+	int N;
+	
+	char brightness;
+
+	for (int i = 0; i < m_nPaintHeight; i++)
+	{
+		for (int j = 0; j < m_nPaintWidth; j++)
+		{
+			n = 3 * (i * m_nPaintWidth + j);
+			N = 3 * ((i % thumbnailHeight) * thumbnailWidth + j % thumbnailWidth);
+
+			brightness = PaintView::rgb2grayscale(GetOriginalPixel(j, i)) - PaintView::rgb2grayscale((GLubyte*)(thumbnail + N));
+
+			for (int k = 0; k < 3; k++)
+			{
+				if (m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f > 255)
+				{
+					m_ucBitmap[n + k] = 255;
+				}
+				else m_ucBitmap[n + k] = m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f;
+			}
+		}
+	}
+	return 1;
+}

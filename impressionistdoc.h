@@ -24,6 +24,7 @@ public:
 	int		changeImage(const char *iname);			// called by the UI to change image
 	int		loadAnotherImage(const char *iname);			// called by the UI to load another image
 	void	make_dim(int alpha);
+	int		createMosaic(const char *iname);			// called by the UI to create image mosaic
 
 
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas

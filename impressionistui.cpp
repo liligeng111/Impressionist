@@ -581,6 +581,37 @@ void ImpressionistUI::cb_about(Fl_Menu_* o, void* v)
 	fl_message("Impressionist for COMP4411, HKUST\nBy Heng and Ligeng\nSpring, 2012. Due on March 1");
 }
 
+//-----------------------------------------------------------
+// Brings up an about dialog box
+// Called by the UI when the about menu item is chosen
+//-----------------------------------------------------------
+void ImpressionistUI::cb_mosaic(Fl_Menu_* o, void* v) 
+{
+	ImpressionistDoc *pDoc=whoami(o)->getDocument();
+
+	const char* newfile;
+	// this will get the file path relative to the application itself
+	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->title("Open an image file");                        // optional title
+	chooser->directory(".");
+	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
+	switch ( chooser->show() ) {
+		case -1:    // ERROR
+			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+			break;
+		case 1:     // CANCEL
+			fprintf(stderr, "*** CANCEL\n");
+			break;
+		default:    // USER PICKED A FILE
+			newfile = chooser->filename();
+			fprintf(stderr, "Filename was '%s'\n", newfile);
+			pDoc->createMosaic(newfile);
+			break;
+	}
+}
+
+
 //------- UI should keep track of the current for all the controls for answering the query from Doc ---------
 //-------------------------------------------------------------
 // Sets the type of brush to use to the one chosen in the brush 
@@ -841,13 +872,14 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Brush Panel...",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_brushes }, 
 		{ "&Filter Kernel",	FL_ALT + 'f', (Fl_Callback *)ImpressionistUI::cb_filter_dialog}, 
 		{ "B&lend", FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_blendcolor},
-		{ "&Painterly", FL_ALT + 'p', (Fl_Callback *)ImpressionistUI::cb_painterly_dialog, 0, FL_MENU_DIVIDER },
+		{ "&Painterly", FL_ALT + 'p', (Fl_Callback *)ImpressionistUI::cb_painterly_dialog},
+		{ "&Create Image Mosaic", FL_ALT + 'i', (Fl_Callback *)ImpressionistUI::cb_mosaic, 0, FL_MENU_DIVIDER },
 		{ "&Swap Two View",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_swap_two_images},
 		{ "C&opy Paint2Orig",	FL_ALT + 'o', (Fl_Callback *)ImpressionistUI::cb_copy_to_originalview},
 		{ "Cop&y Orig2Paint",	FL_ALT + 'y', (Fl_Callback *)ImpressionistUI::cb_copy_to_paintview},
 		{ 0 },
 
-	{ "&Display",		0, 0, 0, FL_SUBMENU | FL_MENU_INACTIVE },
+	{ "&Display",		0, 0, 0, FL_SUBMENU },
 		{ "&Original Image",	FL_ALT + 'o', (Fl_Callback *)ImpressionistUI::cb_show_original_image},
 		{ "&Edge Image",	FL_ALT + 'e', (Fl_Callback *)ImpressionistUI::cb_show_edge_image},
 		{ "Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_show_another_image},

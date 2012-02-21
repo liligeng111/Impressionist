@@ -188,6 +188,7 @@ private:
 	
 	static void cb_painterly_do(Fl_Widget* o, void* v);
 	static void cb_painterly_dialog(Fl_Menu_* o, void* v);
+	static void cb_mosaic(Fl_Menu_* o, void* v);
 	static void cb_swap_two_images(Fl_Menu_* o, void* v);
 	static void cb_copy_to_paintview(Fl_Menu_* o, void* v);
 	static void cb_copy_to_originalview(Fl_Menu_* o, void* v);

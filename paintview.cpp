@@ -430,7 +430,7 @@ void PaintView::redo()
 }
 
 unsigned char PaintView::rgb2grayscale(GLubyte* color) {
-	return (unsigned char)(color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.144);
+	return (unsigned char)(color[0] * 0.299 + color[1] * 0.587 + color[2] * 0.114);
 }
 
 int PaintView::getBrushDirection() {
@@ -497,17 +497,17 @@ void PaintView::autoPaint()
 	int	size = m_pDoc->getSize();
 	Point p;
 
-	int max_preority = 20;
+	int max_priority = 20;
 	const int y = m_pDoc->m_nPaintHeight / spacing + 1;
 	const int x = m_pDoc->m_nPaintWidth / spacing + 1;
 
-	char** preority;
+	char** priority;
 	// notes to geng ge, 
 	// as priority is 70 at most, should better make it char** or something to save memory
-	preority = new char*[x];
+	priority = new char*[x];
 	for (int i = 0; i < x; i++)
 	{
-		preority[i] = new char[y]; //preority to indicate layer
+		priority[i] = new char[y]; //preority to indicate layer
 	}
 	// should delete priority after using it
 
@@ -516,18 +516,18 @@ void PaintView::autoPaint()
 	{
 		for (int j = 0; j < y; j++) 
 		{
-			preority[i][j] = irand(max_preority); //asign each point a random preority
+			priority[i][j] = irand(max_priority); //asign each point a random preority
 		}
 	}
 
-	for (int l = 0; l < max_preority; l++)
+	for (int l = 0; l < max_priority; l++)
 	{   
 		//draw all points accoring to their preority
 		for (int i = 0; i < x; i++)
 		{	
 			for (int j = 0; j < y; j++) 
 			{
-				if (preority[i][j] == l)
+				if (priority[i][j] == l)
 				{
 					coord.x = i * spacing;
 					coord.y = m_pDoc->m_nPaintHeight - j * spacing;
@@ -557,9 +557,9 @@ void PaintView::autoPaint()
 
 	// delete priority
 	for (int i = 0; i < x; i++) {
-		delete [] preority[i];
+		delete [] priority[i];
 	}
-	delete [] preority;
+	delete [] priority;
 }
 
 GLubyte* PaintView::getPaintingFromPics()
