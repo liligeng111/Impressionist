@@ -19,11 +19,14 @@
 #include "scatteredpointbrush.h"
 #include "scatteredlinebrush.h"
 #include "scatteredcirclebrush.h"
+#include "filterbrush.h"
 
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
 
 ImpressionistDoc::ImpressionistDoc() 
+	// constructor
+	// this comment is for convenience of search
 {
 	// Set NULL image name as init. 
 	m_imageName[0]	='\0';	
@@ -34,6 +37,7 @@ ImpressionistDoc::ImpressionistDoc()
 	m_ucPainting	= NULL;
 	m_ucDissolve	= NULL;
 	m_ucAnother		= NULL;
+	m_ucDim			= NULL;
 
 
 	// create one instance of each brush
@@ -53,6 +57,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new ScatteredLineBrush( this, "Scattered Lines" );
 	ImpBrush::c_pBrushes[BRUSH_SCATTERED_CIRCLES]	
 		= new ScatteredCircleBrush( this, "Scattered Circles" );
+	ImpBrush::c_pBrushes[BRUSH_FILTER]	
+		= new FilterBrush( this, "Customized Filter" );
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
@@ -198,6 +204,7 @@ int ImpressionistDoc::loadImage(const char *iname)
 	if ( m_ucBitmap ) delete [] m_ucBitmap;
 	if ( m_ucEdge ) delete [] m_ucEdge;
 	if ( m_ucPainting ) delete [] m_ucPainting;
+	if ( m_ucDim ) delete [] m_ucDim;
 
 	m_ucBitmap		= data;
 
@@ -206,6 +213,11 @@ int ImpressionistDoc::loadImage(const char *iname)
 	m_ucEdge	= new unsigned char [width*height*3];
 	m_ucAnother	= new unsigned char [width*height*3];
 	m_ucDissolve	= new unsigned char [width*height*3];
+
+	m_ucDim	= new unsigned char [width*height*4];
+	memset(m_ucDim, 0, width * height * 4);
+	// dim is not to be viewed in original view
+
 	m_pUI->m_origView->setView(0);
 	// here we can see how the image is stored
 	// by rows
@@ -235,6 +247,17 @@ int ImpressionistDoc::loadImage(const char *iname)
 	m_pUI->m_paintView->init();
 
 	return 1;
+}
+
+void ImpressionistDoc::make_dim(int alpha) {
+	int shift;
+	for (int i = 0; i < this->m_nPaintHeight; i++) {
+		for (int j = 0; j < this->m_nPaintWidth; j++) {
+			shift = i * m_nPaintWidth + j;
+			memcpy(m_ucDim + 4 * shift, m_ucBitmap + 3 * shift, 3);
+			m_ucDim[4 * shift + 3] = alpha;
+		}
+	}
 }
 //---------------------------------------------------------
 // load another image for various purpose

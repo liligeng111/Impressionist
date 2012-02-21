@@ -70,29 +70,30 @@ void PaintView::init()
 
 void PaintView::draw()
 {
-	#ifndef MESA
+	if (this->m_pDoc->m_ucPainting) {
+		// RestoreContent();
+	}
+
+	// glGetIntegerv(GL_AUX_BUFFERS, &num);
+	// we have 4 auxiliary buffers
+
+	// #ifndef MESA
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_FRONT_AND_BACK);
-	#endif // !MESA
-	/*
-	Windows platform cannot possibly use this Open Source Implementation of OpenGL
-	So, let's assume this function is always called
-	*/
+	// #endif // !MESA
+	/* Windows platform cannot possibly use this Open Source Implementation of OpenGL
+	So, let's assume this function is always called */
 
 	if(!valid())
 	{
-
-		glClearColor(0.9f, 0.9f, 0.9f, 1.0);
-
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0);
 		// We're only using 2-D, so turn off depth 
 		glDisable( GL_DEPTH_TEST );
-
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 		glEnable( GL_BLEND ); //enable alpha
-
 		ortho();
-
 		glClear( GL_COLOR_BUFFER_BIT );
+		// clear both buffers
 	}
 
 	// this refers to the FL_Gl_Window, 
@@ -131,105 +132,112 @@ void PaintView::draw()
 	m_nStartCol		= 0;
 	m_nEndCol		= m_nStartCol + drawWidth;
 
-	if ( m_pDoc->m_ucPainting && !isAnEvent) 
-	{
-		// if no event happen, simply copy the RAM buffer to GL buffer
-		// both front and end
-		RestoreContent();
-	}
-
-	// so it could and handle one event for each event loop iteration
-	// but possible capture more than this handled event
-	if ( m_pDoc->m_ucPainting && isAnEvent) 
-	{
+	if ( m_pDoc->m_ucPainting ) {
+		if ( !isAnEvent) {
+			// if no event happen, simply copy the RAM buffer to GL buffer
+			RestoreContent();
+		} else  {
+			// isAnEvent
+		// so it could only handle one event for each event loop iteration
+		// but possible capture more than this handled event, anyway..
 		// Clear it after processing.
-		isAnEvent	= 0;	
+			isAnEvent	= 0;	
 
-		// transform FLTK coordinate to OpenGL coordinate
-		Point source( coord.x + m_nStartCol, m_nEndRow - coord.y );
-		Point target( coord.x, m_nWindowHeight - coord.y );
+			// transform FLTK coordinate to OpenGL coordinate
+			Point source( coord.x + m_nStartCol, m_nEndRow - coord.y );
+			Point target( coord.x, m_nWindowHeight - coord.y );
 
-		// This is the event handler
-		// there's break in all cases
-		// which means, every event correspond to one swap buffer
-		switch (eventToDo) 
-		{
-		case LEFT_MOUSE_DOWN:
-			m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
-			break;
-		case LEFT_MOUSE_DRAG:
-			m_pDoc->m_pCurrentBrush->BrushMove( source, target );
-			break;
-		case LEFT_MOUSE_UP:
-			m_pDoc->m_pCurrentBrush->BrushEnd( source, target );
-
-			/*
-			no need to consider these draws with swap buffer
-			both front and end are drawed to
-			even drawing lines is single action
-			*/
-
-			// save front buffer to RAM buffer
-			SaveCurrentContent();
-			// then copy RAM buffer to back buffer ?
-			RestoreContent();
-			// and after this draw(), front and back will swap
-			// this means, RestoreContent() is useless here
-			break;
-		
-		// below is trick part
-		case RIGHT_MOUSE_DOWN:
-			start = target;
-			break;
-		case RIGHT_MOUSE_DRAG:
-			RestoreContent();
-			// get fresh new image from RAM buffer to back buffer
-			glDrawBuffer(GL_BACK);
-			// this is useless, RestoreContent() has done it
-
-			glLineWidth(5);
-			red_line = true;
-			glBegin( GL_LINES );
-				glColor3f(0.8f, 0.05f, 0.1f);
-				glVertex2d(start.x, start.y);
-				glVertex2d(target.x, target.y);
-			glEnd();
-			// draw the line to the back buffer, which will be seen after swapping buffers
-			break;
-		case RIGHT_MOUSE_UP:
-			RestoreContent();
-			// to erase the red line
-			// the red line cannot be in the backbuffer
-
-			//d = sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
-			//if (d > 40) d = 40;
-			//m_pDoc->setSize(d);
-
-			if (target.x == start.x)
+			// every event correspond to one swap buffer
+			switch (eventToDo) 
 			{
-				m_pDoc->setAngle(90);
+				// show dimmed version is very costly
+			case LEFT_MOUSE_DOWN:
+				RestoreContent();
+				m_pDoc->m_pCurrentBrush->BrushBegin( source, target );
+				SaveCurrentContent();
+				break;
+			case LEFT_MOUSE_DRAG:
+				RestoreContent();
+				m_pDoc->m_pCurrentBrush->BrushMove( source, target );
+				SaveCurrentContent();
+				break;
+			case LEFT_MOUSE_UP:
+				RestoreContent();
+				m_pDoc->m_pCurrentBrush->BrushEnd( source, target );
+
+				/*
+				no need to consider these draws with swap buffer
+				both front and end are drawed to
+				even drawing lines is single action
+				*/
+
+				// save back buffer to RAM buffer
+				SaveCurrentContent();
+				// then copy RAM buffer to back buffer ?
+				// RestoreContent();
+				// and after this draw(), front and back will swap
+				// this means, RestoreContent() is useless here
+				break;
+			
+			// below is trick part
+			case RIGHT_MOUSE_DOWN:
+				start = target;
+				break;
+			case RIGHT_MOUSE_DRAG:
+				RestoreContent();
+				// get fresh new image from RAM buffer to back buffer
+				glDrawBuffer(GL_BACK);
+				// this is useless, RestoreContent() has done it
+
+				glLineWidth(5);
+				red_line = true;
+				glBegin( GL_LINES );
+					glColor3f(0.8f, 0.05f, 0.1f);
+					glVertex2d(start.x, start.y);
+					glVertex2d(target.x, target.y);
+				glEnd();
+				// draw the line to the back buffer, which will be seen after swapping buffers
+				break;
+			case RIGHT_MOUSE_UP:
+				RestoreContent();
+				// to erase the red line
+				// the red line cannot be in the backbuffer
+
+				//d = sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
+				//if (d > 40) d = 40;
+				//m_pDoc->setSize(d);
+
+				if (target.x == start.x)
+				{
+					m_pDoc->setAngle(90);
+					break;
+				}
+
+				m_pDoc->setAngle(180 - abs((atan2(float(target.y - start.y) , (target.x - start.x)))) * 180 / M_PI);
+
+				break;
+			default:
+				printf("Unknown event!!\n");		
 				break;
 			}
-
-			m_pDoc->setAngle(180 - abs((atan2(float(target.y - start.y) , (target.x - start.x)))) * 180 / M_PI);
-
-			break;
-		default:
-			printf("Unknown event!!\n");		
-			break;
 		}
+		dim_image_to_paint_view();
 	}
-
 	glFlush();
+}
 
-
-	// what about dim to backbuffer here
-
-	#ifndef MESA
-	// To avoid flicker on some machines.
-	// but why? 
+void PaintView::dim_image_to_paint_view() {
 	glDrawBuffer(GL_BACK);
-	#endif // !MESA
+
+	glRasterPos2i( 0, m_nWindowHeight - m_nDrawHeight );
+	glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+	glPixelStorei( GL_UNPACK_ROW_LENGTH, m_pDoc->m_nPaintWidth );
+	glDrawPixels( m_nDrawWidth, 
+				  m_nDrawHeight, 
+				  GL_RGBA, 
+				  GL_UNSIGNED_BYTE, 
+				  this->m_pDoc->m_ucDim);
+
 }
 
 
@@ -445,11 +453,6 @@ int PaintView::getGradient() {
 		}
 	}
 
-	/*
-	char msg[255];
-	sprintf(msg, "color : %uc, x: %d, y: %d\n",color[1][1], gxsum, gysum);
-	OutputDebugString(msg);
-	*/
 	return (int)(atan2((double)gxsum, (double)gysum) * 180 / M_PI);
 }
 

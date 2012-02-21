@@ -23,6 +23,7 @@ public:
 	int		saveImage(const char *iname);			// called by the UI to save image
 	int		changeImage(const char *iname);			// called by the UI to change image
 	int		loadAnotherImage(const char *iname);			// called by the UI to load another image
+	void	make_dim(int alpha);
 
 
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas
@@ -54,6 +55,7 @@ public:
 	unsigned char*	m_ucPainting;
 	unsigned char*	m_ucDissolve;
 	unsigned char*	m_ucAnother;
+	unsigned char*	m_ucDim;
 
 
 	// The current active brush.

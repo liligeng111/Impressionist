@@ -73,6 +73,8 @@ private:
 	
 	bool red_line; // if a read line is drawn 
 	Point start;
+
+	void dim_image_to_paint_view();
 };
 
 #endif

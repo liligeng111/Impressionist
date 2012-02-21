@@ -18,6 +18,7 @@ typedef enum
 	BRUSH_SCATTERED_POINTS,
 	BRUSH_SCATTERED_LINES,
 	BRUSH_SCATTERED_CIRCLES,
+	BRUSH_FILTER,
 	NUM_BRUSH_TYPE // Make sure this stays at the end!
 } TYPE_BRUSH_TYPE;
 
@@ -67,6 +68,7 @@ public:
 	ImpressionistDoc* GetDocument( void );
 
 	// Return the name of the brush (not used in this version).
+	// then why do you still include this stupid useless function?
 	char* BrushName( void );
 	
 	static int			c_nBrushCount;	// How many brushes we have,

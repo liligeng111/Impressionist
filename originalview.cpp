@@ -90,11 +90,6 @@ void OriginalView::draw()
 
 		int the_true_window_size = this->m_pDoc->m_pUI->wrapper_group_origiview->w();
 
-		// debug
-		char msg[222];
-		sprintf(msg, "%d\n", the_true_window_size);
-		OutputDebugString(msg);
-
 		drawWidth = min(the_true_window_size, drawWidth);
 
 		// then need to get scroll group width and height

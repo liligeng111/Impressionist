@@ -667,10 +667,16 @@ void ImpressionistUI::cb_edge(Fl_Widget* o, void* v)
 // disolve slider call back
 void ImpressionistUI::cb_dissolve(Fl_Widget* o, void* v) {
 	ImpressionistDoc* pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
-	pDoc->dissolve_image(((Fl_Value_Slider*)o)->value());
+	pDoc->dissolve_image(pDoc->m_pUI->m_DimAlphaSlider->value());
 	pDoc->m_pUI->m_origView->setView(DISSOLVE_VIEW);
 }
 
+// callback for make dimmed view in paint view
+void ImpressionistUI::cb_dim(Fl_Widget* o, void* v) {
+	ImpressionistDoc* pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
+	pDoc->make_dim(pDoc->m_pUI->m_DimAlphaSlider->value());
+	pDoc->m_pUI->m_paintView->refresh();
+}
 
 // callback for blend menu 
 void ImpressionistUI::cb_blendcolor(Fl_Menu_* o, void* v) {
@@ -863,6 +869,7 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
   {"Scattered Points",	FL_ALT+'q', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_POINTS},
   {"Scattered Lines",	FL_ALT+'m', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_LINES},
   {"Scattered Circles",	FL_ALT+'d', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_CIRCLES},
+  {"Customized Filter",	FL_ALT+'f', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_FILTER},
   {0}
 };
 
@@ -1121,16 +1128,32 @@ ImpressionistUI::ImpressionistUI() {
 
 		m_EdgeSettingBox->end();
 		
-		this->m_DissolveAlphaSlider = new Fl_Value_Slider(20, 375, 280, 20, "Dissolve Level");
+		this->m_DissolveAlphaSlider = new Fl_Value_Slider(20, 365, 280, 20, "Dissolve Level in Original View");
 		this->m_DissolveAlphaSlider->type(FL_HOR_NICE_SLIDER);
 		this->m_DissolveAlphaSlider->minimum(0.0f);
 		this->m_DissolveAlphaSlider->maximum(1.0f);
 		this->m_DissolveAlphaSlider->step(0.02f);
-		this->m_DissolveAlphaSlider->value(0.5f);
+		this->m_DissolveAlphaSlider->value(0.0f);
 		// this->m_DissolveAlphaSlider->labelsize(12);
 		this->m_DissolveAlphaSlider->align(FL_ALIGN_TOP_LEFT);
-		this->m_DissolveAlphaSlider->callback((Fl_Callback *)ImpressionistUI::cb_dissolve);
+		// this->m_DissolveAlphaSlider->callback((Fl_Callback *)ImpressionistUI::cb_dissolve);
 		this->m_DissolveAlphaSlider->user_data((void*)this);
+
+		this->m_DissolveAlphaDoButton = new Fl_Button(320, 360, 50, 30, "Do");
+		this->m_DissolveAlphaDoButton->callback((Fl_Callback*)ImpressionistUI::cb_dissolve);
+		this->m_DissolveAlphaDoButton->user_data((void*)this);
+
+		this->m_DimAlphaSlider = new Fl_Value_Slider(20, 410, 280, 20, "Dim Level in Paint View");
+		this->m_DimAlphaSlider->type(FL_HOR_NICE_SLIDER);
+		this->m_DimAlphaSlider->maximum(255);
+		this->m_DimAlphaSlider->minimum(0);
+		this->m_DimAlphaSlider->step(1);
+		this->m_DimAlphaSlider->value(0);
+		this->m_DimAlphaSlider->align(FL_ALIGN_TOP_LEFT);
+
+		this->m_DimAlphaDoButton = new Fl_Button(320, 405, 50, 30, "Do");
+		this->m_DimAlphaDoButton->callback((Fl_Callback*)ImpressionistUI::cb_dim);
+		this->m_DimAlphaDoButton->user_data((void*)this);
 
 	m_brushDialog->end();	
 

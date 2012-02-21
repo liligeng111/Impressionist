@@ -51,6 +51,10 @@ public:
 	Fl_Button*          m_ClearCanvasButton;
 
 	Fl_Slider*			m_DissolveAlphaSlider;
+	Fl_Button*			m_DissolveAlphaDoButton;
+
+	Fl_Slider*			m_DimAlphaSlider;
+	Fl_Button*			m_DimAlphaDoButton;
 
 // for auto paint box
 	Fl_Group* m_AutoPaintBox;
@@ -160,6 +164,7 @@ private:
 	static void	cb_autoPaint(Fl_Widget* o, void* v);
 	static void	cb_edge(Fl_Widget* o, void* v);
 	static void	cb_dissolve(Fl_Widget* o, void* v);
+	static void	cb_dim(Fl_Widget* o, void* v);
 
 	static void	cb_show_edge_image(Fl_Menu_* o, void* v);
 	static void	cb_show_original_image(Fl_Menu_* o, void* v);
