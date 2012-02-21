@@ -18,6 +18,8 @@
 #include <FL/Fl_Color_Chooser.H>
 #include <FL/Fl_Input.H>
 #include <FL/Fl_Int_Input.H>
+#include <FL/Fl_Scroll.H>
+#include <FL/Fl_Pack.H>
 
 #include "impressionist.h"
 #include "originalview.h"
@@ -85,6 +87,10 @@ public:
 	Fl_Button* m_PainterlyDoButton;
 	// to be implemented
 
+// scroll window as wrapper
+// this should be public because two views need to know wrapper's height and width
+	Fl_Group * wrapper_group_paintview;
+	Fl_Group * wrapper_group_origiview;
 
 	// Member functions
 	void				setDocument(ImpressionistDoc* doc);
@@ -114,8 +120,6 @@ public:
 private:
 	ImpressionistDoc*	m_pDoc;		// pointer to document to communicate with the document
 
-	Fl_Group * wrapper_group_paintview;
-	Fl_Group * wrapper_group_origiview;
 
 	static TYPE_LINE_DIRECTION m_pLineDirectionType;
 

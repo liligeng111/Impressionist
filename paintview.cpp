@@ -74,6 +74,10 @@ void PaintView::draw()
 	// To avoid flicker on some machines.
 	glDrawBuffer(GL_FRONT_AND_BACK);
 	#endif // !MESA
+	/*
+	Windows platform cannot possibly use this Open Source Implementation of OpenGL
+	So, let's assume this function is always called
+	*/
 
 	if(!valid())
 	{
@@ -91,48 +95,63 @@ void PaintView::draw()
 		glClear( GL_COLOR_BUFFER_BIT );
 	}
 
-	Point scrollpos;// = GetScrollPosition();
-	scrollpos.x = 0;
-	scrollpos.y	= 0;
-
+	// this refers to the FL_Gl_Window, 
+	// since this Gl_Window is not resizable
+	// the value is almost fixed
 	m_nWindowWidth	= w();
 	m_nWindowHeight	= h();
 
 	int drawWidth, drawHeight;
+	// to ensure that drawBuffer doesn't draw outside the border
+	// but draw outside is not possible anyway,
+	// window manager will not allow it.
 	drawWidth = min( m_nWindowWidth, m_pDoc->m_nPaintWidth );
 	drawHeight = min( m_nWindowHeight, m_pDoc->m_nPaintHeight );
+	// should note that, in this certain implementation,
+	// PaintDimension is alway equal to WindowDimension
+	// window is not resizable, so it paint
 
-	int startrow = m_pDoc->m_nPaintHeight - (scrollpos.y + drawHeight);
+	// so startrow is also alway 0
+	int startrow = m_pDoc->m_nPaintHeight - (drawHeight);
+	// lower left is the origin
+	// start column is alway 0
 	if ( startrow < 0 ) startrow = 0;
 
+	// paintbitstart is always m_ucPainting
 	m_pPaintBitstart = m_pDoc->m_ucPainting + 
-		3 * ((m_pDoc->m_nPaintWidth * startrow) + scrollpos.x);
+		3 * ((m_pDoc->m_nPaintWidth * startrow));
 
 	m_nDrawWidth	= drawWidth;
 	m_nDrawHeight	= drawHeight;
+	// why do you always do these meaningless assignment
 
+	// the two points of the actually drawn image
 	m_nStartRow		= startrow;
 	m_nEndRow		= startrow + drawHeight;
-	m_nStartCol		= scrollpos.x;
+	m_nStartCol		= 0;
 	m_nEndCol		= m_nStartCol + drawWidth;
 
 	if ( m_pDoc->m_ucPainting && !isAnEvent) 
 	{
+		// if no event happen, simply copy the RAM buffer to GL buffer
+		// both front and end
 		RestoreContent();
 	}
 
+	// so it could and handle one event for each event loop iteration
+	// but possible capture more than this handled event
 	if ( m_pDoc->m_ucPainting && isAnEvent) 
 	{
-
 		// Clear it after processing.
 		isAnEvent	= 0;	
 
+		// transform FLTK coordinate to OpenGL coordinate
 		Point source( coord.x + m_nStartCol, m_nEndRow - coord.y );
 		Point target( coord.x, m_nWindowHeight - coord.y );
 
-		// temp 
-		//int d;
 		// This is the event handler
+		// there's break in all cases
+		// which means, every event correspond to one swap buffer
 		switch (eventToDo) 
 		{
 		case LEFT_MOUSE_DOWN:
@@ -144,16 +163,30 @@ void PaintView::draw()
 		case LEFT_MOUSE_UP:
 			m_pDoc->m_pCurrentBrush->BrushEnd( source, target );
 
+			/*
+			no need to consider these draws with swap buffer
+			both front and end are drawed to
+			even drawing lines is single action
+			*/
+
+			// save front buffer to RAM buffer
 			SaveCurrentContent();
+			// then copy RAM buffer to back buffer ?
 			RestoreContent();
+			// and after this draw(), front and back will swap
+			// this means, RestoreContent() is useless here
 			break;
+		
+		// below is trick part
 		case RIGHT_MOUSE_DOWN:
 			start = target;
-
 			break;
 		case RIGHT_MOUSE_DRAG:
 			RestoreContent();
+			// get fresh new image from RAM buffer to back buffer
 			glDrawBuffer(GL_BACK);
+			// this is useless, RestoreContent() has done it
+
 			glLineWidth(5);
 			red_line = true;
 			glBegin( GL_LINES );
@@ -161,10 +194,13 @@ void PaintView::draw()
 				glVertex2d(start.x, start.y);
 				glVertex2d(target.x, target.y);
 			glEnd();
-
+			// draw the line to the back buffer, which will be seen after swapping buffers
 			break;
 		case RIGHT_MOUSE_UP:
 			RestoreContent();
+			// to erase the red line
+			// the red line cannot be in the backbuffer
+
 			//d = sqrt((float)((start.x - target.x) * (start.x - target.x) + (start.y - target.y) * (start.x - target.y)));
 			//if (d > 40) d = 40;
 			//m_pDoc->setSize(d);
@@ -186,8 +222,12 @@ void PaintView::draw()
 
 	glFlush();
 
+
+	// what about dim to backbuffer here
+
 	#ifndef MESA
 	// To avoid flicker on some machines.
+	// but why? 
 	glDrawBuffer(GL_BACK);
 	#endif // !MESA
 }
@@ -195,6 +235,8 @@ void PaintView::draw()
 
 int PaintView::handle(int event)
 {
+	// this only deals with events
+	// no manipulation of buffers here
 	switch(event)
 	{
 	case FL_ENTER:
@@ -217,7 +259,7 @@ int PaintView::handle(int event)
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
 		// update the cursor for OriginalView
-		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, m_nWindowHeight-coord.y);
+		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, this->m_pDoc->m_pUI->m_origView->h() - coord.y);
 		if (Fl::event_button() == 2 || Fl::event_button() == 3)
 			eventToDo=RIGHT_MOUSE_DRAG;
 		else
@@ -243,7 +285,7 @@ int PaintView::handle(int event)
 		coord.x = Fl::event_x();
 		coord.y = Fl::event_y();
 		// update the cursor for OriginalView
-		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, m_nWindowHeight-coord.y);
+		m_pDoc->m_pUI->m_origView->update_cursor(coord.x, this->m_pDoc->m_pUI->m_origView->h() - coord.y);
 		break;
 	case FL_LEAVE:
 		this->m_pDoc->m_pUI->m_origView->update_cursor(-1, -1);
@@ -268,8 +310,7 @@ void PaintView::resizeWindow(int width, int height)
 
 void PaintView::SaveCurrentContent()
 {
-	// for debug
-	// system("PAUSE");
+	// save what is being display to buffer in RAM
 
 	// Tell openGL to read from the front buffer when capturing
 	// out paint strokes
@@ -278,7 +319,14 @@ void PaintView::SaveCurrentContent()
 		RestoreContent();
 		return;
 	}
-	glReadBuffer(GL_FRONT);
+
+	// try
+	// glReadBuffer(GL_FRONT);
+	glReadBuffer(GL_BACK);
+	// if everything is okay after this change, 
+	// then show dimmed version is easy..?
+	// consider, everytime before drawing to the back buffer
+	// and the behaviour of swapping buffers
 	
 	glPixelStorei( GL_PACK_ALIGNMENT, 1 );
 	glPixelStorei( GL_PACK_ROW_LENGTH, m_pDoc->m_nPaintWidth );
@@ -298,6 +346,7 @@ void PaintView::RestoreContent()
 {
 	red_line = false;
 	glDrawBuffer(GL_BACK);
+	// draw what is in RAM buffer to the backbuffer
 
 	glClear( GL_COLOR_BUFFER_BIT );
 

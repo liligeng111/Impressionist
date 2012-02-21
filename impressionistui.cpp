@@ -327,6 +327,9 @@ void ImpressionistUI::cb_exit(Fl_Menu_* o, void* v)
 	whoami(o)->m_brushDialog->hide();
 	whoami(o)->m_mainWindow->hide();
 	// remember to add more hide() functions if there are
+
+	// what not directly exit the program?
+	exit(0);
 }
 
 //-------------------------------------------------------------
@@ -699,14 +702,16 @@ void ImpressionistUI::show() {
 // w by h
 //------------------------------------------------
 void ImpressionistUI::resize_windows(int w, int h) {
-	m_paintView->size(w,h);
-	m_origView->size(w,h);
-	wrapper_group_paintview->size(w, h);
 	wrapper_group_origiview->size(w, h);
+	wrapper_group_paintview->size(w, h);
+	m_origView->size(w,h);
+	m_paintView->size(w,h);
 
 	// order matters?
+	// hope not, but there're overlap anyway
 	m_origView->refresh();
 	m_paintView->refresh();
+
 }
 
 //------------------------------------------------ 
@@ -907,20 +912,28 @@ ImpressionistUI::ImpressionistUI() {
 		// window
 		Fl_Group* group = new Fl_Group(0, 25, 600, 275);
 
-			// install paint view window
-			wrapper_group_paintview = new Fl_Group(300, 25, 300, 275);
-				m_paintView = new PaintView(300, 25, 300, 275, "This is the paint view");//0jon
-				m_paintView->box(FL_BORDER_FRAME);
-			wrapper_group_paintview->end();
-			wrapper_group_paintview->resizable(0);
-
 			// install original view window
 			wrapper_group_origiview = new Fl_Group(0, 25, 300, 275);
 				m_origView = new OriginalView(0, 25, 300, 275, "This is the orig view");//300jon
 				m_origView->box(FL_DOWN_FRAME);
-				m_origView->deactivate();
+				// m_origView->deactivate();
+				/*
+				Many years after p1 of comp152h, finally understand that
+				should use point and new to create widget
+				to avoid automatic gabarge collection
+				*/
 			wrapper_group_origiview->end();
-			wrapper_group_origiview->resizable(0);
+			// wrapper_group_origiview->resizable(0);
+			wrapper_group_origiview->box(FL_NO_BOX);
+
+			// install paint view window
+			wrapper_group_paintview = new Fl_Group(300, 25, 300, 275);
+				m_paintView = new PaintView(300, 25, 300, 275, "This is the paint view");//0jon
+				m_paintView->box(FL_DOWN_FRAME);
+				m_paintView->show();
+			wrapper_group_paintview->end();
+			wrapper_group_paintview->resizable(0);
+			wrapper_group_paintview->box(FL_NO_BOX);
 
 		group->end();
 		Fl_Group::current()->resizable(group);
