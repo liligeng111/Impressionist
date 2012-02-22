@@ -103,6 +103,8 @@ public:
 	void				show();
 	void				resize_windows(int w, int h);
 
+	void				get_filter_parameters(int * matrix, int& divisor, int& offset);
+
 	// Interface to get attribute
 
 	int					getSize();

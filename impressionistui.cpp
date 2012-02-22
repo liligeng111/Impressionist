@@ -13,6 +13,7 @@
 
 #include "impressionistui.h"
 #include "impressionistdoc.h"
+#include "filterbrush.h"
 
 
 /*
@@ -399,46 +400,30 @@ void ImpressionistUI::cb_filter_dialog(Fl_Menu_ *o, void* v) {
 	whoami(o)->m_FilterDialog->show();
 	//whoami(o)->m_paintView->creatPic();
 }
+
+void ImpressionistUI::get_filter_parameters(int *matrix, int& divisor, int& offset) {
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			matrix[j * 5 + i] = atoi(this->m_FilterInput[i][j]->value());
+		}
+	}
+	divisor = atoi(this->m_FilterDivideByInput->value());
+	offset = atoi(this->m_FilterOffsetInput->value());
+}
 void ImpressionistUI::cb_filter_preview(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
 	// this is where filtering is implemented, I knwo this is ugly, but...
-	int matrix[5][5];
+	int *matrix = new int[5 * 5];
 	int divideBy, offset;
+	pUI->get_filter_parameters(matrix, divideBy, offset);
 
-	// get values from UI
-	for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < 5; j++) {
-			matrix[j][i] = atoi(pUI->m_FilterInput[i][j]->value());
-		}
-	}
-	divideBy = atoi(pUI->m_FilterDivideByInput->value());
-	offset = atoi(pUI->m_FilterOffsetInput->value());
-
-	// do the filtering
-	int width = pUI->m_pDoc->m_nPaintWidth;
-	int height = pUI->m_pDoc->m_nPaintHeight;
+	int width = pUI->m_pDoc->m_nWidth;
+	int height = pUI->m_pDoc->m_nHeight;
 	unsigned char* image = pUI->m_pDoc->m_ucPainting;
 
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			int colorsum[3] = {0, 0, 0};
-			int pixelp = (i * width + j) * 3;
-			for (int k = 0; k < 5; k++) {
-				for (int t = 0; t < 5; t++) {
-					GLubyte* color = pUI->m_pDoc->getPaintingPixelFromPics(j + t - 2, i - k + 2);
-					colorsum[0] += color[0] * matrix[k][t];
-					colorsum[1] += color[1] * matrix[k][t];
-					colorsum[2] += color[2] * matrix[k][t];
-				}
-			}
+	// do the filtering
+	FilterBrush::filter_image(image, width, height, 0, 0, width, height, matrix, divideBy, offset, pUI->m_pDoc);
 
-			// avoid divide by 0
-			if (divideBy == 0) divideBy = 1;
-			image[pixelp] = (GLubyte)((colorsum[0] / divideBy) + offset);
-			image[pixelp + 1] = (GLubyte)((colorsum[1] / divideBy) + offset);
-			image[pixelp + 2] = (GLubyte)((colorsum[2] / divideBy) + offset);
-		}
-	}
 	pUI->m_paintView->refresh();
 }
 void ImpressionistUI::cb_filter_apply(Fl_Widget* o, void* v) {
@@ -568,7 +553,10 @@ void ImpressionistUI::cb_filter_edgedetect(Fl_Widget* o, void* v) {
 }
 
 void ImpressionistUI::cb_painterly_do(Fl_Widget* o, void* v) {
-
+	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
+	// get the parameters from ui here
+	// then call function in doc
+	pUI->m_pDoc->painterly_paint();
 }
 
 
