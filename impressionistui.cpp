@@ -370,6 +370,64 @@ void ImpressionistUI::cb_show_dissolve_image(Fl_Menu_ *o, void* v) {
 	ui->m_origView->setView(DISSOLVE_VIEW);
 }
 
+void ImpressionistUI::cb_dissolve_one_to_another(Fl_Menu_ *o, void* v) {
+	ImpressionistUI *ui = whoami(o);
+	ImpressionistDoc* pDoc = ui->m_pDoc;
+	if ( !(pDoc->m_ucAnother &&  pDoc->m_ucBitmap)) {
+		fl_message("Please load \"Another Image\" first !\n");
+		return;
+	}
+
+	ui->cb_show_dissolve_image(o, v);
+
+	int width = pDoc->m_nWidth;
+	int height = pDoc->m_nHeight;
+	GLubyte color[3];
+
+	if (pDoc->m_ucDissolve == NULL) 
+		pDoc->m_ucDissolve = new unsigned char [width * height *3];
+
+	int total_time = 3;
+	int fps = 30;
+	int nframe = total_time * fps;
+	int pixelp;
+
+	for (int i = 0; i < nframe; i++) {
+
+		for (int w = 0; w < width; w++) {
+			for (int h = 0; h < height; h++) {
+				pixelp = 3 * (h * width + w);
+				for (int k = 0; k < 3; k++) {
+					color[k] = (GLubyte) (
+						(pDoc->m_ucBitmap[pixelp + k] * (nframe - i) 
+							+ pDoc->m_ucAnother[pixelp + k] * (i)) / nframe );
+				}
+				memcpy(pDoc->m_ucDissolve + pixelp, color, 3);
+			}
+		}
+
+		ui->m_origView->refreshed = false;
+		ui->m_origView->refresh();
+		while(!ui->m_origView->refreshed)
+			ui->m_origView->refresh();
+		// why refresh doesn't work ?
+		// this sleep will cause all the program to suspend for this long time..?
+	}
+}
+
+void ImpressionistUI::cb_dissolve_another_to_one(Fl_Menu_ *o, void* v) {
+	ImpressionistUI *ui = whoami(o);
+	ImpressionistDoc* pDoc = ui->m_pDoc;
+	unsigned char* temp;
+	// swap bitmap and another
+	temp = pDoc->m_ucBitmap; pDoc->m_ucBitmap = pDoc->m_ucAnother; pDoc->m_ucAnother = temp;
+
+	ui->cb_dissolve_one_to_another(o, v);
+
+	// swap back
+	temp = pDoc->m_ucBitmap; pDoc->m_ucBitmap = pDoc->m_ucAnother; pDoc->m_ucAnother = temp;
+}
+
 // callback for swapping the two images
 void ImpressionistUI::cb_swap_two_images(Fl_Menu_ *o, void* v) {
 	ImpressionistDoc* pDoc = whoami(o)->m_pDoc;
@@ -870,8 +928,10 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 	{ "&Display",		0, 0, 0, FL_SUBMENU },
 		{ "&Original Image",	FL_ALT + 'o', (Fl_Callback *)ImpressionistUI::cb_show_original_image},
 		{ "&Edge Image",	FL_ALT + 'e', (Fl_Callback *)ImpressionistUI::cb_show_edge_image},
-		{ "Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_show_another_image},
+		{ "Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_show_another_image, 0, FL_MENU_DIVIDER},
 		{ "Dissolved Image",	FL_ALT + 'd', (Fl_Callback *)ImpressionistUI::cb_show_dissolve_image},
+		{ "Dissolve Orig2Another",	FL_ALT + 'b', (Fl_Callback *)ImpressionistUI::cb_dissolve_one_to_another},
+		{ "Dissolve Another2Orig",	FL_ALT + 'n', (Fl_Callback *)ImpressionistUI::cb_dissolve_another_to_one},
 		{ 0 },
 
 	{ "&Help",		0, 0, 0, FL_SUBMENU },
@@ -912,7 +972,7 @@ void ImpressionistUI::activeMenus() {
 	menuitems[3].activate();
 	menuitems[4].activate();
 	menuitems[7].activate();
-	menuitems[19].activate();
+	menuitems[20].activate();
 }
 
 // I know this is ugle, but don't have better idea

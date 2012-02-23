@@ -44,6 +44,8 @@ public:
 
 	void setView(int);
 
+	bool refreshed;
+
 private:
 	int cursor_x, cursor_y;
 	int	m_nWindowWidth, 

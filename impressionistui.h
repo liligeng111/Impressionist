@@ -194,6 +194,9 @@ private:
 	static void cb_swap_two_images(Fl_Menu_* o, void* v);
 	static void cb_copy_to_paintview(Fl_Menu_* o, void* v);
 	static void cb_copy_to_originalview(Fl_Menu_* o, void* v);
+
+	static void cb_dissolve_one_to_another(Fl_Menu_* o, void* v);
+	static void cb_dissolve_another_to_one(Fl_Menu_* o, void* v);
 };
 
 #endif
