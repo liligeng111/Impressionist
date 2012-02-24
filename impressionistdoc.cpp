@@ -245,7 +245,8 @@ int ImpressionistDoc::loadImage(const char *iname)
 	// new way
 	m_pUI->resize_windows(width, height);
 	m_pUI->m_paintView->init();
-
+	edge_view();
+	m_pUI->m_origView->setView(ORIGIN_VIEW);
 	return 1;
 }
 
@@ -462,11 +463,16 @@ int ImpressionistDoc::createMosaic(const char *iname)
 
 			for (int k = 0; k < 3; k++)
 			{
-				if (m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f > 255)
+				int c = m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f; 
+				if (c > 255)
 				{
-					m_ucBitmap[n + k] = 255;
+					c = 255;
 				}
-				else m_ucBitmap[n + k] = m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f;
+				else if (c < 0)
+				{
+					c = 0;
+				}
+				m_ucBitmap[n + k] = c;
 			}
 		}
 	}
@@ -507,4 +513,42 @@ void ImpressionistDoc::painterly_paint() {
 }
 
 void ImpressionistDoc::painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int size, int width, int height) {
+}
+
+void ImpressionistDoc::edge_view()
+{
+	if (!m_ucBitmap) return;
+	static const char gx[][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+	static const char gy[][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+	unsigned char color[3][3];	
+	int sumX = 0;
+	int sumY = 0;
+
+	for (int x = 0; x < m_nPaintWidth; x++) 
+	{
+		for (int y = 0; y < m_nHeight; y++)
+		{
+			sumX = 0;
+			sumY = 0;
+			for (int i = 0; i < 3; i++) 
+			{
+				for (int j = 0; j < 3; j++) 
+				{
+					color[i][j] = PaintView::rgb2grayscale(GetOriginalPixel(x - 1 + j, y - 1 + i));
+					sumX += color[i][j] * gx[i][j];
+					sumY += color[i][j] * gy[i][j];
+				}
+			}
+			unsigned char color = 0;
+			if (sumX * sumX + sumY * sumY > m_pUI->m_EdgeThresholdSlider->value() *  m_pUI->m_EdgeThresholdSlider->value())
+			{
+				color = 0xFF;
+			}
+			m_ucEdge[3 * (y * m_nWidth + x)] = color;
+			m_ucEdge[3 * (y * m_nWidth + x) + 1] = color;
+			m_ucEdge[3 * (y * m_nWidth + x) + 2] = color;
+
+		}
+	}
+	m_pUI->m_origView->setView(1);
 }

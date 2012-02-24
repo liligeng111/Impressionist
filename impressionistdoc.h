@@ -77,6 +77,7 @@ public:
 	GLubyte* getPaintingPixelFromPics(int x, int y);
 	
 	void dissolve_image(float alpha);
+	void edge_view();
 
 private:
 	char	 m_imageName[256];
