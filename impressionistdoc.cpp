@@ -479,6 +479,7 @@ int ImpressionistDoc::createMosaic(const char *iname)
 //---------------------------------------------------------
 
 unsigned char* ImpressionistDoc::make_blurcopy(unsigned char* image, int brushsize, int w, int h) {
+	// gaussaiu 
 
 	return NULL;
 }

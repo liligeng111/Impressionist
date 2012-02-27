@@ -131,6 +131,8 @@ void OriginalView::draw()
 	}
 
 	glFlush();
+
+	refreshed = true;
 }
 
 void OriginalView::setView(int n)
