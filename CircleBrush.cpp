@@ -42,15 +42,16 @@ void CircleBrush::BrushMove( const Point source, const Point target )
 		return;
 	}
 
-	int* half_size = new int;
-	glGetIntegerv(GL_POINT_SIZE, half_size);
-	*half_size /= 2;
+	int half_size;
+	glGetIntegerv(GL_POINT_SIZE, &half_size);
+	half_size /= 2;
+	float depth = dlg->m_paintView->current_depth;
 
 	glBegin( GL_POLYGON );
 		SetColor( source );
 
 		for (int i = 0; i < NUMBER_OF_EDGES_; i++)
-			glVertex2d( target.x + *half_size * cos(2 * M_PI * i / NUMBER_OF_EDGES_), target.y + *half_size * sin(2 * M_PI * i / NUMBER_OF_EDGES_));
+			glVertex3f( target.x + half_size * cos(2 * M_PI * i / NUMBER_OF_EDGES_), target.y + half_size * sin(2 * M_PI * i / NUMBER_OF_EDGES_), depth);
 
 	glEnd();
 }

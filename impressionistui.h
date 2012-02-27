@@ -87,9 +87,20 @@ public:
 
 // for painterly dialog
 	Fl_Window* m_PainterlyDialog;
-	Fl_Choice* m_PaintingStyleChoice;
 	Fl_Button* m_PainterlyDoButton;
-	// to be implemented
+	Fl_Choice* m_PaintingStyleChoice;
+	Fl_Choice* m_PainterlyBrushChoice;
+	// sliders
+	Fl_Slider* m_PainterlyThresholdSlider;
+	Fl_Slider* m_PainterlyMaxBrushSlider;
+	Fl_Slider* m_PainterlyMinBrushSlider;
+	Fl_Slider* m_PainterlyLayerSlider;
+	Fl_Slider* m_PainterlyGridSizeSlider;
+	Fl_Slider* m_PainterlyCurvatureSlider;
+	Fl_Slider* m_PainterlyBlurSlider;
+	Fl_Slider* m_PainterlyAlphaSlider;
+	Fl_Slider* m_PainterlyMaxStrokeLengthSlider;
+	Fl_Slider* m_PainterlyMinStrokeLengthSlider;
 
 // scroll window as wrapper
 // this should be public because two views need to know wrapper's height and width
@@ -138,6 +149,7 @@ private:
 	// may be extended in further implementation
 
 	static Fl_Menu_Item		painterlyStyleMenu[NUM_PAINTERLY_STYLE + 1];
+	static Fl_Menu_Item		painterlyBrushMenu[NUM_PAINTERLY_BRUSH + 1];
 
 	static ImpressionistUI*	whoami(Fl_Menu_* o);
 
@@ -197,6 +209,9 @@ private:
 
 	static void cb_dissolve_one_to_another(Fl_Menu_* o, void* v);
 	static void cb_dissolve_another_to_one(Fl_Menu_* o, void* v);
+
+	static void cb_painterly_stylechoice(Fl_Widget* o, void* v);
+	static void cb_painterly_brushchoice(Fl_Widget* o, void* v);
 };
 
 #endif

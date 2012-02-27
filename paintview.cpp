@@ -41,6 +41,13 @@ PaintView::PaintView(int			x,
 	start = Point(0 ,0);
 	pics = 0;
 	max_pic = 50;
+	current_depth = 0;
+	// The default mode is FL_RGB|FL_DOUBLE|FL_DEPTH.
+	// this is good enought
+	// this->mode(FL_DOUBLE | FL_DEPTH);
+
+	// why this line is commented ?
+	// debug here !! needed
 	// init();
 }
 
@@ -87,13 +94,42 @@ void PaintView::draw()
 	if(!valid())
 	{
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0);
-		// We're only using 2-D, so turn off depth 
-		glDisable( GL_DEPTH_TEST );
+		glClearDepth(1.0f); // from 0 to 1
+		// measured as the distance to the eye?
+		// so 0.0 means nearest to the eye
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND); 
+		//enable alpha and depth test
+
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
-		glEnable( GL_BLEND ); //enable alpha
+
+		glDepthFunc(GL_LEQUAL);
+		// default GL_LESS measures the distance to your eys
+		// objects with less distance will be drawn
+		// in this way, we can assign a random float in [0, 1] to every stroke
+		// so the auto painted strokes will overlap each other, 
+		// but everything else is not affected
+
 		ortho();
-		glClear( GL_COLOR_BUFFER_BIT );
+		// what does this do?
+
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// clear both buffers
+
+		// test
+		/*
+		// not clear about direction of z-axis
+		// in this way, it should be from nearest to farthest
+		glBegin(GL_TRIANGLES);
+		glColor3f(1, 0, 0);
+		// internally all vertex are saved as float numbers
+			glVertex3f(100, 100, 1.0);
+			glVertex3f(150, 100, 1.0);
+			glVertex3f(100, 150, 1.0);
+			// not surprisingly, the range of z-axis is [-1, 1]
+		glEnd();
+		*/
 	}
 
 	// this refers to the FL_Gl_Window, 
@@ -482,7 +518,6 @@ int PaintView::getGradient() {
 
 void PaintView::autoPaint() 
 {
-
 	// this is the magic
 	// gei hengye guile
 	this->make_current();
@@ -497,69 +532,45 @@ void PaintView::autoPaint()
 	int	size = m_pDoc->getSize();
 	Point p;
 
-	int max_priority = 20;
 	const int y = m_pDoc->m_nPaintHeight / spacing + 1;
 	const int x = m_pDoc->m_nPaintWidth / spacing + 1;
 
-	char** priority;
-	// notes to geng ge, 
-	// as priority is 70 at most, should better make it char** or something to save memory
-	priority = new char*[x];
+	glClearDepth(0.0);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDepthFunc(GL_GEQUAL);
+	// Oh, please geng ge, I'm not sure why it works.
+	// but these three lines are important !
+	// more debug needed
 	for (int i = 0; i < x; i++)
-	{
-		priority[i] = new char[y]; //preority to indicate layer
-	}
-	// should delete priority after using it
-
-
-	for (int i = 0; i < x; i++)
-	{
+	{	
 		for (int j = 0; j < y; j++) 
 		{
-			priority[i][j] = irand(max_priority); //asign each point a random preority
-		}
-	}
-
-	for (int l = 0; l < max_priority; l++)
-	{   
-		//draw all points accoring to their preority
-		for (int i = 0; i < x; i++)
-		{	
-			for (int j = 0; j < y; j++) 
-			{
-				if (priority[i][j] == l)
-				{
-					coord.x = i * spacing;
-					coord.y = m_pDoc->m_nPaintHeight - j * spacing;
-					size = m_pDoc->getSize();       
-					if (randp) 
-					{ 
-						size = size * (0.75 + frand() / 2);
-					}
-					glPointSize((float)size); 
-					p.x = i * spacing;
-					p.y = j * spacing; 
-					m_pDoc->m_pCurrentBrush->BrushMove(p, p); 
-				}
+			this->current_depth = frand();
+			coord.x = i * spacing;
+			coord.y = m_pDoc->m_nPaintHeight - j * spacing;
+			size = m_pDoc->getSize();       
+			if (randp) 
+			{ 
+				size = size * (0.75 + frand() / 2);
 			}
-			glFlush();
+			glPointSize((float)size); 
+			p.x = i * spacing;
+			p.y = j * spacing; 
+			m_pDoc->m_pCurrentBrush->BrushMove(p, p); 
 		}
+		glFlush();
 	}
 
-	m_pDoc->m_pUI->m_origView->refresh();
 	refresh();
 	SaveCurrentContent();
+	// savePic();
+	this->current_depth = 0;
 
 	#ifndef MESA
 	// To avoid flicker on some machines.
-	glDrawBuffer(GL_BACK);
+	// glDrawBuffer(GL_BACK);
 	#endif // !MESA
-
-	// delete priority
-	for (int i = 0; i < x; i++) {
-		delete [] priority[i];
-	}
-	delete [] priority;
+	// this->swap_buffers();
 }
 
 GLubyte* PaintView::getPaintingFromPics()

@@ -50,6 +50,7 @@ public:
 	// current or last coord of the mouse cursor
 	static Point coord;
 	static Point lastCoord;
+	float current_depth;
 
 	GLubyte* getPaintingFromPics();
 

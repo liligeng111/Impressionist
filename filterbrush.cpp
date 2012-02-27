@@ -54,7 +54,7 @@ void FilterBrush::BrushEnd( const Point source, const Point target )
 	// do nothing so far
 }
 
-void FilterBrush::filter_image(unsigned char * image, int width, int height, int x, int y, int dx, int dy, int* matrix, int divideBy, int offset, ImpressionistDoc* pDoc) {
+void FilterBrush::filter_image(unsigned char * image, int width, int height, int x, int y, int dx, int dy, int* matrix, int divideBy, int offset, ImpressionistDoc* pDoc, int kernelsize) {
 	int desty = y + dy;
 	int destx = x + dx;
 	if (x < 0) x = 0; else if (x >= width) x = width - 1;
@@ -66,12 +66,13 @@ void FilterBrush::filter_image(unsigned char * image, int width, int height, int
 		for (int j = x; j < destx; j++) {
 			int colorsum[3] = {0, 0, 0};
 			int pixelp = (i * width + j) * 3;
-			for (int k = 0; k < 5; k++) {
-				for (int t = 0; t < 5; t++) {
-					GLubyte* color = pDoc->getPaintingPixelFromPics(j + t - 2, i - k + 2);
-					colorsum[0] += color[0] * matrix[k * 5 + t];
-					colorsum[1] += color[1] * matrix[k * 5 + t];
-					colorsum[2] += color[2] * matrix[k * 5 + t];
+			int half_kernel_size = (int)(kernelsize / 2);
+			for (int k = 0; k < kernelsize; k++) {
+				for (int t = 0; t < kernelsize; t++) {
+					GLubyte* color = pDoc->getPaintingPixelFromPics(j + t - half_kernel_size, i - k + half_kernel_size);
+					colorsum[0] += color[0] * matrix[k * kernelsize + t];
+					colorsum[1] += color[1] * matrix[k * kernelsize + t];
+					colorsum[2] += color[2] * matrix[k * kernelsize + t];
 				}
 			}
 

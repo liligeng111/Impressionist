@@ -33,10 +33,10 @@ void PointBrush::BrushMove( const Point source, const Point target )
 	ImpressionistDoc* pDoc = GetDocument();
 	ImpressionistUI* dlg=pDoc->m_pUI;
 
-	/*
 	// debug
+	/*
 	char msg[355];
-	sprintf(msg, "source x: %d, y: %d\ntarget x: %d, y %d\n\n", source.x, source.y, target.x, target.y); 
+	sprintf(msg, "depth : %f \n\n", dlg->m_paintView->current_depth); 
 	OutputDebugString(msg);
 	*/
 
@@ -48,7 +48,7 @@ void PointBrush::BrushMove( const Point source, const Point target )
 	glBegin( GL_POINTS );
 		SetColor( source );
 
-		glVertex2d( target.x, target.y );
+		glVertex3f( target.x, target.y, dlg->m_paintView->current_depth);
 
 	glEnd();
 }

@@ -41,9 +41,9 @@ void LineBrush::BrushMove( const Point source, const Point target )
 		return;
 	}
 
-	int* half_size = new int;
-	glGetIntegerv(GL_POINT_SIZE, half_size);
-	*half_size /= 2;
+	int half_size;
+	glGetIntegerv(GL_POINT_SIZE, &half_size);
+	half_size /= 2;
 
 	int width = ceil(pDoc->getWidth() / 2.0); //make sure it works when width is 1
 	int angle = pDoc->getAngle();
@@ -51,15 +51,15 @@ void LineBrush::BrushMove( const Point source, const Point target )
 	float m_sin = sin(2.0f * M_PI * angle / 360);
 	float m_cos = cos(2.0f * M_PI * angle / 360);
 
+	float depth = dlg->m_paintView->current_depth;
+
 	glBegin( GL_POLYGON );
 		SetColor( source );
 		
-
-		glVertex2d( target.x - *half_size * m_cos - width * m_sin, target.y - *half_size * m_sin + width * m_cos);
-		glVertex2d( target.x + *half_size * m_cos - width * m_sin, target.y + *half_size * m_sin + width * m_cos);
-		glVertex2d( target.x + *half_size * m_cos + width * m_sin, target.y + *half_size * m_sin - width * m_cos);
-		glVertex2d( target.x - *half_size * m_cos + width * m_sin, target.y - *half_size * m_sin - width * m_cos);
-
+		glVertex3f( target.x - half_size * m_cos - width * m_sin, target.y - half_size * m_sin + width * m_cos, depth);
+		glVertex3f( target.x + half_size * m_cos - width * m_sin, target.y + half_size * m_sin + width * m_cos, depth);
+		glVertex3f( target.x + half_size * m_cos + width * m_sin, target.y + half_size * m_sin - width * m_cos, depth);
+		glVertex3f( target.x - half_size * m_cos + width * m_sin, target.y - half_size * m_sin - width * m_cos, depth);
 
 	glEnd();
 }
