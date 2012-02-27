@@ -427,25 +427,50 @@ void ImpressionistDoc::dissolve_image(float alpha)
 // pressed.
 //---------------------------------------------------------
 
-int ImpressionistDoc::createMosaic(const char *iname) 
+int ImpressionistDoc::createMosaic(const char** iname, const int count) 
 {
 	// try to open the image to read
-	unsigned char*	data;
+	unsigned char**	data;
 	int				width, 
 					height;
 	
-	if ( (data=load_image(iname, width, height))==NULL ) 
-	{
-		fl_alert("Can't load bitmap file");
-		return 0;
-	}
-
-	// release old storage
-	unsigned char*	thumbnail = 0;
+	unsigned char**	thumbnail = new unsigned char*[count];
 	int thumbnailHeight =  m_nPaintHeight / 10;
 	int thumbnailWidth =  m_nPaintWidth / 10;
-	resize_image_bilinear(data, height, width, thumbnail, thumbnailHeight, thumbnailWidth);
+
+	float* color = new float(3 * count);
+	for (int i = 0; i < count * 3; i++)
+	{
+		color[i] = 0;
+	}
+
+	data = new unsigned char*[count];
+	for (int c = 0; c < count; c++)
+	{
+		if ( (data[c] = load_image(iname[c], width, height))==NULL ) 
+		{
+			fl_alert("Can't load bitmap file");
+			return 0;
+		}
+		resize_image_bilinear(data[c], height, width, thumbnail[c], thumbnailHeight, thumbnailWidth);
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				color[3 * c] += thumbnail[c][3 * (i * width+ j)];
+				color[3 * c + 1] += thumbnail[c][3 * (i * width+ j) + 1];
+				color[3 * c + 2] += thumbnail[c][3 * (i * width+ j) + 2];
+			}
+		}
+		color[3 * c] /= width * height;
+		color[3 * c + 1] /= width * height;
+		color[3 * c + 2] /= width * height;
+		delete []data[c];
+		delete []iname[c];
+	}
+
 	delete []data;
+	delete []iname;
 	data = 0;
 	int n;
 	int N;
@@ -459,11 +484,11 @@ int ImpressionistDoc::createMosaic(const char *iname)
 			n = 3 * (i * m_nPaintWidth + j);
 			N = 3 * ((i % thumbnailHeight) * thumbnailWidth + j % thumbnailWidth);
 
-			brightness = PaintView::rgb2grayscale(GetOriginalPixel(j, i)) - PaintView::rgb2grayscale((GLubyte*)(thumbnail + N));
+			brightness = PaintView::rgb2grayscale(GetOriginalPixel(j, i)) - PaintView::rgb2grayscale((GLubyte*)(thumbnail[0] + N));
 
 			for (int k = 0; k < 3; k++)
 			{
-				int c = m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f; 
+				int c = m_ucBitmap[n + k] * 0.5f + (thumbnail[0][N + k] + brightness) * 0.5f; 
 				if (c > 255)
 				{
 					c = 255;
@@ -476,6 +501,7 @@ int ImpressionistDoc::createMosaic(const char *iname)
 			}
 		}
 	}
+	delete []color;
 	return 1;
 }
 

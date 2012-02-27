@@ -173,6 +173,7 @@ void PaintView::draw()
 
 				// save back buffer to RAM buffer
 				SaveCurrentContent();
+				savePic();
 				// then copy RAM buffer to back buffer ?
 				// RestoreContent();
 				// and after this draw(), front and back will swap
@@ -346,7 +347,6 @@ void PaintView::SaveCurrentContent()
 				  GL_RGB, 
 				  GL_UNSIGNED_BYTE, 
 				  m_pPaintBitstart );
-	savePic();
 }
 
 

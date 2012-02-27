@@ -71,7 +71,6 @@ unsigned char* load_image(const char* iname, int &width, int& height) {
 // using the so called bilinear method
 void resize_image_bilinear(unsigned char* &source, int source_height, int source_width, unsigned char* &target, int target_height, int target_width)
 {
-	if(target) delete []target;
 	target = new unsigned char[target_width * target_height * 3];
 	float height_rate = 1.0f * source_height / target_height;
 	float width_rate = 1.0f * source_width / target_width;

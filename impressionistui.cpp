@@ -635,10 +635,10 @@ void ImpressionistUI::cb_mosaic(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-	const char* newfile;
+	int count;
 	// this will get the file path relative to the application itself
 	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
-	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->type(Fl_Native_File_Chooser::BROWSE_MULTI_FILE);   // let user browse a single file
 	chooser->title("Open an image file");                        // optional title
 	chooser->directory(".");
 	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
@@ -650,9 +650,14 @@ void ImpressionistUI::cb_mosaic(Fl_Menu_* o, void* v)
 			fprintf(stderr, "*** CANCEL\n");
 			break;
 		default:    // USER PICKED A FILE
-			newfile = chooser->filename();
+			count = chooser->count();
+			const char** newfile = new const char*[count];
+			for (int i = 0; i < count; i++)
+			{
+				newfile[i] = chooser->filename(i);
+			}
 			fprintf(stderr, "Filename was '%s'\n", newfile);
-			pDoc->createMosaic(newfile);
+			pDoc->createMosaic(newfile, count);
 			break;
 	}
 }
