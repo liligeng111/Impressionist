@@ -24,7 +24,7 @@ public:
 	int		changeImage(const char *iname);			// called by the UI to change image
 	int		loadAnotherImage(const char *iname);			// called by the UI to load another image
 	void	make_dim(int alpha);
-	int		createMosaic(const char *iname);			// called by the UI to create image mosaic
+	int		createMosaic(const char** iname, const int count);			// called by the UI to create image mosaic
 
 	void painterly_paint();
 	void painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int brushsize, int w, int h);
@@ -77,6 +77,7 @@ public:
 	GLubyte* getPaintingPixelFromPics(int x, int y);
 	
 	void dissolve_image(float alpha);
+	void edge_view();
 
 private:
 	char	 m_imageName[256];

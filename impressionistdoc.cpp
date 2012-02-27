@@ -245,7 +245,8 @@ int ImpressionistDoc::loadImage(const char *iname)
 	// new way
 	m_pUI->resize_windows(width, height);
 	m_pUI->m_paintView->init();
-
+	edge_view();
+	m_pUI->m_origView->setView(ORIGIN_VIEW);
 	return 1;
 }
 
@@ -426,25 +427,50 @@ void ImpressionistDoc::dissolve_image(float alpha)
 // pressed.
 //---------------------------------------------------------
 
-int ImpressionistDoc::createMosaic(const char *iname) 
+int ImpressionistDoc::createMosaic(const char** iname, const int count) 
 {
 	// try to open the image to read
-	unsigned char*	data;
+	unsigned char**	data;
 	int				width, 
 					height;
 	
-	if ( (data=load_image(iname, width, height))==NULL ) 
-	{
-		fl_alert("Can't load bitmap file");
-		return 0;
-	}
-
-	// release old storage
-	unsigned char*	thumbnail = 0;
+	unsigned char**	thumbnail = new unsigned char*[count];
 	int thumbnailHeight =  m_nPaintHeight / 10;
 	int thumbnailWidth =  m_nPaintWidth / 10;
-	resize_image_bilinear(data, height, width, thumbnail, thumbnailHeight, thumbnailWidth);
+
+	float* color = new float(3 * count);
+	for (int i = 0; i < count * 3; i++)
+	{
+		color[i] = 0;
+	}
+
+	data = new unsigned char*[count];
+	for (int c = 0; c < count; c++)
+	{
+		if ( (data[c] = load_image(iname[c], width, height))==NULL ) 
+		{
+			fl_alert("Can't load bitmap file");
+			return 0;
+		}
+		resize_image_bilinear(data[c], height, width, thumbnail[c], thumbnailHeight, thumbnailWidth);
+		for (int i = 0; i < height; i++)
+		{
+			for (int j = 0; j < width; j++)
+			{
+				color[3 * c] += thumbnail[c][3 * (i * width+ j)];
+				color[3 * c + 1] += thumbnail[c][3 * (i * width+ j) + 1];
+				color[3 * c + 2] += thumbnail[c][3 * (i * width+ j) + 2];
+			}
+		}
+		color[3 * c] /= width * height;
+		color[3 * c + 1] /= width * height;
+		color[3 * c + 2] /= width * height;
+		delete []data[c];
+		delete []iname[c];
+	}
+
 	delete []data;
+	delete []iname;
 	data = 0;
 	int n;
 	int N;
@@ -458,18 +484,24 @@ int ImpressionistDoc::createMosaic(const char *iname)
 			n = 3 * (i * m_nPaintWidth + j);
 			N = 3 * ((i % thumbnailHeight) * thumbnailWidth + j % thumbnailWidth);
 
-			brightness = PaintView::rgb2grayscale(GetOriginalPixel(j, i)) - PaintView::rgb2grayscale((GLubyte*)(thumbnail + N));
+			brightness = PaintView::rgb2grayscale(GetOriginalPixel(j, i)) - PaintView::rgb2grayscale((GLubyte*)(thumbnail[0] + N));
 
 			for (int k = 0; k < 3; k++)
 			{
-				if (m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f > 255)
+				int c = m_ucBitmap[n + k] * 0.5f + (thumbnail[0][N + k] + brightness) * 0.5f; 
+				if (c > 255)
 				{
-					m_ucBitmap[n + k] = 255;
+					c = 255;
 				}
-				else m_ucBitmap[n + k] = m_ucBitmap[n + k] * 0.5f + (thumbnail[N + k] + brightness) * 0.5f;
+				else if (c < 0)
+				{
+					c = 0;
+				}
+				m_ucBitmap[n + k] = c;
 			}
 		}
 	}
+	delete []color;
 	return 1;
 }
 
@@ -507,4 +539,42 @@ void ImpressionistDoc::painterly_paint() {
 }
 
 void ImpressionistDoc::painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int size, int width, int height) {
+}
+
+void ImpressionistDoc::edge_view()
+{
+	if (!m_ucBitmap) return;
+	static const char gx[][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+	static const char gy[][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+	unsigned char color[3][3];	
+	int sumX = 0;
+	int sumY = 0;
+
+	for (int x = 0; x < m_nPaintWidth; x++) 
+	{
+		for (int y = 0; y < m_nHeight; y++)
+		{
+			sumX = 0;
+			sumY = 0;
+			for (int i = 0; i < 3; i++) 
+			{
+				for (int j = 0; j < 3; j++) 
+				{
+					color[i][j] = PaintView::rgb2grayscale(GetOriginalPixel(x - 1 + j, y - 1 + i));
+					sumX += color[i][j] * gx[i][j];
+					sumY += color[i][j] * gy[i][j];
+				}
+			}
+			unsigned char color = 0;
+			if (sumX * sumX + sumY * sumY > m_pUI->m_EdgeThresholdSlider->value() *  m_pUI->m_EdgeThresholdSlider->value())
+			{
+				color = 0xFF;
+			}
+			m_ucEdge[3 * (y * m_nWidth + x)] = color;
+			m_ucEdge[3 * (y * m_nWidth + x) + 1] = color;
+			m_ucEdge[3 * (y * m_nWidth + x) + 2] = color;
+
+		}
+	}
+	m_pUI->m_origView->setView(1);
 }

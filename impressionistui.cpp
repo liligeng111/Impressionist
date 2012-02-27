@@ -635,10 +635,10 @@ void ImpressionistUI::cb_mosaic(Fl_Menu_* o, void* v)
 {
 	ImpressionistDoc *pDoc=whoami(o)->getDocument();
 
-	const char* newfile;
+	int count;
 	// this will get the file path relative to the application itself
 	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
-	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->type(Fl_Native_File_Chooser::BROWSE_MULTI_FILE);   // let user browse a single file
 	chooser->title("Open an image file");                        // optional title
 	chooser->directory(".");
 	chooser->filter("RGB Image Files\t*.{bmp,png,jpg,jpeg}");                 // optional filter
@@ -650,9 +650,14 @@ void ImpressionistUI::cb_mosaic(Fl_Menu_* o, void* v)
 			fprintf(stderr, "*** CANCEL\n");
 			break;
 		default:    // USER PICKED A FILE
-			newfile = chooser->filename();
+			count = chooser->count();
+			const char** newfile = new const char*[count];
+			for (int i = 0; i < count; i++)
+			{
+				newfile[i] = chooser->filename(i);
+			}
 			fprintf(stderr, "Filename was '%s'\n", newfile);
-			pDoc->createMosaic(newfile);
+			pDoc->createMosaic(newfile, count);
 			break;
 	}
 }
@@ -704,41 +709,7 @@ void ImpressionistUI::cb_autoPaint(Fl_Widget* o, void* v)
 void ImpressionistUI::cb_edge(Fl_Widget* o, void* v)
 {
 	ImpressionistDoc * pDoc = ((ImpressionistUI*)(o->user_data()))->getDocument();
-	
-	if (!pDoc->m_ucBitmap) return;
-	static const char gx[][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-	static const char gy[][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
-	unsigned char color[3][3];	
-	int sumX = 0;
-	int sumY = 0;
-
-	for (int x = 0; x < pDoc->m_nPaintWidth; x++) 
-	{
-		for (int y = 0; y < pDoc->m_nHeight; y++)
-		{
-			sumX = 0;
-			sumY = 0;
-			for (int i = 0; i < 3; i++) 
-			{
-				for (int j = 0; j < 3; j++) 
-				{
-					color[i][j] = PaintView::rgb2grayscale(pDoc->GetOriginalPixel(x - 1 + j, y - 1 + i));
-					sumX += color[i][j] * gx[i][j];
-					sumY += color[i][j] * gy[i][j];
-				}
-			}
-			unsigned char color = 0;
-			if (sumX * sumX + sumY * sumY > pDoc->m_pUI->m_EdgeThresholdSlider->value() *  pDoc->m_pUI->m_EdgeThresholdSlider->value())
-			{
-				color = 0xFF;
-			}
-			pDoc->m_ucEdge[3 * (y * pDoc->m_nWidth + x)] = color;
-			pDoc->m_ucEdge[3 * (y * pDoc->m_nWidth + x) + 1] = color;
-			pDoc->m_ucEdge[3 * (y * pDoc->m_nWidth + x) + 2] = color;
-
-		}
-	}
-	pDoc->m_pUI->m_origView->setView(1);
+	pDoc->edge_view();
 }
 
 // disolve slider call back
