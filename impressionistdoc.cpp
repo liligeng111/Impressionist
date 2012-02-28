@@ -435,10 +435,10 @@ int ImpressionistDoc::createMosaic(const char** iname, const int count)
 					height;
 	
 	unsigned char**	thumbnail = new unsigned char*[count];
-	int thumbnailHeight =  m_nPaintHeight / 10;
-	int thumbnailWidth =  m_nPaintWidth / 10;
+	int thumbnailHeight =  m_nPaintHeight / 20;
+	int thumbnailWidth =  m_nPaintWidth / 20;
 
-	float* color = new float(3 * count);
+	float* color = new float[3 * count];
 	for (int i = 0; i < count * 3; i++)
 	{
 		color[i] = 0;
@@ -452,19 +452,20 @@ int ImpressionistDoc::createMosaic(const char** iname, const int count)
 			fl_alert("Can't load bitmap file");
 			return 0;
 		}
+
 		resize_image_bilinear(data[c], height, width, thumbnail[c], thumbnailHeight, thumbnailWidth);
-		for (int i = 0; i < height; i++)
+		for (int i = 0; i < thumbnailHeight; i++)
 		{
-			for (int j = 0; j < width; j++)
+			for (int j = 0; j < thumbnailWidth; j++)
 			{
-				color[3 * c] += thumbnail[c][3 * (i * width+ j)];
-				color[3 * c + 1] += thumbnail[c][3 * (i * width+ j) + 1];
-				color[3 * c + 2] += thumbnail[c][3 * (i * width+ j) + 2];
+				color[3 * c] += thumbnail[c][3 * (i * thumbnailWidth + j)];
+				color[3 * c + 1] += thumbnail[c][3 * (i * thumbnailWidth + j) + 1];
+				color[3 * c + 2] += thumbnail[c][3 * (i * thumbnailWidth + j) + 2];
 			}
 		}
-		color[3 * c] /= width * height;
-		color[3 * c + 1] /= width * height;
-		color[3 * c + 2] /= width * height;
+		color[3 * c] /= thumbnailWidth * thumbnailHeight;
+		color[3 * c + 1] /= thumbnailWidth * thumbnailHeight;
+		color[3 * c + 2] /= thumbnailWidth * thumbnailHeight;
 		delete []data[c];
 		delete []iname[c];
 	}
@@ -476,28 +477,63 @@ int ImpressionistDoc::createMosaic(const char** iname, const int count)
 	int N;
 	
 	char brightness;
-
-	for (int i = 0; i < m_nPaintHeight; i++)
+	for (int x = 0; x < 21; x++)
 	{
-		for (int j = 0; j < m_nPaintWidth; j++)
+		for (int y = 0; y < 21; y++)
 		{
-			n = 3 * (i * m_nPaintWidth + j);
-			N = 3 * ((i % thumbnailHeight) * thumbnailWidth + j % thumbnailWidth);
+			float r = 0;
+			float g = 0;
+			float b = 0;
 
-			brightness = PaintView::rgb2grayscale(GetOriginalPixel(j, i)) - PaintView::rgb2grayscale((GLubyte*)(thumbnail[0] + N));
-
-			for (int k = 0; k < 3; k++)
+			for (int i = 0; i < thumbnailHeight && i + x * thumbnailHeight < m_nPaintHeight; i++)
 			{
-				int c = m_ucBitmap[n + k] * 0.5f + (thumbnail[0][N + k] + brightness) * 0.5f; 
-				if (c > 255)
+				for (int j = 0; j < thumbnailWidth && j + y * thumbnailWidth < m_nPaintWidth; j++)
 				{
-					c = 255;
+					r += m_ucBitmap[3 * (m_nPaintWidth * (i + x * thumbnailHeight) + y * thumbnailWidth + j)];
+					g += m_ucBitmap[3 * (m_nPaintWidth * (i + x * thumbnailHeight) + y * thumbnailWidth + j) + 1];
+					b += m_ucBitmap[3 * (m_nPaintWidth * (i + x * thumbnailHeight) + y * thumbnailWidth + j) + 2];					
 				}
-				else if (c < 0)
+			}	
+			//TODO: wrong here
+			r /= thumbnailHeight * thumbnailWidth;
+			g /= thumbnailHeight * thumbnailWidth;
+			b /= thumbnailHeight * thumbnailWidth;
+
+			float min = 9999999999;
+			int number = 0;
+			for (int i = 0; i < count; i++)
+			{
+				float dis = (color[3 * i] - r) * (color[3 * i] - r) + (color[3 * i + 1] - g) * (color[3 * i + 1] - g) + (color[3 * i + 2] - b) * (color[3 * i + 2] - b);
+				if (dis < min)
 				{
-					c = 0;
+					min = dis;
+					number = i;
 				}
-				m_ucBitmap[n + k] = c;
+			}
+			
+			for (int i = 0; i < thumbnailHeight && i + x * thumbnailHeight < m_nPaintHeight; i++)
+			{
+				for (int j = 0; j < thumbnailWidth && j + y * thumbnailWidth < m_nPaintWidth; j++)
+				{
+					n = 3 * (m_nPaintWidth * (i + x * thumbnailHeight) + y * thumbnailWidth + j);
+					N = 3 * (i * thumbnailWidth + j);
+
+					brightness = PaintView::rgb2grayscale(GetOriginalPixel(j + y * thumbnailHeight, i + x * thumbnailWidth)) - PaintView::rgb2grayscale((GLubyte*)(thumbnail[number] + N));
+
+					for (int k = 0; k < 3; k++)
+					{
+						int c = m_ucBitmap[n + k] * 0.5f + (thumbnail[number][N + k] + brightness * 0.1f) * 0.5f; 
+						if (c > 255)
+						{
+							c = 255;
+						}
+						else if (c < 0)
+						{
+							c = 0;
+						}
+						m_ucBitmap[n + k] = c;
+					}
+				}
 			}
 		}
 	}
