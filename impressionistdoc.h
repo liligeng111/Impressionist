@@ -67,9 +67,11 @@ public:
 public:
 	// Get the color of the original picture at the specified coord
 	GLubyte* GetOriginalPixel( int x, int y );   
+	GLubyte* GetAnotherPixel( int x, int y );   
 	// Get the color of the original picture at the specified point	
 	GLubyte* GetOriginalPixel( const Point p );  
 	GLubyte* getPaintingPixelFromPics(int x, int y);
+	bool isEdge(int x, int y);
 	
 	void dissolve_image(float alpha);
 	void edge_view();
