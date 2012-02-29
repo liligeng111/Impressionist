@@ -60,7 +60,7 @@ void LineBrush::BrushMove( const Point source, const Point target )
 		{
 			int nLength;
 			int pLength;
-			for (nLength = 0; nLength <= *half_size; nLength++)
+			for (nLength = 0; nLength <= half_size; nLength++)
 			{
 				if (pDoc->isEdge(target.x - (int)(nLength * m_cos), target.y - (int)(nLength * m_sin)))
 				{
@@ -68,7 +68,7 @@ void LineBrush::BrushMove( const Point source, const Point target )
 				}
 			}
 
-			for (pLength = 0; pLength <= *half_size; pLength++)
+			for (pLength = 0; pLength <= half_size; pLength++)
 			{
 				if (pDoc->isEdge(target.x + (int)(pLength * m_cos), target.y + (int)(pLength * m_sin)))
 				{
@@ -83,10 +83,10 @@ void LineBrush::BrushMove( const Point source, const Point target )
 		}
 		else
 		{
-			glVertex2d( target.x - *half_size * m_cos - width * m_sin, target.y - *half_size * m_sin + width * m_cos);
-			glVertex2d( target.x + *half_size * m_cos - width * m_sin, target.y + *half_size * m_sin + width * m_cos);
-			glVertex2d( target.x + *half_size * m_cos + width * m_sin, target.y + *half_size * m_sin - width * m_cos);
-			glVertex2d( target.x - *half_size * m_cos + width * m_sin, target.y - *half_size * m_sin - width * m_cos);
+			glVertex2d( target.x - half_size * m_cos - width * m_sin, target.y - half_size * m_sin + width * m_cos);
+			glVertex2d( target.x + half_size * m_cos - width * m_sin, target.y + half_size * m_sin + width * m_cos);
+			glVertex2d( target.x + half_size * m_cos + width * m_sin, target.y + half_size * m_sin - width * m_cos);
+			glVertex2d( target.x - half_size * m_cos + width * m_sin, target.y - half_size * m_sin - width * m_cos);
 		}
 
 	glEnd();
