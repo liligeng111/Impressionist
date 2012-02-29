@@ -876,7 +876,7 @@ void ImpressionistUI::cb_painterly_do(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=(ImpressionistUI*)(o->user_data());
 	// get the parameters from ui here
 	// then call function in doc
-	pUI->m_pDoc->painterly_paint();
+	pUI->m_paintView->painterly_paint();
 }
 
 

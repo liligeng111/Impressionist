@@ -14,11 +14,14 @@
 #include <stdlib.h>
 
 class ImpressionistDoc;
+class ImpBrush;
 
 struct PainterlyParameter {
 	int brushsize;
-	int widht, height;
+	int width, height;
 	int gridsize;
+	int threshold;
+	ImpBrush* brush;
 };
 
 

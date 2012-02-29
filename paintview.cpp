@@ -583,12 +583,14 @@ GLubyte* PaintView::getPaintingFromPics()
 // make painterly style image
 // This is called by the callbacks in UI
 //---------------------------------------------------------
+#define normbtw(i, start, end) if((i)<(start))(i)=(start); if((i)>(end))(i)=(end);
 
 void PaintView::make_blurcopy(unsigned char* image, unsigned char* reference, int brushsize, int w, int h) {
 	// gaussian blurring according to the brushsize 
-	int kernelsize = 0;
-	int *matrix = new int[kernelsize * kernelsize];
-	int divideBy = 0;
+	// that's it for temporary use
+	int matrix[] = {0, 1, 2, 1, 0, 1, 5, 9, 5, 1, 2, 9, 15, 9, 2, 1, 5, 9, 5, 1, 0, 1, 2, 1, 0};
+	int kernelsize = 5;
+	int divideBy = 8 + 42 + 37;
 	// okay, I decided not to reuse the code in filterbrush
 	// but rather, copy them here.
 
@@ -599,7 +601,12 @@ void PaintView::make_blurcopy(unsigned char* image, unsigned char* reference, in
 			int half_kernel_size = (int)(kernelsize / 2);
 			for (int k = 0; k < kernelsize; k++) {
 				for (int t = 0; t < kernelsize; t++) {
-					GLubyte* color = image + 3 * ((j + t - half_kernel_size) * w + (i - k + half_kernel_size));
+					int target_i, target_j;
+					target_i = i - t + half_kernel_size;
+					normbtw(target_i, 0, h-1)
+					target_j = j - k + half_kernel_size;
+					normbtw(target_j, 0, w-1)
+					GLubyte* color = image + 3 * (target_i * w + target_j);
 					colorsum[0] += color[0] * matrix[k * kernelsize + t];
 					colorsum[1] += color[1] * matrix[k * kernelsize + t];
 					colorsum[2] += color[2] * matrix[k * kernelsize + t];
@@ -613,7 +620,7 @@ void PaintView::make_blurcopy(unsigned char* image, unsigned char* reference, in
 				res = (colorsum[shift] / divideBy);
 				if (res < 0) res = 0;
 				else if (res > 255) res = 255;
-				blurred[pixelp + shift] = (GLubyte)res;
+				reference[pixelp + shift] = (GLubyte)res;
 			}
 		}
 	}
@@ -636,32 +643,42 @@ void PaintView::make_difference(unsigned char* a, unsigned char* b, int* dif, in
 void PaintView::painterly_paint() {
 	// this should paint directly to the paint view
 	// first clear all existed painting
-	ImpressionistDoc* pUI = this->m_pDoc->m_pUI;
+	ImpressionistUI* pUI = this->m_pDoc->m_pUI;
+
 	int width = this->m_pDoc->m_nWidth;
 	int height = this->m_pDoc->m_nHeight;
+
 	unsigned char* canvas = this->m_pDoc->m_ucPainting;
 	unsigned char* reference = new unsigned char [width * height * 3];
 	int* difference = new int [width * height];
+	// we have all three images now
 
 	if (canvas == NULL) {
 		canvas = new unsigned char [width * height * 3];
 	}
 
 	memset(canvas, -1, width * height * 3);
-	// now all white .. 
+	// clear the canvas, now all white .. 
 
 	// get all parameters here
-	int threshold, maxbrush, minbrush, layer, step, maxstroke, minstroke;
+	int threshold, maxbrush, minbrush, layer, maxstroke, minstroke;
+	int divscale = 2;
 	float curvature, blur, alpha;
 	PainterlyParameter param;
 	// boring and tedious coding, here, to be implemented when I'm sleeping
-	//
-	//
+	maxbrush = 16;
+	minbrush = 2;
+	param.width = width;
+	param.height = height;
+	param.threshold = 100;
+	param.brush = this->m_pDoc->m_pCurrentBrush;
 
 	int brushSize;
-	for (brushSize = maxbrush; brushSize >= minbrush; brushSize -= step) {
-		reference = make_blurcopy(canvas, brushSize, width, height);
-		difference = make_difference(canvas, reference, width, height);
+	for (brushSize = maxbrush; brushSize >= minbrush; brushSize /= divscale) {
+		param.brushsize = brushSize;
+		param.gridsize = brushSize * 2;
+		make_blurcopy(canvas, reference,  brushSize, width, height);
+		make_difference(canvas, reference, difference, width, height);
 		painterly_paint_layer(canvas, reference, difference, &param);
 	}
 
@@ -673,17 +690,47 @@ void PaintView::painterly_paint() {
 	if (difference) { delete [] difference; }
 }
 
+
 void PaintView::painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int* difference, PainterlyParameter * param) {
 	// painting to canvas with reference as reference
 	// more parameters needed 
+	// all the OpenGL calls should be made here
 	make_current();
 	RestoreContent();
-	// all the OpenGL calls should be made here
 
 	for (int i = 0; i < param->height; i += param->gridsize) {
 		for (int j = 0; j < param->width; j += param->gridsize) {
+			// calculate the total difference
+			int sum = 0;
+			int max = 0;
+			int max_i, max_j;
+			int halfgrid = param->gridsize / 2;
+			int starti = i - halfgrid; normbtw(starti, 0, param->height-1)
+			int endi = i + halfgrid; normbtw(endi, 0, param->height-1)
+			int startj = j - halfgrid; normbtw(startj, 0, param->width-1)
+			int endj = j + halfgrid; normbtw(endj, 0, param->height-1)
+			for (int ki = starti; ki<=endi; ki++) {
+				for (int kj = startj; kj<=endj; kj++) {
+					sum += difference[ki * param->width + kj];
+					if (difference[ki * param->width + kj] > max) {
+						max = difference[ki * param->width + kj];
+						max_i = ki; max_j = kj;
+					}
+				}
+			}
+			// normalize sum
+			sum /= (endi - starti + 1) * (endj - startj + 1);
 			this->current_depth = frand(); // random every stroke
+			if (sum > param->threshold) {
+				// place the stroke at the pos max_i, max_j
+				Point p(max_j, max_i);
+				param->brush->BrushMove(p, p);
+			}
+			this->current_depth = 0;
 		}
 	}
+
+	glFlush();
 	SaveCurrentContent();
+	refresh();
 }
