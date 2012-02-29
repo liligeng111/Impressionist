@@ -15,6 +15,13 @@
 
 class ImpressionistDoc;
 
+struct PainterlyParameter {
+	int brushsize;
+	int widht, height;
+	int gridsize;
+};
+
+
 class PaintView : public Fl_Gl_Window
 {
 public:
@@ -55,6 +62,12 @@ public:
 	GLubyte* getPaintingFromPics();
 
 	static unsigned char rgb2grayscale(GLubyte* color);
+
+	void painterly_paint();
+	void painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int* difference, PainterlyParameter* param);
+	void make_blurcopy(unsigned char* image, unsigned char* reference, int size, int w, int h);
+	void make_difference(unsigned char* imagea, unsigned char* imageb, int* difference, int width, int height);
+
 
 private:
 	GLvoid* m_pPaintBitstart;

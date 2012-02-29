@@ -26,11 +26,6 @@ public:
 	void	make_dim(int alpha);
 	int		createMosaic(const char** iname, const int count);			// called by the UI to create image mosaic
 
-	void painterly_paint();
-	void painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int brushsize, int w, int h);
-	unsigned char* make_blurcopy(unsigned char* image, int size, int w, int h);
-
-
 	int     clearCanvas();                  // called by the UI to clear the drawing canvas
 	void	setBrushType(int type);			// called by the UI to set the brushType
 	int		getSize();						// get the UI size

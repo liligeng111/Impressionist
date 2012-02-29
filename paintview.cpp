@@ -577,3 +577,113 @@ GLubyte* PaintView::getPaintingFromPics()
 {
 	return this->pics[this->current_pic];
 }
+
+
+//---------------------------------------------------------
+// make painterly style image
+// This is called by the callbacks in UI
+//---------------------------------------------------------
+
+void PaintView::make_blurcopy(unsigned char* image, unsigned char* reference, int brushsize, int w, int h) {
+	// gaussian blurring according to the brushsize 
+	int kernelsize = 0;
+	int *matrix = new int[kernelsize * kernelsize];
+	int divideBy = 0;
+	// okay, I decided not to reuse the code in filterbrush
+	// but rather, copy them here.
+
+	for (int i = 0; i < h; i++) {
+		for (int j = 0; j < w; j++) {
+			int colorsum[3] = {0, 0, 0};
+			int pixelp = (i * w + j) * 3;
+			int half_kernel_size = (int)(kernelsize / 2);
+			for (int k = 0; k < kernelsize; k++) {
+				for (int t = 0; t < kernelsize; t++) {
+					GLubyte* color = image + 3 * ((j + t - half_kernel_size) * w + (i - k + half_kernel_size));
+					colorsum[0] += color[0] * matrix[k * kernelsize + t];
+					colorsum[1] += color[1] * matrix[k * kernelsize + t];
+					colorsum[2] += color[2] * matrix[k * kernelsize + t];
+				}
+			}
+
+			// avoid divide by 0
+			if (divideBy == 0) divideBy = 1;
+			int res;
+			for (int shift = 0; shift < 3; shift++) {
+				res = (colorsum[shift] / divideBy);
+				if (res < 0) res = 0;
+				else if (res > 255) res = 255;
+				blurred[pixelp + shift] = (GLubyte)res;
+			}
+		}
+	}
+}
+
+void PaintView::make_difference(unsigned char* a, unsigned char* b, int* dif, int w, int h) {
+	int pp;
+	for (int i = 0; i < h; i++) {
+		for (int j = 0; j < w; j++) {
+			pp = i * w + j;
+			dif[pp] = 0;
+			for (int k = 0; k < 3; k++) {
+				dif[pp] += (a[3 * pp + k] - b[3 * pp + k]) * (a[3 * pp + k] - b[3 * pp + k]);
+			}
+			dif[pp] = sqrt((double)dif[pp]);
+		}
+	}
+}
+
+void PaintView::painterly_paint() {
+	// this should paint directly to the paint view
+	// first clear all existed painting
+	ImpressionistDoc* pUI = this->m_pDoc->m_pUI;
+	int width = this->m_pDoc->m_nWidth;
+	int height = this->m_pDoc->m_nHeight;
+	unsigned char* canvas = this->m_pDoc->m_ucPainting;
+	unsigned char* reference = new unsigned char [width * height * 3];
+	int* difference = new int [width * height];
+
+	if (canvas == NULL) {
+		canvas = new unsigned char [width * height * 3];
+	}
+
+	memset(canvas, -1, width * height * 3);
+	// now all white .. 
+
+	// get all parameters here
+	int threshold, maxbrush, minbrush, layer, step, maxstroke, minstroke;
+	float curvature, blur, alpha;
+	PainterlyParameter param;
+	// boring and tedious coding, here, to be implemented when I'm sleeping
+	//
+	//
+
+	int brushSize;
+	for (brushSize = maxbrush; brushSize >= minbrush; brushSize -= step) {
+		reference = make_blurcopy(canvas, brushSize, width, height);
+		difference = make_difference(canvas, reference, width, height);
+		painterly_paint_layer(canvas, reference, difference, &param);
+	}
+
+	// save current pic to stack so as to enable undo
+	savePic();
+
+	// clean ups
+	if (reference) { delete [] reference; }
+	if (difference) { delete [] difference; }
+}
+
+void PaintView::painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int* difference, PainterlyParameter * param) {
+	// painting to canvas with reference as reference
+	// more parameters needed 
+	make_current();
+	RestoreContent();
+	// all the OpenGL calls should be made here
+
+	for (int i = 0; i < param->height; i += param->gridsize) {
+		for (int j = 0; j < param->width; j += param->gridsize) {
+			this->current_depth = frand(); // random every stroke
+		}
+	}
+	SaveCurrentContent();
+}

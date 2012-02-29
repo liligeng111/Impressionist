@@ -541,64 +541,6 @@ int ImpressionistDoc::createMosaic(const char** iname, const int count)
 	return 1;
 }
 
-//---------------------------------------------------------
-// make painterly style image
-// This is called by the callbacks in UI
-//---------------------------------------------------------
-
-unsigned char* ImpressionistDoc::make_blurcopy(unsigned char* image, int brushsize, int w, int h) {
-	// gaussian blurring according to the brushsize 
-	unsigned char * blurred = new unsigned char[3 * w * h];
-
-
-	return NULL;
-}
-
-void ImpressionistDoc::painterly_paint() {
-	// this should paint directly to the paint view
-	// first clear all existed painting
-	int width = this->m_nWidth;
-	int height = this->m_nHeight;
-
-	if (m_ucPainting == NULL) {
-		m_ucPainting = new unsigned char [width * height * 3];
-	}
-	memset(m_ucPainting, -1, width * height * 3);
-	// now all white .. 
-
-	// get all parameters here
-	int threshold, maxbrush, minbrush, layer, step, maxstroke, minstroke;
-	float curvature, blur, alpha;
-	// boring and tedious coding, here, to be implemented when I'm sleeping
-
-	int brushSize;
-	unsigned char* reference = NULL;
-	for (brushSize = maxbrush; brushSize >= minbrush; brushSize -= step) {
-
-		if (reference) delete [] reference;
-		reference = make_blurcopy(m_ucPainting, brushSize, width, height);
-
-		this->painterly_paint_layer(m_ucPainting, reference, brushSize, width, height);
-
-		this->m_pUI->m_paintView->refresh();
-	}
-
-	// save current pic to stack so as to enable undo
-	this->m_pUI->m_paintView->savePic();
-}
-
-void ImpressionistDoc::painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int size, int width, int height) {
-	// painting to canvas with reference as reference
-	// more parameters needed 
-
-	this->m_pUI->m_paintView->make_current();
-	this->m_pUI->m_paintView->RestoreContent();
-	// all the OpenGL calls should be made here
-
-
-
-	this->m_pUI->m_paintView->SaveCurrentContent();
-}
 
 void ImpressionistDoc::edge_view()
 {
