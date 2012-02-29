@@ -419,7 +419,7 @@ bool ImpressionistDoc::isEdge( int x, int y )
 	else if ( y >= m_nHeight ) 
 		y = m_nHeight-1;
 
-	if (true) return (m_ucAnother[3 * (y*m_nWidth + x)] == 255);
+	if (m_pUI->m_UseAnotherButton->value()) return (m_ucAnother[3 * (y*m_nWidth + x)] == 255);
 	return (m_ucEdge[3 * (y*m_nWidth + x)] == 255);
 }
 
@@ -560,7 +560,7 @@ int ImpressionistDoc::createMosaic(const char** iname, const int count)
 
 					for (int k = 0; k < 3; k++)
 					{
-						int c = m_ucBitmap[n + k] * 0.5f + (thumbnail[number][N + k] + brightness * 0.1f) * 0.5f; 
+						int c = m_ucBitmap[n + k] * 0.35f + (thumbnail[number][N + k] + brightness * 0.25f) * 0.65f; 
 						if (c > 255)
 						{
 							c = 255;

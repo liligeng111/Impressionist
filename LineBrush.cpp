@@ -56,7 +56,7 @@ void LineBrush::BrushMove( const Point source, const Point target )
 	glBegin( GL_POLYGON );
 		SetColor( source );
 		
-		if (true)
+		if (pDoc->m_pUI->m_EdgeClipButton->value())
 		{
 			int nLength;
 			int pLength;

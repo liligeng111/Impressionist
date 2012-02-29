@@ -483,7 +483,7 @@ int PaintView::getGradient() {
 	unsigned char color[3][3];
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
-			if (true) color[i][j] = rgb2grayscale(this->m_pDoc->GetAnotherPixel(coord.x - 1 + j, coord.y - 1 + i));
+			if (m_pDoc->m_pUI->m_UseAnotherButton->value()) color[i][j] = rgb2grayscale(this->m_pDoc->GetAnotherPixel(coord.x - 1 + j, coord.y - 1 + i));
 			else color[i][j] = rgb2grayscale(this->m_pDoc->GetOriginalPixel(coord.x - 1 + j, coord.y - 1 + i));
 			gxsum += color[i][j] * gx[i][j];
 			gysum += color[i][j] * gy[i][j];

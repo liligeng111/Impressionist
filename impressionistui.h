@@ -60,6 +60,9 @@ public:
 	Fl_Slider* m_AutoPaintDistanceSlider;
 	Fl_Light_Button* m_AutoPaintRandButton;
 	Fl_Button* m_AutoPaintButton;
+	Fl_Light_Button* m_EdgeClipButton;
+	Fl_Light_Button* m_UseAnotherButton;
+	Fl_Light_Button* m_ReverseColorButton;
 
 // for edge detection setting box
 	Fl_Group* m_EdgeSettingBox;

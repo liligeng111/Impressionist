@@ -50,7 +50,8 @@ void ImpBrush::SetColor (const Point source)
 	color[3] = static_cast<GLubyte>(255.0f * m_pDoc->getAlpha());
 
 	for (int i = 0; i < 3; i++) {
-		color[i] = (GLubyte) (color[i] * m_pDoc->m_pUI->blendColor[i]);
+		if (m_pDoc->m_pUI->m_ReverseColorButton->value()) color[i] = (GLubyte) (255 - color[i] * m_pDoc->m_pUI->blendColor[i]);
+		else color[i] = (GLubyte) (color[i] * m_pDoc->m_pUI->blendColor[i]);
 	}
  
 	glColor4ubv( color );

@@ -1229,6 +1229,16 @@ ImpressionistUI::ImpressionistUI() {
 		this->m_DimAlphaDoButton = new Fl_Button(320, 405, 50, 30, "Do");
 		this->m_DimAlphaDoButton->callback((Fl_Callback*)ImpressionistUI::cb_dim);
 		this->m_DimAlphaDoButton->user_data((void*)this);
+		
+		
+		m_EdgeClipButton = new Fl_Light_Button(20, 440, 90, 30, "Edge Clip");
+		m_EdgeClipButton->value(1);
+
+		m_UseAnotherButton = new Fl_Light_Button(120, 440, 120, 30, "Another Image");
+		m_UseAnotherButton->value(0);
+
+		m_ReverseColorButton = new Fl_Light_Button(260, 440, 120, 30, "Reverse Color");
+		m_ReverseColorButton->value(0);
 
 	m_brushDialog->end();	
 
