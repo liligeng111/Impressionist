@@ -455,8 +455,10 @@ void ImpressionistUI::cb_copy_to_originalview(Fl_Menu_ *o, void* v) {
 // callback for filter dialog
 //-----------------
 void ImpressionistUI::cb_filter_dialog(Fl_Menu_ *o, void* v) {
+	whoami(o)->m_paintView->make_current();
 	whoami(o)->m_FilterDialog->show();
-	//whoami(o)->m_paintView->creatPic();
+	whoami(o)->m_paintView->SaveCurrentContent();
+	whoami(o)->m_paintView->savePic();
 }
 
 void ImpressionistUI::get_filter_parameters(int *matrix, int& divisor, int& offset) {
@@ -479,21 +481,25 @@ void ImpressionistUI::cb_filter_preview(Fl_Widget* o, void* v) {
 	int height = pUI->m_pDoc->m_nHeight;
 	unsigned char* image = pUI->m_pDoc->m_ucPainting;
 
+
 	// do the filtering
+	pUI->m_paintView->make_current();
+	pUI->m_paintView->RestoreContent();
 	FilterBrush::filter_image(image, width, height, 0, 0, width, height, matrix, divideBy, offset, pUI->m_pDoc);
 
 	pUI->m_paintView->refresh();
 }
 void ImpressionistUI::cb_filter_apply(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
-	pUI->m_FilterPreviewButton->do_callback();
+	pUI->cb_filter_preview(o, v);
 	// save the current content to pics list
 	pUI->m_paintView->savePic();
 	pUI->m_FilterDialog->hide();
+	pUI->m_paintView->refresh();
 }
 void ImpressionistUI::cb_filter_cancel(Fl_Widget* o, void* v) {
 	ImpressionistUI* pUI=((ImpressionistUI *)(o->user_data()));
-	pUI->m_paintView->undo(); // discard current canvas, get fresh new pic from pics
+	pUI->m_paintView->RestoreContent(); // discard current canvas, get fresh new pic from pics
 	pUI->m_paintView->refresh();
 	pUI->m_FilterDialog->hide();
 }
