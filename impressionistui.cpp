@@ -264,6 +264,33 @@ void ImpressionistUI::cb_another_image(Fl_Menu_* o, void* v)  {
 	}
 }
 
+
+// load another image
+void ImpressionistUI::cb_alpha_image(Fl_Menu_* o, void* v)  {
+	ImpressionistDoc *pDoc=whoami(o)->getDocument();
+
+	const char* newfile;
+	// this will get the file path relative to the application itself
+	Fl_Native_File_Chooser *chooser = new Fl_Native_File_Chooser();
+	chooser->type(Fl_Native_File_Chooser::BROWSE_FILE);   // let user browse a single file
+	chooser->title("Load another image file");                        // optional title
+	chooser->directory(".");
+	chooser->filter("PNG Image Files\t*.png");                 // optional filter
+	switch ( chooser->show() ) {
+		case -1:    // ERROR
+			fprintf(stderr, "*** ERROR show() failed:%s\n", chooser->errmsg());
+			break;
+		case 1:     // CANCEL
+			fprintf(stderr, "*** CANCEL\n");
+			break;
+		default:    // USER PICKED A FILE
+			newfile = chooser->filename();
+			fprintf(stderr, "Filename was '%s'\n", newfile);
+			pDoc->loadAlphaImage(newfile);
+			break;
+	}
+}
+
 //------------------------------------------------------------------
 // Brings up a file chooser and then saves the painted image
 // This is called by the UI when the save image menu item is chosen
@@ -894,6 +921,7 @@ Fl_Menu_Item ImpressionistUI::menuitems[] = {
 		{ "&Load Image...",	FL_ALT + 'l', (Fl_Callback *)ImpressionistUI::cb_load_image },
 		{ "&Save Image...",	FL_ALT + 's', (Fl_Callback *)ImpressionistUI::cb_save_image, 0, FL_MENU_INACTIVE},
 		{ "&Change Image",	FL_ALT + 'm', (Fl_Callback *)ImpressionistUI::cb_change_image, 0, FL_MENU_INACTIVE},
+		{ "&Load Alpha-Mapped Image",	FL_ALT + 't', (Fl_Callback *)ImpressionistUI::cb_alpha_image, 0, FL_MENU_INACTIVE},
 		{ "&Load Another Image",	FL_ALT + 'a', (Fl_Callback *)ImpressionistUI::cb_another_image, 0, FL_MENU_DIVIDER | FL_MENU_INACTIVE},
 
 		{ "&Quit",			FL_ALT + 'q', (Fl_Callback *)ImpressionistUI::cb_exit },
@@ -938,6 +966,7 @@ Fl_Menu_Item ImpressionistUI::brushTypeMenu[NUM_BRUSH_TYPE+1] = {
   {"Scattered Lines",	FL_ALT+'m', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_LINES},
   {"Scattered Circles",	FL_ALT+'d', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_SCATTERED_CIRCLES},
   {"Customized Filter",	FL_ALT+'f', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_FILTER},
+  {"Alpha Mapped",	FL_ALT+'a', (Fl_Callback *)ImpressionistUI::cb_brushChoice, (void *)BRUSH_ALPHA_MAPPED},
   {0}
 };
 
@@ -967,8 +996,9 @@ void ImpressionistUI::activeMenus() {
 	menuitems[2].activate();
 	menuitems[3].activate();
 	menuitems[4].activate();
-	menuitems[7].activate();
-	menuitems[21].activate();
+	menuitems[5].activate();
+	menuitems[8].activate();
+	menuitems[22].activate();
 }
 
 // I know this is ugle, but don't have better idea

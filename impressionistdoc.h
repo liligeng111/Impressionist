@@ -22,6 +22,7 @@ public:
 	int		loadImage(const char *iname);			// called by the UI to load image
 	int		saveImage(const char *iname);			// called by the UI to save image
 	int		changeImage(const char *iname);			// called by the UI to change image
+	int		loadAlphaImage(const char *iname);			// called by the UI to load alpha-mapped image
 	int		loadAnotherImage(const char *iname);			// called by the UI to load another image
 	void	make_dim(int alpha);
 	int		createMosaic(const char** iname, const int count);			// called by the UI to create image mosaic
@@ -55,6 +56,7 @@ public:
 	unsigned char*	m_ucPainting;
 	unsigned char*	m_ucDissolve;
 	unsigned char*	m_ucAnother;
+	unsigned char*	m_ucAlpha;
 	unsigned char*	m_ucDim;
 
 
@@ -70,6 +72,7 @@ public:
 	GLubyte* GetAnotherPixel( int x, int y );   
 	// Get the color of the original picture at the specified point	
 	GLubyte* GetOriginalPixel( const Point p );  
+	GLubyte* GetAlphaPixel( const Point p );  
 	GLubyte* getPaintingPixelFromPics(int x, int y);
 	bool isEdge(int x, int y);
 	

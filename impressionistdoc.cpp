@@ -20,6 +20,7 @@
 #include "scatteredlinebrush.h"
 #include "scatteredcirclebrush.h"
 #include "filterbrush.h"
+#include "alphamappedbrush.h"
 
 
 #define DESTROY(p)	{  if ((p)!=NULL) {delete [] p; p=NULL; } }
@@ -59,6 +60,8 @@ ImpressionistDoc::ImpressionistDoc()
 		= new ScatteredCircleBrush( this, "Scattered Circles" );
 	ImpBrush::c_pBrushes[BRUSH_FILTER]	
 		= new FilterBrush( this, "Customized Filter" );
+	ImpBrush::c_pBrushes[BRUSH_ALPHA_MAPPED]	
+		= new AlphaMappedBrush( this, "Alpha Mapped Filter" );
 
 	// make one of the brushes current
 	m_pCurrentBrush	= ImpBrush::c_pBrushes[0];
@@ -157,10 +160,10 @@ float ImpressionistDoc::getAlpha()
 
 //  this may not a good place to put resize function
 //	what do you think of images.cpp ?
-void resize_image(unsigned char* &source, int source_height, int source_width, unsigned char* &target, int target_height, int target_width)
+void resize_image(unsigned char* &source, int source_height, int source_width, unsigned char* &target, int target_height, int target_width, int channel = 3)
 {
 	if(target) delete []target;
-	target = new unsigned char[target_width * target_height * 3];
+	target = new unsigned char[target_width * target_height * channel];
 	float height_rate = 1.0f * source_height / target_height;
 	float width_rate = 1.0f * source_width / target_width;
 	for (int i = 0; i < target_height; i++)
@@ -168,9 +171,10 @@ void resize_image(unsigned char* &source, int source_height, int source_width, u
 		int I = height_rate * i;
 		for (int j = 0; j < target_width; j++)
 		{
-			target[3 * (i * target_width+ j)] = source[3 * (source_width * I + j * source_width / target_width)];
-			target[3 * (i * target_width+ j) + 1] = source[3 * (source_width * I + j * source_width / target_width) + 1];
-			target[3 * (i * target_width+ j) + 2] = source[3 * (source_width * I + j * source_width / target_width) + 2];
+			for (int c = 0; c < channel; c++)
+			{
+				target[channel * (i * target_width+ j) + c] = source[channel * (source_width * I + j * source_width / target_width) + c];
+			}
 		}
 	}
 }
@@ -213,7 +217,7 @@ int ImpressionistDoc::loadImage(const char *iname)
 	m_ucEdge	= new unsigned char [width*height*3];
 	m_ucAnother	= new unsigned char [width*height*3];
 	m_ucDissolve	= new unsigned char [width*height*3];
-
+	m_ucAlpha = 0;
 	m_ucDim	= new unsigned char [width*height*4];
 	memset(m_ucDim, 0, width * height * 4);
 	// dim is not to be viewed in original view
@@ -260,6 +264,7 @@ void ImpressionistDoc::make_dim(int alpha) {
 		}
 	}
 }
+
 //---------------------------------------------------------
 // load another image for various purpose
 // This is called by the UI when the load another image button is pressed.
@@ -298,6 +303,40 @@ int ImpressionistDoc::loadAnotherImage(const char *iname)
 	delete []data;
 	data = 0;
 
+	//m_pUI->m_paintView->init();
+	return 1;
+}
+
+//---------------------------------------------------------
+// load alpha image for various purpose
+// This is called by the UI when the load alpha image button is pressed.
+//---------------------------------------------------------
+int ImpressionistDoc::loadAlphaImage(const char *iname) 
+{
+	// try to open the image to read
+	unsigned char*	data;
+	int				width, 
+					height;
+	
+	if ( (data=load_alpha_image(iname, width, height))==NULL ) 
+	{
+		fl_alert("Can't load bitmap file");
+		return 0;
+	}
+	
+	// release old storage
+	if ( m_ucAlpha ) delete []m_ucAlpha;
+	m_ucAlpha = 0;
+	resize_image(data, height, width, m_ucAlpha, m_nHeight, m_nWidth, 4);
+	delete []data;
+	data = 0;
+	int j = 0;
+	for (int i = 0; i < 4 * m_nHeight * m_nWidth; i++)
+	{
+		if (i % 4 == 3) continue;
+		m_ucAnother[j] = m_ucAlpha[i];
+		j++;
+	}
 	//m_pUI->m_paintView->init();
 	return 1;
 }
@@ -431,6 +470,25 @@ GLubyte* ImpressionistDoc::GetOriginalPixel( const Point p )
 	return GetOriginalPixel( p.x, p.y );
 }
 
+//------------------------------------------------------------------
+// Get the color of the pixel in the original image at coord x and y
+//------------------------------------------------------------------
+GLubyte* ImpressionistDoc::GetAlphaPixel( const Point p )
+{
+	int x = p.x;
+	int y = p.y;
+	if ( x < 0 ) 
+		x = 0;
+	else if ( x >= m_nWidth ) 
+		x = m_nWidth-1;
+
+	if ( y < 0 ) 
+		y = 0;
+	else if ( y >= m_nHeight ) 
+		y = m_nHeight-1;
+
+	return (GLubyte*)(m_ucAlpha + 4 * (y*m_nWidth + x));
+}
 
 GLubyte* ImpressionistDoc::getPaintingPixelFromPics(int x, int y) {
 	if ( x < 0 ) 

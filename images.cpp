@@ -67,6 +67,38 @@ unsigned char* load_image(const char* iname, int &width, int& height) {
 	return data;
 }
 
+
+/*
+unsigned char* load_image(const char* iname, int &width, int& height) {
+	return readBMP(iname, width, height);
+}
+*/
+unsigned char* load_alpha_image(const char* iname, int &width, int& height) {
+	unsigned char* data = NULL;
+	Fl_RGB_Image* image = NULL;
+	
+	image = new Fl_PNG_Image(iname);
+
+	width = image->w();
+	height = image->h();
+	fprintf(stdout, "width : %d \nheight: %d\n", width, height);
+
+	if (image != NULL) {
+		data = new unsigned char[width * height * 4];
+		/*
+		There are some inconsistence btw FLTK drawing, and FLTK image loading ?
+		To Do:
+		More details needed
+		*/
+		for (int i = height - 1; i >= 0; i--) {
+			memcpy(data + (height - i - 1) * width * 4, image->array + i * width * 4, width * 4);
+		}
+		// memcpy(data, image->array, width * height * 3);
+	}
+	delete image;
+	return data;
+}
+
 // slightly improved version for resizing images
 // using the so called bilinear method
 void resize_image_bilinear(unsigned char* &source, int source_height, int source_width, unsigned char* &target, int target_height, int target_width)
