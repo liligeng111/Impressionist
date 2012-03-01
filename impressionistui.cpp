@@ -1308,13 +1308,13 @@ ImpressionistUI::ImpressionistUI() {
 		m_PainterlyGridSizeSlider->step(0.01);
 		m_PainterlyLayerSlider->align(FL_ALIGN_RIGHT);
 		m_PainterlyLayerSlider->maximum(20);
-		m_PainterlyLayerSlider->maximum(1);
+		m_PainterlyLayerSlider->minimum(1);
 		m_PainterlyLayerSlider->step(1);
 		m_PainterlyLayerSlider->value(10);
 		m_PainterlyCurvatureSlider->align(FL_ALIGN_RIGHT);
 		m_PainterlyCurvatureSlider->value(1);
 		m_PainterlyCurvatureSlider->maximum(1);
-		m_PainterlyCurvatureSlider->maximum(0);
+		m_PainterlyCurvatureSlider->minimum(0);
 		m_PainterlyCurvatureSlider->step(0.01);
 		m_PainterlyBlurSlider->align(FL_ALIGN_RIGHT);
 		m_PainterlyBlurSlider->value(0.5);
@@ -1333,9 +1333,9 @@ ImpressionistUI::ImpressionistUI() {
 		m_PainterlyMaxStrokeLengthSlider->step(1);
 		m_PainterlyMinStrokeLengthSlider->align(FL_ALIGN_RIGHT);
 		m_PainterlyMinStrokeLengthSlider->value(4);
-		m_PainterlyMinStrokeLengthSlider->maximum(0);
+		m_PainterlyMinStrokeLengthSlider->maximum(30);
 		m_PainterlyMinStrokeLengthSlider->minimum(0);
-		m_PainterlyMinStrokeLengthSlider->step(0);
+		m_PainterlyMinStrokeLengthSlider->step(1);
 		m_PainterlyBrushSizeScalerSlider->align(FL_ALIGN_RIGHT);
 		m_PainterlyBrushSizeScalerSlider->value(0.5);
 		m_PainterlyBrushSizeScalerSlider->maximum(0.9);

@@ -51,7 +51,8 @@ void ImpBrush::SetColor (const Point source, GLubyte optional_alpha)
 
 	// dirty patch
 	// just bear it, this is life
-	if (optional_alpha != 256) {
+	if (optional_alpha != 100) {
+		OutputDebugString("called, gengge\n");
 		color[3] = optional_alpha;
 	}
 

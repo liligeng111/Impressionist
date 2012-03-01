@@ -751,6 +751,8 @@ void PaintView::make_stroke(Point& p, PainterlyParameter* param) {
 	switch (param->brushtype) {
 	case PAINTERLY_BRUSH_CIRCLE:
 
+		// actually here we could also utilizing old code..
+		// let me see
 		glPointSize(param->brushsize);
 		glBegin(GL_POINTS);
 			glVertex3f(p.x, p.y, this->current_depth);
@@ -758,6 +760,9 @@ void PaintView::make_stroke(Point& p, PainterlyParameter* param) {
 
 		break;
 	case PAINTERLY_BRUSH_LINE:
+		// here we just call line_brush
+		// but modify the BrushMove so that it could use the brushsize of us
+
 		break;
 	case PAINTERLY_BRUSH_CURVE:
 		break;

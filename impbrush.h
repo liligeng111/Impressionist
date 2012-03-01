@@ -74,7 +74,7 @@ public:
 	virtual void BrushEnd( const Point source, const Point target ) = 0;
 
 	// according to the source image and the position, determine the draw color
-	void SetColor( const Point source , GLubyte alpha = 256);
+	void SetColor( const Point source , GLubyte alpha = GLubyte(100));
 
 	// get Doc to communicate with it
 	ImpressionistDoc* GetDocument( void );
