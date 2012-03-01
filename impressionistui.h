@@ -95,6 +95,7 @@ public:
 	// sliders
 	Fl_Slider* m_PainterlyThresholdSlider;
 	Fl_Slider* m_PainterlyMaxBrushSlider;
+	Fl_Slider* m_PainterlyBrushSizeScalerSlider;
 	Fl_Slider* m_PainterlyMinBrushSlider;
 	Fl_Slider* m_PainterlyLayerSlider;
 	Fl_Slider* m_PainterlyGridSizeSlider;

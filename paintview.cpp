@@ -603,9 +603,9 @@ void PaintView::make_blurcopy(unsigned char* image, unsigned char* reference, in
 			for (int k = 0; k < kernelsize; k++) {
 				for (int t = 0; t < kernelsize; t++) {
 					int target_i, target_j;
-					target_i = i - t + half_kernel_size;
+					target_i = i + t - half_kernel_size;
 					normbtw(target_i, 0, h-1)
-					target_j = j - k + half_kernel_size;
+					target_j = j + k - half_kernel_size;
 					normbtw(target_j, 0, w-1)
 					GLubyte* color = image + 3 * (target_i * w + target_j);
 					colorsum[0] += color[0] * matrix[k * kernelsize + t];
@@ -614,8 +614,6 @@ void PaintView::make_blurcopy(unsigned char* image, unsigned char* reference, in
 				}
 			}
 
-			// avoid divide by 0
-			if (divideBy == 0) divideBy = 1;
 			int res;
 			for (int shift = 0; shift < 3; shift++) {
 				res = (colorsum[shift] / divideBy);
@@ -634,7 +632,7 @@ void PaintView::make_difference(unsigned char* a, unsigned char* b, int* dif, in
 			pp = i * w + j;
 			dif[pp] = 0;
 			for (int k = 0; k < 3; k++) {
-				dif[pp] += (a[3 * pp + k] - b[3 * pp + k]) * (a[3 * pp + k] - b[3 * pp + k]);
+				dif[pp] += ((int)a[3 * pp + k] - (int)b[3 * pp + k]) * ((int)a[3 * pp + k] - (int)b[3 * pp + k]);
 			}
 			dif[pp] = sqrt((double)dif[pp]);
 		}
@@ -662,33 +660,41 @@ void PaintView::painterly_paint() {
 	// clear the canvas, now all white .. 
 
 	// get all parameters here
-	int threshold, maxbrush, minbrush, layer, maxstroke, minstroke;
-	int divscale = 2;
-	float curvature, blur, alpha;
+	int layer = pUI->m_PainterlyLayerSlider->value();
+	float curvature = pUI->m_PainterlyCurvatureSlider->value();
+	float blurscaler = pUI->m_PainterlyBlurSlider->value();
+	float gridscaler = pUI->m_PainterlyGridSizeSlider->value();
+	GLubyte alpha = pUI->m_PainterlyAlphaSlider->slider();
 	PainterlyParameter param;
 	// boring and tedious coding, here, to be implemented when I'm sleeping
-	maxbrush = 16;
-	minbrush = 2;
+	float divscale = pUI->m_PainterlyBrushSizeScalerSlider->value();
+	int maxbrush = pUI->m_PainterlyMaxBrushSlider->value();
+	int minbrush = pUI->m_PainterlyMinBrushSlider->value();
+	param.brush = this->m_pDoc->m_pCurrentBrush;
+	param.brushtype = (TYPE_PAINTERLY_BRUSH)pUI->m_PainterlyBrushChoice->value();
+	param.maxstroke = pUI->m_PainterlyMaxStrokeLengthSlider->value();
+	param.minstroke = pUI->m_PainterlyMinStrokeLengthSlider->value();
+	param.threshold = pUI->m_PainterlyThresholdSlider->value();
 	param.width = width;
 	param.height = height;
-	param.threshold = 100;
-	param.brush = this->m_pDoc->m_pCurrentBrush;
 
 	int brushSize;
-	for (brushSize = maxbrush; brushSize >= minbrush; brushSize /= divscale) {
+	for (brushSize = maxbrush; brushSize >= minbrush; brushSize = (int)(brushSize * divscale) == brushSize ? brushSize * divscale : brushSize * divscale - 1) {
 		param.brushsize = brushSize;
-		param.gridsize = brushSize * 2;
-		make_blurcopy(canvas, reference,  brushSize, width, height);
+		param.gridsize = brushSize * gridscaler;
+		make_blurcopy(this->m_pDoc->m_ucBitmap, reference, brushSize, width, height);
 		make_difference(canvas, reference, difference, width, height);
 		painterly_paint_layer(canvas, reference, difference, &param);
+		Fl::check();
 	}
+
 
 	// save current pic to stack so as to enable undo
 	savePic();
 
 	// clean ups
-	if (reference) { delete [] reference; }
-	if (difference) { delete [] difference; }
+	// if (reference) { delete [] reference; }
+	// if (difference) { delete [] difference; }
 }
 
 
@@ -697,7 +703,12 @@ void PaintView::painterly_paint_layer(unsigned char* canvas, unsigned char* refe
 	// more parameters needed 
 	// all the OpenGL calls should be made here
 	make_current();
+	glDrawBuffer(GL_FRONT_AND_BACK);
 	RestoreContent();
+
+	glClearDepth(0.0);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glDepthFunc(GL_GEQUAL);
 
 	for (int i = 0; i < param->height; i += param->gridsize) {
 		for (int j = 0; j < param->width; j += param->gridsize) {
@@ -725,13 +736,32 @@ void PaintView::painterly_paint_layer(unsigned char* canvas, unsigned char* refe
 			if (sum > param->threshold) {
 				// place the stroke at the pos max_i, max_j
 				Point p(max_j, max_i);
-				param->brush->BrushMove(p, p);
+				param->brush->SetColor(p);
+				this->make_stroke(p, param);
 			}
-			this->current_depth = 0;
 		}
+		glFlush();
 	}
-
-	glFlush();
-	SaveCurrentContent();
+	this->current_depth = 0;
 	refresh();
+	SaveCurrentContent();
+}
+
+void PaintView::make_stroke(Point& p, PainterlyParameter* param) {
+	switch (param->brushtype) {
+	case PAINTERLY_BRUSH_CIRCLE:
+
+		glPointSize(param->brushsize);
+		glBegin(GL_POINTS);
+			glVertex3f(p.x, p.y, this->current_depth);
+		glEnd();
+
+		break;
+	case PAINTERLY_BRUSH_LINE:
+		break;
+	case PAINTERLY_BRUSH_CURVE:
+		break;
+	case PAINTERLY_BRUSH_BSPLINE:
+		break;
+	}
 }

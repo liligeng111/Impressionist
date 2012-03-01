@@ -17,11 +17,14 @@ class ImpressionistDoc;
 class ImpBrush;
 
 struct PainterlyParameter {
-	int brushsize;
 	int width, height;
 	int gridsize;
+	int brushsize;
 	int threshold;
+	int maxstroke, minstroke;
+	GLubyte alpha;
 	ImpBrush* brush;
+	TYPE_PAINTERLY_BRUSH brushtype;
 };
 
 
@@ -70,6 +73,7 @@ public:
 	void painterly_paint_layer(unsigned char* canvas, unsigned char* reference, int* difference, PainterlyParameter* param);
 	void make_blurcopy(unsigned char* image, unsigned char* reference, int size, int w, int h);
 	void make_difference(unsigned char* imagea, unsigned char* imageb, int* difference, int width, int height);
+	void make_stroke(Point& p, PainterlyParameter* param);
 
 
 private:

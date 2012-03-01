@@ -69,7 +69,7 @@ void FilterBrush::filter_image(unsigned char * image, int width, int height, int
 			int half_kernel_size = (int)(kernelsize / 2);
 			for (int k = 0; k < kernelsize; k++) {
 				for (int t = 0; t < kernelsize; t++) {
-					GLubyte* color = pDoc->getPaintingPixelFromPics(j + t - half_kernel_size, i - k + half_kernel_size);
+					GLubyte* color = pDoc->getPaintingPixelFromPics(j + t - half_kernel_size, i + k - half_kernel_size);
 					colorsum[0] += color[0] * matrix[k * kernelsize + t];
 					colorsum[1] += color[1] * matrix[k * kernelsize + t];
 					colorsum[2] += color[2] * matrix[k * kernelsize + t];

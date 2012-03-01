@@ -408,8 +408,7 @@ void ImpressionistUI::cb_dissolve_one_to_another(Fl_Menu_ *o, void* v) {
 
 		ui->m_origView->refreshed = false;
 		ui->m_origView->refresh();
-		while(!ui->m_origView->refreshed)
-			ui->m_origView->refresh();
+		Fl::check();
 		// why refresh doesn't work ?
 		// this sleep will cause all the program to suspend for this long time..?
 	}
@@ -442,6 +441,8 @@ void ImpressionistUI::cb_swap_two_images(Fl_Menu_ *o, void* v) {
 void ImpressionistUI::cb_copy_to_paintview(Fl_Menu_ *o, void* v) {
 	ImpressionistDoc* pDoc = whoami(o)->m_pDoc;
 	memcpy(pDoc->m_ucPainting, pDoc->m_ucBitmap, pDoc->m_nHeight * pDoc->m_nWidth * 3);
+	// for debug use
+	// pDoc->m_pUI->m_paintView->make_blurcopy(pDoc->m_ucBitmap, pDoc->m_ucPainting, 0, pDoc->m_nWidth, pDoc->m_nHeight);
 	pDoc->m_pUI->m_paintView->refresh();
 }
 // callback for copy from paint view to original view
@@ -1264,13 +1265,14 @@ ImpressionistUI::ImpressionistUI() {
 		m_PainterlyThresholdSlider = new Fl_Value_Slider(10, 50, 280, 20, "Threshold");
 		m_PainterlyMaxBrushSlider = new Fl_Value_Slider(10, 80, 280, 20, "Max Brush Size");
 		m_PainterlyMinBrushSlider = new Fl_Value_Slider(10, 110, 280, 20, "Min Brush Size");
-		m_PainterlyGridSizeSlider = new Fl_Value_Slider(10, 140, 280, 20, "Grid Size");
+		m_PainterlyGridSizeSlider = new Fl_Value_Slider(10, 140, 280, 20, "Grid Scaler");
 		m_PainterlyLayerSlider = new Fl_Value_Slider(10, 170, 280, 20, "Layer Number");
 		m_PainterlyCurvatureSlider = new Fl_Value_Slider(10, 200, 280, 20, "Curvature ?");
-		m_PainterlyBlurSlider = new Fl_Value_Slider(10, 230, 280, 20, "Blur Scale");
-		m_PainterlyAlphaSlider = new Fl_Value_Slider(10, 260, 280, 20, "Alpha Scale");
+		m_PainterlyBlurSlider = new Fl_Value_Slider(10, 230, 280, 20, "Blur Scaler");
+		m_PainterlyAlphaSlider = new Fl_Value_Slider(10, 260, 280, 20, "Alpha Value");
 		m_PainterlyMaxStrokeLengthSlider = new Fl_Value_Slider(10, 290, 280, 20, "Max Stroke L");
 		m_PainterlyMinStrokeLengthSlider = new Fl_Value_Slider(10, 320, 280, 20, "Min Stroke L");
+		m_PainterlyBrushSizeScalerSlider = new Fl_Value_Slider(10, 350, 280, 20, "Brush Scaler");
 
 		m_PainterlyThresholdSlider->type(FL_HOR_NICE_SLIDER);
 		m_PainterlyMaxBrushSlider->type(FL_HOR_NICE_SLIDER);
@@ -1282,21 +1284,64 @@ ImpressionistUI::ImpressionistUI() {
 		m_PainterlyAlphaSlider->type(FL_HOR_NICE_SLIDER);
 		m_PainterlyMaxStrokeLengthSlider->type(FL_HOR_NICE_SLIDER);
 		m_PainterlyMinStrokeLengthSlider->type(FL_HOR_NICE_SLIDER);
+		m_PainterlyBrushSizeScalerSlider->type(FL_HOR_NICE_SLIDER);
 
 		m_PainterlyThresholdSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyMaxBrushSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyMinBrushSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyGridSizeSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyLayerSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyCurvatureSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyBlurSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyAlphaSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyMaxStrokeLengthSlider->align(FL_ALIGN_RIGHT);
-		m_PainterlyMinStrokeLengthSlider->align(FL_ALIGN_RIGHT);
-
 		m_PainterlyThresholdSlider->minimum(0);
 		m_PainterlyThresholdSlider->maximum(250);
+		m_PainterlyThresholdSlider->step(1);
 		m_PainterlyThresholdSlider->value(100);
+		m_PainterlyMaxBrushSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyMaxBrushSlider->value(32);
+		m_PainterlyMaxBrushSlider->maximum(120);
+		m_PainterlyMaxBrushSlider->minimum(3);
+		m_PainterlyMaxBrushSlider->step(1);
+		m_PainterlyMinBrushSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyMinBrushSlider->value(2);
+		m_PainterlyMinBrushSlider->maximum(32);
+		m_PainterlyMinBrushSlider->minimum(1);
+		m_PainterlyMinBrushSlider->step(1);
+		m_PainterlyGridSizeSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyGridSizeSlider->value(1);
+		m_PainterlyGridSizeSlider->maximum(1);
+		m_PainterlyGridSizeSlider->minimum(0);
+		m_PainterlyGridSizeSlider->step(0.01);
+		m_PainterlyLayerSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyLayerSlider->maximum(20);
+		m_PainterlyLayerSlider->maximum(1);
+		m_PainterlyLayerSlider->step(1);
+		m_PainterlyLayerSlider->value(10);
+		m_PainterlyCurvatureSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyCurvatureSlider->value(1);
+		m_PainterlyCurvatureSlider->maximum(1);
+		m_PainterlyCurvatureSlider->maximum(0);
+		m_PainterlyCurvatureSlider->step(0.01);
+		m_PainterlyBlurSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyBlurSlider->value(0.5);
+		m_PainterlyBlurSlider->maximum(1);
+		m_PainterlyBlurSlider->minimum(0);
+		m_PainterlyBlurSlider->step(0.01);
+		m_PainterlyAlphaSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyAlphaSlider->value(1);
+		m_PainterlyAlphaSlider->maximum(1);
+		m_PainterlyAlphaSlider->minimum(0);
+		m_PainterlyAlphaSlider->step(0.01);
+		m_PainterlyMaxStrokeLengthSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyMaxStrokeLengthSlider->value(16);
+		m_PainterlyMaxStrokeLengthSlider->minimum(0);
+		m_PainterlyMaxStrokeLengthSlider->maximum(30);
+		m_PainterlyMaxStrokeLengthSlider->step(1);
+		m_PainterlyMinStrokeLengthSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyMinStrokeLengthSlider->value(4);
+		m_PainterlyMinStrokeLengthSlider->maximum(0);
+		m_PainterlyMinStrokeLengthSlider->minimum(0);
+		m_PainterlyMinStrokeLengthSlider->step(0);
+		m_PainterlyBrushSizeScalerSlider->align(FL_ALIGN_RIGHT);
+		m_PainterlyBrushSizeScalerSlider->value(0.5);
+		m_PainterlyBrushSizeScalerSlider->maximum(0.9);
+		m_PainterlyBrushSizeScalerSlider->minimum(0.1);
+		m_PainterlyBrushSizeScalerSlider->step(0.02);
+
 		// to add more here
 
 	m_PainterlyDialog->end();

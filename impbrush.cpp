@@ -40,7 +40,7 @@ char* ImpBrush::BrushName(void)
 // which is the coord at the original window to sample 
 // the color from
 //----------------------------------------------------
-void ImpBrush::SetColor (const Point source)
+void ImpBrush::SetColor (const Point source, GLubyte optional_alpha)
 {
 	ImpressionistDoc* pDoc = GetDocument();
 
@@ -49,11 +49,16 @@ void ImpBrush::SetColor (const Point source)
 	memcpy ( color, pDoc->GetOriginalPixel( source ), 3 );
 	color[3] = static_cast<GLubyte>(255.0f * m_pDoc->getAlpha());
 
+	// dirty patch
+	// just bear it, this is life
+	if (optional_alpha != 256) {
+		color[3] = optional_alpha;
+	}
+
 	for (int i = 0; i < 3; i++) {
 		if (m_pDoc->m_pUI->m_ReverseColorButton->value()) color[i] = (GLubyte) (255 - color[i] * m_pDoc->m_pUI->blendColor[i]);
 		else color[i] = (GLubyte) (color[i] * m_pDoc->m_pUI->blendColor[i]);
 	}
  
 	glColor4ubv( color );
-
 }

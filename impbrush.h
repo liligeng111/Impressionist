@@ -38,6 +38,9 @@ typedef enum
 	NUM_PAINTERLY_STYLE
 } TYPE_PAINTERLY_STYLE;
 
+// this is certainly not the good place to put this defination for painterly style and brush
+// but other enum types are here, 
+// so I cannot help also putting it here at this dirty place
 typedef enum
 {
 	PAINTERLY_BRUSH_CIRCLE = 0,
@@ -71,7 +74,7 @@ public:
 	virtual void BrushEnd( const Point source, const Point target ) = 0;
 
 	// according to the source image and the position, determine the draw color
-	void SetColor( const Point source );
+	void SetColor( const Point source , GLubyte alpha = 256);
 
 	// get Doc to communicate with it
 	ImpressionistDoc* GetDocument( void );
